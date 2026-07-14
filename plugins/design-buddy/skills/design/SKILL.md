@@ -1,6 +1,6 @@
 ---
 name: design
-description: Design partner for any source-code change — bug fix through rearchitecture/migration. Usage: `design <change description or issue ref> [quick|full|deep]`. Phase 0 (Recon) discovers the host repo with read-only subagents and writes a grounded recon dossier; Phase 1 (Debate) runs a mediated proposer-vs-adversary debate scaled to the change (quick: 1 round; full: 2–5; deep: multi-angle proposer panel) and writes a design doc with the chosen approach, rejected alternatives, and open risks. The **plan** skill then consumes both artifacts.
+description: "Design partner for any source-code change — bug fix through rearchitecture/migration. Usage: `design <change description or issue ref> [quick|full|deep]`. Phase 0 (Recon) discovers the host repo with read-only subagents and writes a grounded recon dossier; Phase 1 (Debate) runs a mediated proposer-vs-adversary debate scaled to the change (quick: 1 round; full: 2–5; deep: multi-angle proposer panel) and writes a design doc with the chosen approach, rejected alternatives, and open risks. The **plan** skill then consumes both artifacts."
 argument-hint: <change description or issue ref> [quick|full|deep]
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *)
 disable-model-invocation: true
