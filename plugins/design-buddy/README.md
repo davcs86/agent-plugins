@@ -97,6 +97,15 @@ python3 plugins/design-buddy/scripts/validate.py              # validate the plu
 python3 plugins/design-buddy/scripts/validate.py --self-test  # run its negative-fixture tests
 ```
 
+The bundled validator is the fast, dependency-free local check. For the authoritative pass —
+real YAML frontmatter parsing, marketplace schema, duplicate/kebab-case checks — also run
+Claude Code's official validator:
+
+```
+claude plugin validate .                        # the marketplace catalog
+claude plugin validate plugins/design-buddy     # the plugin (manifest + skill/agent frontmatter)
+```
+
 `validate.py` checks both plugin manifests (`.claude-plugin/plugin.json` and
 `.cursor-plugin/plugin.json`) parse and carry required fields, every skill/agent has frontmatter
 (agents carry `readonly` for the Cursor read-only contract), every `reference/`/`templates/` path

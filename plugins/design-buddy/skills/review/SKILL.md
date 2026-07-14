@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review gate for a design-buddy implementation plan — stricter than advisory. Usage: `review <plan.md path | change slug>`. A read-only reviewer subagent checks every step against the review criteria (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any BLOCKER (floor-tied finding) fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived at a gate. Run after the **plan** skill, before executing the plan.
+description: "Review gate for a design-buddy implementation plan — stricter than advisory. Usage: `review <plan.md path | change slug>`. A read-only reviewer subagent checks every step against the review criteria (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any BLOCKER (floor-tied finding) fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived at a gate. Run after the **plan** skill, before executing the plan."
 argument-hint: <plan.md path | change slug>
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *)
 disable-model-invocation: true

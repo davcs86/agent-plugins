@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Turn an approved design-buddy design doc into an evidence-grounded implementation plan with verifiable, statused steps a future session can execute one by one. Usage: `plan <design.md path | change slug | change description>`. Every step cites grep/read evidence — no invented paths or symbols. Works without a design doc too (warns, then discovers from scratch).
+description: "Turn an approved design-buddy design doc into an evidence-grounded implementation plan with verifiable, statused steps a future session can execute one by one. Usage: `plan <design.md path | change slug | change description>`. Every step cites grep/read evidence — no invented paths or symbols. Works without a design doc too (warns, then discovers from scratch)."
 argument-hint: <design.md path | slug | change description>
 allowed-tools: Read Write AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *)
 disable-model-invocation: true
