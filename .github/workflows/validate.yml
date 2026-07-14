@@ -18,3 +18,12 @@ jobs:
 
       - name: Validate marketplace manifests
         run: python3 scripts/validate_manifests.py
+
+      - name: Run per-plugin validators
+        run: |
+          shopt -s nullglob
+          for script in plugins/*/scripts/validate.py; do
+            echo "== $script =="
+            python3 "$script" --self-test
+            python3 "$script"
+          done

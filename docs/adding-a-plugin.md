@@ -36,41 +36,44 @@ receive the update (omit it to let each git commit act as a new version).
 ### Cursor manifest — `.cursor-plugin/plugin.json`
 
 Cursor's manifest schema is intentionally close to Claude Code's; `name` is
-the only required field. Cursor discovers components (skills, rules, MCP
-config) from their default directories, or you can point at custom paths.
+the only required field. Cursor discovers components (skills from `skills/`,
+subagents from `agents/`, plus rules, commands, hooks, and MCP config) from
+their default directories, or you can point at custom paths.
 
 ```json
 {
   "name": "<plugin-name>",
+  "displayName": "<Plugin Name>",
   "description": "What the plugin does",
   "version": "1.0.0",
   "author": { "name": "David Castillo", "email": "davcs86@gmail.com" },
   "license": "MIT",
-  "category": "utilities"
+  "keywords": ["utilities"]
 }
 ```
+
+#### One tree, two tools
+
+Because Cursor's `skills/`+`agents/` layout, its `SKILL.md` frontmatter, and its
+subagent `Task` tool all match Claude Code's, a plugin can serve **both tools
+from a single component tree** — no per-tool copies. Write frontmatter as a
+*union* of both tools' keys; each tool reads the keys it knows and ignores the
+rest. `design-buddy` is the worked example:
+
+- Skills keep Claude's `argument-hint`/`allowed-tools` (Cursor ignores them) and
+  add `disable-model-invocation: true` (so Cursor treats them as manual `/skill`
+  commands, matching Claude's slash-command UX).
+- Agents keep `tools: …` for Claude and add `readonly: true` so Cursor enforces
+  the same read-only contract.
+- Cursor invokes commands flat (`/design`), without Claude's `plugin:` namespace,
+  so keep skill names globally unique and phrase cross-references tool-neutrally.
 
 ## 2. Register it in both marketplace catalogs
 
-Add an entry to the `plugins` array of each catalog. The `source` is a
-relative path to the plugin directory.
-
-**`.claude-plugin/marketplace.json`** — because this catalog sets
-`metadata.pluginRoot` to `./plugins`, the `source` is written relative to that
-root (just the directory name):
-
-```json
-{
-  "name": "<plugin-name>",
-  "source": "./<plugin-name>",
-  "description": "What the plugin does"
-}
-```
-
-> Without a `pluginRoot`, Claude Code expects a full repo-relative path that
-> starts with `./`, e.g. `"./plugins/<plugin-name>"`.
-
-**`.cursor-plugin/marketplace.json`**:
+Add an entry to the `plugins` array of each catalog. The `source` is the
+plugin directory's repo-relative path, starting with `./` — the same form in
+both catalogs, so the two stay consistent (and so a plugin that ships its own
+integrity validator can resolve the entry):
 
 ```json
 {
@@ -79,6 +82,10 @@ root (just the directory name):
   "description": "What the plugin does"
 }
 ```
+
+> A catalog can instead set `metadata.pluginRoot` (e.g. `"./plugins"`) and
+> reference plugins by bare directory name. We keep explicit `./plugins/...`
+> paths so both the Claude Code and Cursor catalogs read identically.
 
 ## 3. Validate before committing
 

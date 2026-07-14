@@ -1,4 +1,4 @@
-# agent-tooling
+# agent-plugins
 
 A personal, multi-tool **agent plugin marketplace**. One repository that
 catalogs plugins for several AI coding agents, each described by its own
@@ -17,19 +17,29 @@ tools.
 > etc.) means adding its `*-plugin/marketplace.json` catalog and a matching
 > entry in `scripts/validate_manifests.py` — no restructuring required.
 
+## Plugins
+
+| Plugin | Tools | Description |
+| ------ | ----- | ----------- |
+| [`design-buddy`](plugins/design-buddy/) | Claude Code · Cursor | A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures. |
+
+`design-buddy` ships one shared `skills/` + `agents/` tree with a manifest for
+each tool. Its subagents run through the same `Task` tool on both Claude Code
+and Cursor, so it is registered in both catalogs.
+
 ## Add this marketplace to your agent
 
 ### Claude Code
 
 ```shell
-/plugin marketplace add davcs86/agent-tooling
-/plugin install <plugin-name>@agent-tooling
+/plugin marketplace add davcs86/agent-plugins
+/plugin install <plugin-name>@davcs86-agent-plugins
 ```
 
 You can also add it from a local checkout:
 
 ```shell
-/plugin marketplace add ./agent-tooling
+/plugin marketplace add ./agent-plugins
 ```
 
 ### Cursor
@@ -43,7 +53,7 @@ current add-a-marketplace flow.
 ## Repository structure
 
 ```
-agent-tooling/
+agent-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json     # Claude Code marketplace catalog
 ├── .cursor-plugin/
@@ -57,8 +67,7 @@ agent-tooling/
     └── validate.yml          # runs the validator on push / PR
 ```
 
-No plugins are published yet — the catalogs start empty. To add one, see
-[docs/adding-a-plugin.md](docs/adding-a-plugin.md).
+To add another plugin, see [docs/adding-a-plugin.md](docs/adding-a-plugin.md).
 
 ## Validate locally
 
