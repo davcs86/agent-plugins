@@ -1,130 +1,77 @@
-# my-claude-artifacts
+# agent-tooling
 
-A portfolio of AI-powered tools built with [Claude](https://anthropic.com) and Next.js 15.
+A personal, multi-tool **agent plugin marketplace**. One repository that
+catalogs plugins for several AI coding agents, each described by its own
+marketplace manifest so the same plugin set can be published to multiple
+tools.
 
-## Stack
+## Supported tools
 
-- **Next.js 15.5** (App Router, TypeScript)
-- **React 19**
-- **Tailwind CSS 3.4**
-- **@anthropic-ai/sdk**
+| Tool            | Marketplace catalog                 | Status          |
+| --------------- | ----------------------------------- | --------------- |
+| **Claude Code** | `.claude-plugin/marketplace.json`   | Supported       |
+| **Cursor**      | `.cursor-plugin/marketplace.json`   | Supported       |
+| Codex, others   | —                                   | Planned         |
 
----
+> The structure is deliberately tool-agnostic. Adding a future agent (Codex,
+> etc.) means adding its `*-plugin/marketplace.json` catalog and a matching
+> entry in `scripts/validate_manifests.py` — no restructuring required.
 
-## Local Setup
+## Add this marketplace to your agent
 
-### 1. Install dependencies
+### Claude Code
 
-```bash
-npm install
+```shell
+/plugin marketplace add davcs86/agent-tooling
+/plugin install <plugin-name>@agent-tooling
 ```
 
-### 2. Configure environment
+You can also add it from a local checkout:
 
-```bash
-cp .env.local.example .env.local
+```shell
+/plugin marketplace add ./agent-tooling
 ```
 
-Edit `.env.local` and set both variables:
+### Cursor
 
-| Variable | Description |
-|---|---|
-| `ANTHROPIC_API_KEY` | Your key from [console.anthropic.com](https://console.anthropic.com) |
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` for local dev |
+Point Cursor at this repository's Cursor catalog
+(`.cursor-plugin/marketplace.json`) as a marketplace source, then install
+individual plugins from it. See the
+[Cursor plugins documentation](https://cursor.com/docs/plugins) for the
+current add-a-marketplace flow.
 
-> **Important:** `NEXT_PUBLIC_APP_URL` must match exactly (no trailing slash) — it is used as the origin guard in the API route.
-
-### 3. Run the dev server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
----
-
-## Project Structure
+## Repository structure
 
 ```
-src/
-  app/
-    api/claude/route.ts        # Streaming route handler (server-side only)
-    globals.css                # Tailwind directives
-    layout.tsx                 # Root layout
-    page.tsx                   # Landing page / artifact list
-    rental-management/
-      page.tsx                 # Rental management chat UI
-  hooks/
-    useClaudeChat.ts           # Shared streaming chat hook
-  types/
-    claude.ts                  # Message / Role types
+agent-tooling/
+├── .claude-plugin/
+│   └── marketplace.json     # Claude Code marketplace catalog
+├── .cursor-plugin/
+│   └── marketplace.json     # Cursor marketplace catalog
+├── plugins/                 # individual plugins live here, one dir each
+├── docs/
+│   └── adding-a-plugin.md    # how to add + register a new plugin
+├── scripts/
+│   └── validate_manifests.py # validates every marketplace manifest (CI)
+└── .github/workflows/
+    └── validate.yml          # runs the validator on push / PR
 ```
 
----
+No plugins are published yet — the catalogs start empty. To add one, see
+[docs/adding-a-plugin.md](docs/adding-a-plugin.md).
 
-## How to Add a New Artifact
+## Validate locally
 
-1. **Create a new route** under `src/app/<your-artifact>/page.tsx`
-2. Mark it `'use client'` and import `useClaudeChat`
-3. Write a scoped `SYSTEM_PROMPT` constant for your artifact's domain
-4. Build a self-contained chat UI using `{ messages, send, streaming }` from the hook
-5. **Add a card** to the `artifacts` array in `src/app/page.tsx`
+The validator is standard-library Python 3 (no dependencies):
 
-```tsx
-// src/app/my-new-artifact/page.tsx
-'use client'
-
-import { useState } from 'react'
-import { useClaudeChat } from '@/hooks/useClaudeChat'
-
-const SYSTEM_PROMPT = `You are an expert in ...`
-
-export default function MyNewArtifactPage() {
-  const { messages, send, streaming } = useClaudeChat(SYSTEM_PROMPT)
-  // ... your UI
-}
+```shell
+python3 scripts/validate_manifests.py
 ```
 
-No changes to the shared route handler or hook are needed.
+It confirms each marketplace manifest is valid JSON and that every registered
+plugin resolves to a real `plugins/<name>/` directory with the required
+manifest. CI runs the same check on every push and pull request.
 
----
+## License
 
-## Vercel Deployment
-
-1. **Import** the repo at [vercel.com/new](https://vercel.com/new)
-2. **Add Environment Secrets** in the Vercel dashboard under *Settings → Environment Variables*:
-
-| Secret | Value |
-|---|---|
-| `ANTHROPIC_API_KEY` | Your Anthropic API key |
-| `NEXT_PUBLIC_APP_URL` | Your production URL, e.g. `https://my-claude-artifacts.vercel.app` |
-
-3. **Deploy** — Vercel auto-detects Next.js. The `vercel.json` sets `maxDuration: 30` on the API route to accommodate streaming response times.
-
-> On the Vercel Hobby plan, `maxDuration` is capped at 60 s; Pro allows higher limits.
-
----
-
-## Security Model
-
-### Why this public repo is safe
-
-The Anthropic API key is **never present in the client bundle**. It lives exclusively in server-side environment variables and is read only inside `src/app/api/claude/route.ts` — a Next.js Route Handler that runs on the server.
-
-### Origin guard
-
-Every request to `/api/claude` is validated before the Anthropic SDK is instantiated:
-
-```ts
-const origin = req.headers.get('origin')
-const allowedOrigin = process.env.NEXT_PUBLIC_APP_URL
-
-if (!allowedOrigin || origin !== allowedOrigin) {
-  return new Response('Forbidden', { status: 403 })
-}
-```
-
-Requests from any origin other than your configured app URL are rejected with `403` before any Anthropic API call is made. This prevents third-party sites from proxying your key by embedding your API route in their own pages.
-
-> **Note:** The origin header is set by browsers automatically and cannot be spoofed by client-side JavaScript on a different origin. Server-to-server requests (which can set arbitrary headers) are a separate threat model — rate limiting and spend alerts in the Anthropic console are recommended for production.
+[MIT](LICENSE) © 2026 David Castillo

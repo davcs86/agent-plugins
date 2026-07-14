@@ -1,0 +1,12 @@
+{
+  "name": "agent-tooling",
+  "owner": {
+    "name": "David Castillo",
+    "email": "davcs86@gmail.com"
+  },
+  "description": "Personal multi-agent plugin marketplace (Claude Code catalog)",
+  "metadata": {
+    "pluginRoot": "./plugins"
+  },
+  "plugins": []
+}
