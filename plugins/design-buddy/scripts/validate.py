@@ -6,7 +6,8 @@ manifest for each tool. Python 3 stdlib only (plugin script policy: Python, neve
   1. both plugin manifests (.claude-plugin/plugin.json, .cursor-plugin/plugin.json) and any repo
      marketplace.json parse and carry required fields;
   2. every skill SKILL.md and agent .md has YAML frontmatter with the required keys (agents carry
-     `readonly` so Cursor enforces the read-only contract that Claude expresses via `tools`);
+     `readonly` so Cursor enforces the read-only contract that Claude expresses via `tools`), and
+     no frontmatter value has an unquoted ': ' that makes YAML silently drop the whole block;
   3. every reference/... and templates/... path named in a skill's markdown resolves to a file;
   4. no host-repo-specific strings leak into the plugin (portability guard);
   5. shared reference files duplicated across skills (principles.md, config-protocol.md) are
@@ -28,6 +29,8 @@ from pathlib import Path
 
 FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---\n", re.DOTALL)
 INTERNAL_PATH_RE = re.compile(r"(?:reference|templates)/[A-Za-z0-9_./-]+\.md")
+# A single-line `key: value` frontmatter entry, capturing the value.
+FRONTMATTER_SCALAR_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*:\s+(?P<val>\S.*)$")
 # "xstockstrat" stays here as an origin-leak guard: this plugin was exported
 # from that repo and none of its host-specific strings should reappear.
 LEAK_PATTERNS = ("xstockstrat", "docs/roadmap", "docs/sdd", "services/")
@@ -65,14 +68,35 @@ def check_manifest(path, required, findings):
     return data
 
 
+def frontmatter_yaml_risks(block):
+    """Lines whose unquoted scalar value contains ': ' (colon-space).
+
+    YAML reads a colon-space inside a plain scalar as a nested mapping and rejects the whole
+    block, so at load time *every* frontmatter field is silently dropped (name, description,
+    allowed-tools, ...). A real YAML parser catches this, but this validator is stdlib-only;
+    quoting the value (e.g. `description: "... Usage: foo ..."`) fixes it.
+    """
+    risky = []
+    for line in block.splitlines():
+        m = FRONTMATTER_SCALAR_RE.match(line)
+        if m and m.group("val")[:1] not in ("'", '"') and ": " in m.group("val"):
+            risky.append(line.strip())
+    return risky
+
+
 def check_frontmatter(path, required, findings):
-    keys = frontmatter_keys(path.read_text(encoding="utf-8"))
-    if keys is None:
+    text = path.read_text(encoding="utf-8")
+    match = FRONTMATTER_RE.match(text)
+    if match is None:
         findings.append(f"MISSING: {path} has no YAML frontmatter")
         return
+    keys = frontmatter_keys(text)
     for key in required:
         if key not in keys:
             findings.append(f"MISSING: {path} frontmatter lacks '{key}'")
+    for line in frontmatter_yaml_risks(match.group(1)):
+        findings.append(f"YAML: {path} frontmatter value has an unquoted ': ' that breaks YAML "
+                        f"parsing (all fields silently dropped) — quote it: {line[:70]}")
 
 
 def check_internal_paths(skill_dir, findings):
@@ -176,7 +200,8 @@ def self_test():
         (skill / "reference" / "principles.md").write_text("version A\n", encoding="utf-8")
         skill2 = root / "skills" / "demo2"
         (skill2 / "reference").mkdir(parents=True)
-        (skill2 / "SKILL.md").write_text("---\nname: demo2\ndescription: d\n---\nBody.\n", encoding="utf-8")
+        # Unquoted colon-space in the description would make YAML drop the whole block:
+        (skill2 / "SKILL.md").write_text("---\nname: demo2\ndescription: Turn X into Y. Usage: run it\n---\nBody.\n", encoding="utf-8")
         (skill2 / "reference" / "principles.md").write_text("version B\n", encoding="utf-8")
         findings = validate(root)
         expect("missing manifest field", findings, "lacks required field 'name'")
@@ -185,6 +210,7 @@ def self_test():
         expect("agent frontmatter", findings, "bare.md has no YAML frontmatter")
         expect("leakage", findings, "host-repo string 'services/'")
         expect("shared copy drift", findings, "DRIFT:")
+        expect("colon-space yaml", findings, "YAML:")
 
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp) / "bad-json-plugin"
