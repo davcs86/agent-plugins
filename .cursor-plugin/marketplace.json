@@ -7,5 +7,6 @@
   "metadata": {
     "description": "Personal multi-agent plugin marketplace (Cursor catalog)"
   },
+  "version": "1.0.0",
   "plugins": []
 }

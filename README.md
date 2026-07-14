@@ -17,6 +17,16 @@ tools.
 > etc.) means adding its `*-plugin/marketplace.json` catalog and a matching
 > entry in `scripts/validate_manifests.py` — no restructuring required.
 
+## Plugins
+
+| Plugin | Tools | Description |
+| ------ | ----- | ----------- |
+| [`design-buddy`](plugins/design-buddy/) | Claude Code | A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures. |
+
+`design-buddy` is Claude Code–only: it orchestrates read-only subagents and
+depends on Claude Code's skill/slash-command model, so it is registered in the
+Claude Code catalog only.
+
 ## Add this marketplace to your agent
 
 ### Claude Code
@@ -57,8 +67,7 @@ agent-tooling/
     └── validate.yml          # runs the validator on push / PR
 ```
 
-No plugins are published yet — the catalogs start empty. To add one, see
-[docs/adding-a-plugin.md](docs/adding-a-plugin.md).
+To add another plugin, see [docs/adding-a-plugin.md](docs/adding-a-plugin.md).
 
 ## Validate locally
 

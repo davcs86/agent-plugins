@@ -52,25 +52,10 @@ config) from their default directories, or you can point at custom paths.
 
 ## 2. Register it in both marketplace catalogs
 
-Add an entry to the `plugins` array of each catalog. The `source` is a
-relative path to the plugin directory.
-
-**`.claude-plugin/marketplace.json`** — because this catalog sets
-`metadata.pluginRoot` to `./plugins`, the `source` is written relative to that
-root (just the directory name):
-
-```json
-{
-  "name": "<plugin-name>",
-  "source": "./<plugin-name>",
-  "description": "What the plugin does"
-}
-```
-
-> Without a `pluginRoot`, Claude Code expects a full repo-relative path that
-> starts with `./`, e.g. `"./plugins/<plugin-name>"`.
-
-**`.cursor-plugin/marketplace.json`**:
+Add an entry to the `plugins` array of each catalog. The `source` is the
+plugin directory's repo-relative path, starting with `./` — the same form in
+both catalogs, so the two stay consistent (and so a plugin that ships its own
+integrity validator can resolve the entry):
 
 ```json
 {
@@ -79,6 +64,10 @@ root (just the directory name):
   "description": "What the plugin does"
 }
 ```
+
+> A catalog can instead set `metadata.pluginRoot` (e.g. `"./plugins"`) and
+> reference plugins by bare directory name. We keep explicit `./plugins/...`
+> paths so both the Claude Code and Cursor catalogs read identically.
 
 ## 3. Validate before committing
 
