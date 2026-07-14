@@ -32,7 +32,7 @@ INTERNAL_PATH_RE = re.compile(r"(?:reference|templates)/[A-Za-z0-9_./-]+\.md")
 # from that repo and none of its host-specific strings should reappear.
 LEAK_PATTERNS = ("xstockstrat", "docs/roadmap", "docs/sdd", "services/")
 # README may name the hosting marketplace in install instructions.
-LEAK_ALLOWED_LINE_RE = re.compile(r"davcs86/agent-plugins|@agent-tooling")
+LEAK_ALLOWED_LINE_RE = re.compile(r"davcs86/agent-plugins|@davcs86-agent-plugins")
 SKILL_REQUIRED_KEYS = ("name", "description")
 AGENT_REQUIRED_KEYS = ("name", "description", "tools", "model", "readonly")
 SHARED_REFERENCE_FILES = ("principles.md", "config-protocol.md")

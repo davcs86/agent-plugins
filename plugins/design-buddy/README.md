@@ -16,7 +16,7 @@ approved design into numbered, verifiable, statused steps a future session can e
 
 ```
 /plugin marketplace add davcs86/agent-plugins
-/plugin install design-buddy@agent-tooling
+/plugin install design-buddy@davcs86-agent-plugins
 ```
 
 **Cursor**

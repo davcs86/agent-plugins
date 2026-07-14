@@ -142,7 +142,7 @@ def validate_tool(tool):
 
 
 def main():
-    print("Validating agent-tooling marketplace manifests...\n")
+    print("Validating agent-plugins marketplace manifests...\n")
 
     all_errors = []
     for tool in TOOLS:

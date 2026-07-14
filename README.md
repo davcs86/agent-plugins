@@ -1,4 +1,4 @@
-# agent-tooling
+# agent-plugins
 
 A personal, multi-tool **agent plugin marketplace**. One repository that
 catalogs plugins for several AI coding agents, each described by its own
@@ -32,14 +32,14 @@ and Cursor, so it is registered in both catalogs.
 ### Claude Code
 
 ```shell
-/plugin marketplace add davcs86/agent-tooling
-/plugin install <plugin-name>@agent-tooling
+/plugin marketplace add davcs86/agent-plugins
+/plugin install <plugin-name>@davcs86-agent-plugins
 ```
 
 You can also add it from a local checkout:
 
 ```shell
-/plugin marketplace add ./agent-tooling
+/plugin marketplace add ./agent-plugins
 ```
 
 ### Cursor
@@ -53,7 +53,7 @@ current add-a-marketplace flow.
 ## Repository structure
 
 ```
-agent-tooling/
+agent-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json     # Claude Code marketplace catalog
 ├── .cursor-plugin/
