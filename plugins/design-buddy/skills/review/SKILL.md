@@ -1,17 +1,22 @@
 ---
 name: review
-description: Review gate for a design-buddy implementation plan — stricter than advisory. Usage: /design-buddy:review <plan.md path | change slug>. A read-only reviewer subagent checks every step against the review criteria (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any BLOCKER (floor-tied finding) fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived at a gate. Run after /design-buddy:plan, before executing the plan.
+description: Review gate for a design-buddy implementation plan — stricter than advisory. Usage: `review <plan.md path | change slug>`. A read-only reviewer subagent checks every step against the review criteria (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any BLOCKER (floor-tied finding) fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived at a gate. Run after the **plan** skill, before executing the plan.
 argument-hint: <plan.md path | change slug>
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *)
+disable-model-invocation: true
 ---
 
-You run the **review gate** of the design-buddy pair: after `/design-buddy:plan`, before anyone
+You run the **review gate** of the design-buddy pair: after the **plan** skill, before anyone
 executes the plan. Unlike an advisory review, the verdict is **recorded in the plan** and gates
 it (**DN-6**): a plan with unresolved BLOCKER findings is `failed` and must not be executed;
 BLOCKERs cannot be waived.
 
 **Authority (DF-3).** You own every write and every user gate. The `reviewer` subagent is
 advisory only — it assesses; you decide, edit, and record.
+
+**Interactive gates.** Every user gate below uses a structured multiple-choice prompt — the
+`AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor), ask
+the same question, with the same options, in plain chat and wait for the answer.
 
 **Progressive disclosure.** Load each `reference/` file only at the step that needs it:
 - `reference/principles.md` — at step 1.
@@ -23,14 +28,14 @@ advisory only — it assesses; you decide, edit, and record.
 
 ### 1. Boot
 
-Read `.claude/design-buddy.json` (absent → read `reference/config-protocol.md` and run its
+Read `.agents/design-buddy.json` (absent → read `reference/config-protocol.md` and run its
 first-run interview). Read `reference/principles.md`. Scratch mode: accept a pasted plan; the
 reviewed plan (with its verdict header) is re-emitted inline instead of written.
 
 ### 2. Locate the inputs
 
 Resolve the argument: an explicit plan path, or a slug → glob `<artifactsDir>/*-<slug>/plan.md`.
-Not found → stop: "No plan found for `<arg>`. Run `/design-buddy:plan` first." Alongside the
+Not found → stop: "No plan found for `<arg>`. Run the **plan** skill first." Alongside the
 plan, read the sibling `design.md` and `recon.md` when they exist — the reviewer needs them for
 design-fidelity and host-rule checks. If the plan header's `**Status**` shows execution has
 begun (any step not `pending`), warn: review is meant to run pre-execution; on user
@@ -71,7 +76,7 @@ Edit the plan (scratch mode: re-emit inline):
 ```
 Review verdict for <slug>: <verdict>.
 Blockers: <n found, n fixed | none>. Warnings: <n addressed, n waived | none>.
-<verdict = failed: "Do not execute this plan. Fix the blockers listed in ## Review Log and re-run /design-buddy:review.">
+<verdict = failed: "Do not execute this plan. Fix the blockers listed in ## Review Log and re-run design-buddy's review skill.">
 <verdict = passed*: "The plan is ready to execute step-by-step (statuses flip; bodies stay immutable — DN-5).">
 ```
 

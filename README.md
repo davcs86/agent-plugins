@@ -21,11 +21,11 @@ tools.
 
 | Plugin | Tools | Description |
 | ------ | ----- | ----------- |
-| [`design-buddy`](plugins/design-buddy/) | Claude Code | A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures. |
+| [`design-buddy`](plugins/design-buddy/) | Claude Code · Cursor | A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures. |
 
-`design-buddy` is Claude Code–only: it orchestrates read-only subagents and
-depends on Claude Code's skill/slash-command model, so it is registered in the
-Claude Code catalog only.
+`design-buddy` ships one shared `skills/` + `agents/` tree with a manifest for
+each tool. Its subagents run through the same `Task` tool on both Claude Code
+and Cursor, so it is registered in both catalogs.
 
 ## Add this marketplace to your agent
 

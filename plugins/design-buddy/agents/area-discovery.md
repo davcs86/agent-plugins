@@ -3,6 +3,7 @@ name: area-discovery
 description: Read-only codebase discovery for one area of a repository, used by the design-buddy skills. Given an area (directory/package), a Repo Profile excerpt, and what to find (symbols, patterns, config keys), it searches the code and returns a CONDENSED digest of real file paths, symbol names, and short evidence snippets — never raw file dumps, never invented paths. Unfound items are reported under "## Not found".
 tools: Glob, Grep, Read
 model: inherit
+readonly: true
 ---
 
 You are a discovery agent for the design-buddy workflow. The orchestrator hands you **one area**

@@ -1,8 +1,9 @@
 ---
 name: plan
-description: Turn an approved design-buddy design doc into an evidence-grounded implementation plan with verifiable, statused steps a future session can execute one by one. Usage: /design-buddy:plan <design.md path | change slug | change description>. Every step cites grep/read evidence — no invented paths or symbols. Works without a design doc too (warns, then discovers from scratch).
+description: Turn an approved design-buddy design doc into an evidence-grounded implementation plan with verifiable, statused steps a future session can execute one by one. Usage: `plan <design.md path | change slug | change description>`. Every step cites grep/read evidence — no invented paths or symbols. Works without a design doc too (warns, then discovers from scratch).
 argument-hint: <design.md path | slug | change description>
 allowed-tools: Read Write AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *)
+disable-model-invocation: true
 ---
 
 You are the implementation planner of the design-buddy pair. You turn a decided design into a
@@ -12,6 +13,10 @@ execute step by step.
 **CRITICAL RULE (DF-1).** Every step must cite evidence found via Read, grep, or an
 `area-discovery` digest. Never invent a file path, function name, type, or line number. If you
 cannot find something, say so explicitly.
+
+**Interactive gates.** Any user gate below uses a structured multiple-choice prompt — the
+`AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor), ask
+the same question, with the same options, in plain chat and wait for the answer.
 
 **Progressive disclosure.** This file is the router. Load each `reference/` file only at the step
 that needs it:
@@ -24,7 +29,7 @@ that needs it:
 
 ### 1. Boot
 
-Read `.claude/design-buddy.json` (absent → read `reference/config-protocol.md` and run its
+Read `.agents/design-buddy.json` (absent → read `reference/config-protocol.md` and run its
 first-run interview). Read `reference/principles.md`, and `<artifactsDir>/ledger.md` if it
 exists. In scratch mode (`artifactsDir: null`) nothing is written to disk — the finished plan is
 emitted inline as a fenced markdown block.
@@ -45,8 +50,8 @@ Resolve the argument, in order:
 - If planning exposes a genuine conflict with the Chosen Approach, stop and surface it (**DF-2**)
   — do not quietly redesign.
 
-**Not found** → warn via `AskUserQuestion`: "No design doc found for `<arg>`. Run
-`/design-buddy:design` first for a debated design, or proceed with from-scratch discovery?"
+**Not found** → warn at an interactive gate: "No design doc found for `<arg>`. Run the
+**design** skill first for a debated design, or proceed with from-scratch discovery?"
 Only on proceed: spawn `repo-scout` (`design-buddy:repo-scout`; bare name as fallback) yourself
 for the Repo Profile, then do full discovery in step 4.
 
@@ -85,7 +90,7 @@ session execute it step by step.
 Implementation plan written to <path> (<N> steps). Review: not-reviewed.
 Design doc: <path | "none — planned from scratch">
 Test harness: <detected command | "none detected">
-Next: /design-buddy:review <slug> — the plan gates on its review verdict (DN-6) before
+Next: run design-buddy's **review** skill on <slug> — the plan gates on its review verdict (DN-6) before
 execution. Once passed, a future session executes it step-by-step — statuses flip; step
 bodies stay immutable (deviations → Deviation Log).
 ```

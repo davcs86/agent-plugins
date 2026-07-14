@@ -8,5 +8,19 @@
     "description": "Personal multi-agent plugin marketplace (Cursor catalog)"
   },
   "version": "1.0.0",
-  "plugins": []
+  "plugins": [
+    {
+      "name": "design-buddy",
+      "displayName": "Design Buddy",
+      "source": "./plugins/design-buddy",
+      "description": "A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures.",
+      "version": "1.0.0",
+      "author": {
+        "name": "David Castillo",
+        "email": "davcs86@gmail.com"
+      },
+      "license": "MIT",
+      "keywords": ["design", "architecture", "planning", "debate", "adversarial", "sdd"]
+    }
+  ]
 }

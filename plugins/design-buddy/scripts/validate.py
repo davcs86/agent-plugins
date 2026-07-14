@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Integrity validator for the design-buddy plugin.
 
-Python 3 stdlib only (plugin script policy: Python, never Bash). Checks:
-  1. plugin.json (and the repo marketplace.json, when present) parse and carry required fields;
-  2. every skill SKILL.md and agent .md has YAML frontmatter with the required keys;
+design-buddy is a dual-tool plugin (Claude Code + Cursor): one shared skills/agents tree with a
+manifest for each tool. Python 3 stdlib only (plugin script policy: Python, never Bash). Checks:
+  1. both plugin manifests (.claude-plugin/plugin.json, .cursor-plugin/plugin.json) and any repo
+     marketplace.json parse and carry required fields;
+  2. every skill SKILL.md and agent .md has YAML frontmatter with the required keys (agents carry
+     `readonly` so Cursor enforces the read-only contract that Claude expresses via `tools`);
   3. every reference/... and templates/... path named in a skill's markdown resolves to a file;
   4. no host-repo-specific strings leak into the plugin (portability guard);
   5. shared reference files duplicated across skills (principles.md, config-protocol.md) are
@@ -31,7 +34,7 @@ LEAK_PATTERNS = ("xstockstrat", "docs/roadmap", "docs/sdd", "services/")
 # README may name the hosting marketplace in install instructions.
 LEAK_ALLOWED_LINE_RE = re.compile(r"davcs86/agent-plugins|@agent-tooling")
 SKILL_REQUIRED_KEYS = ("name", "description")
-AGENT_REQUIRED_KEYS = ("name", "description", "tools", "model")
+AGENT_REQUIRED_KEYS = ("name", "description", "tools", "model", "readonly")
 SHARED_REFERENCE_FILES = ("principles.md", "config-protocol.md")
 
 
@@ -108,6 +111,7 @@ def check_shared_copies(plugin_root, findings):
 def validate(plugin_root):
     findings = []
     check_manifest(plugin_root / ".claude-plugin" / "plugin.json", ("name", "description", "version"), findings)
+    check_manifest(plugin_root / ".cursor-plugin" / "plugin.json", ("name", "description", "version"), findings)
 
     skills_dir = plugin_root / "skills"
     skill_dirs = sorted(d for d in skills_dir.glob("*") if d.is_dir()) if skills_dir.is_dir() else []
@@ -130,15 +134,19 @@ def validate(plugin_root):
     check_leakage(plugin_root, findings)
     check_shared_copies(plugin_root, findings)
 
-    # Marketplace entry (only when the plugin sits inside a marketplace repo).
-    marketplace = plugin_root.parent.parent / ".claude-plugin" / "marketplace.json"
-    if marketplace.is_file():
+    # Marketplace entries (only when the plugin sits inside a marketplace repo) — one catalog per
+    # tool, both pointing at this same plugin tree.
+    repo_root = plugin_root.parent.parent
+    for catalog_dir in (".claude-plugin", ".cursor-plugin"):
+        marketplace = repo_root / catalog_dir / "marketplace.json"
+        if not marketplace.is_file():
+            continue
         data = check_manifest(marketplace, ("name", "owner", "plugins"), findings)
         if data and isinstance(data.get("plugins"), list):
             for entry in data["plugins"]:
                 source = entry.get("source", "")
                 if isinstance(source, str) and source.startswith("./"):
-                    if not (marketplace.parent.parent / source).is_dir():
+                    if not (repo_root / source).is_dir():
                         findings.append(f"MISSING: {marketplace} plugin source '{source}' does not resolve")
     return findings
 

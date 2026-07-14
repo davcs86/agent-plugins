@@ -1,8 +1,9 @@
 # Design Buddy
 
-A repo-agnostic Claude Code plugin that turns Claude into a **design partner** for any source-code
-change — bug fix through large rearchitecture or migration — and then into an **implementation
-planner** whose every step is grounded in evidence from the target codebase.
+A repo-agnostic plugin — for both **Claude Code** and **Cursor** — that turns the agent into a
+**design partner** for any source-code change — bug fix through large rearchitecture or
+migration — and then into an **implementation planner** whose every step is grounded in evidence
+from the target codebase. One shared `skills/` + `agents/` tree serves both tools.
 
 It is a portable export of a spec-driven-development methodology: a read-only recon pass builds a
 grounded dossier of the repo, a **mediated proposer-vs-adversary debate** pressure-tests one
@@ -11,18 +12,29 @@ approved design into numbered, verifiable, statused steps a future session can e
 
 ## Install
 
+**Claude Code**
+
 ```
 /plugin marketplace add davcs86/agent-plugins
 /plugin install design-buddy@agent-tooling
 ```
 
+**Cursor**
+
+Add this repository as a plugin marketplace source, then install **design-buddy** from it — see
+the [Cursor plugins docs](https://cursor.com/docs/plugins). Cursor discovers the plugin's
+`skills/` and `agents/` directly, and its subagents run through the same `Task` tool.
+
 ## Skills
+
+Invoke each as a slash command: `/design-buddy:design` in Claude Code (plugin-namespaced), or
+`/design` in Cursor (flat, un-namespaced command names — so `/design`, `/plan`, `/review`).
 
 | Skill | What it does |
 |---|---|
-| `/design-buddy:design <change description or issue ref> [quick\|full\|deep]` | Recon (repo scout + parallel area discovery → `recon.md`) then a depth-scaled adversarial debate → `design.md` with the chosen approach, rejected alternatives, and open risks. |
-| `/design-buddy:plan <design.md path \| slug \| change description>` | Consumes the design doc (or warns and discovers from scratch) and writes `plan.md`: numbered steps, each with Files / Evidence / Instructions / Verification / Test, executable step-by-step by a later session. |
-| `/design-buddy:review <plan.md path \| slug>` | Review gate for the plan — **stricter than advisory**. A reviewer subagent checks every step (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any floor-tied BLOCKER fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived, with everything logged in `## Review Log`. |
+| `design <change description or issue ref> [quick\|full\|deep]` | Recon (repo scout + parallel area discovery → `recon.md`) then a depth-scaled adversarial debate → `design.md` with the chosen approach, rejected alternatives, and open risks. |
+| `plan <design.md path \| slug \| change description>` | Consumes the design doc (or warns and discovers from scratch) and writes `plan.md`: numbered steps, each with Files / Evidence / Instructions / Verification / Test, executable step-by-step by a later session. |
+| `review <plan.md path \| slug>` | Review gate for the plan — **stricter than advisory**. A reviewer subagent checks every step (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any floor-tied BLOCKER fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived, with everything logged in `## Review Log`. |
 
 ### Debate depths
 
@@ -43,12 +55,14 @@ Five read-only agents do the heavy lifting so the orchestrating session stays le
 `repo-scout` (once-per-run repo orientation), `area-discovery` (per-area evidence digests),
 `proposer` (one cited design per round), `adversary` (attacks it, citing rules by ID), and
 `reviewer` (verdicts the finished plan against the review criteria). Proposer and adversary
-never see each other's raw output — the skill mediates every round.
+never see each other's raw output — the skill mediates every round. Each agent declares its
+read-only contract for both tools: `tools: Glob, Grep, Read` (Claude Code) and `readonly: true`
+(Cursor). Only the orchestrating skill ever writes.
 
 ## First run & configuration
 
 On first use in a repo, the skill asks where to store artifacts and writes
-`.claude/design-buddy.json`:
+`.agents/design-buddy.json` (a tool-neutral location both Claude Code and Cursor recognize):
 
 ```json
 { "version": 1, "artifactsDir": "docs/design", "ledger": true, "created": "2026-07-13" }
@@ -83,6 +97,7 @@ python3 plugins/design-buddy/scripts/validate.py              # validate the plu
 python3 plugins/design-buddy/scripts/validate.py --self-test  # run its negative-fixture tests
 ```
 
-`validate.py` checks the manifests parse and carry required fields, every skill/agent has
-frontmatter, every `reference/`/`templates/` path named in a SKILL.md resolves, and no
-host-repo-specific strings leak into the plugin.
+`validate.py` checks both plugin manifests (`.claude-plugin/plugin.json` and
+`.cursor-plugin/plugin.json`) parse and carry required fields, every skill/agent has frontmatter
+(agents carry `readonly` for the Cursor read-only contract), every `reference/`/`templates/` path
+named in a SKILL.md resolves, and no host-repo-specific strings leak into the plugin.

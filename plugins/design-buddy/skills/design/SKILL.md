@@ -1,8 +1,9 @@
 ---
 name: design
-description: Design partner for any source-code change — bug fix through rearchitecture/migration. Usage: /design-buddy:design <change description or issue ref> [quick|full|deep]. Phase 0 (Recon) discovers the host repo with read-only subagents and writes a grounded recon dossier; Phase 1 (Debate) runs a mediated proposer-vs-adversary debate scaled to the change (quick: 1 round; full: 2–5; deep: multi-angle proposer panel) and writes a design doc with the chosen approach, rejected alternatives, and open risks. /design-buddy:plan then consumes both artifacts.
+description: Design partner for any source-code change — bug fix through rearchitecture/migration. Usage: `design <change description or issue ref> [quick|full|deep]`. Phase 0 (Recon) discovers the host repo with read-only subagents and writes a grounded recon dossier; Phase 1 (Debate) runs a mediated proposer-vs-adversary debate scaled to the change (quick: 1 round; full: 2–5; deep: multi-angle proposer panel) and writes a design doc with the chosen approach, rejected alternatives, and open risks. The **plan** skill then consumes both artifacts.
 argument-hint: <change description or issue ref> [quick|full|deep]
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *)
+disable-model-invocation: true
 ---
 
 You run the **design phase** for a requested code change in the host repository. It produces two
@@ -14,6 +15,10 @@ instead of improvising both.
 gate. The subagents you spawn are advisory only — they locate and argue; they never write. You
 mediate every exchange (**DF-4**): debate participants never see each other's raw output, only
 the state you synthesize and pass.
+
+**Interactive gates.** Every user gate below uses a single structured multiple-choice prompt —
+the `AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor),
+ask the same question, with the same options, in plain chat and wait for the answer.
 
 **Progressive disclosure.** This file is the always-loaded router. Load each `reference/` file
 only when its step activates — do not read them up front:
@@ -33,7 +38,7 @@ only when its step activates — do not read them up front:
 
 ## BOOT SEQUENCE
 
-**B0 — Config.** Read `.claude/design-buddy.json` at the host repo root. Present → load
+**B0 — Config.** Read `.agents/design-buddy.json` at the host repo root. Present → load
 `artifactsDir` (a directory, or `null` = scratch mode) and `ledger`, and announce them in one
 line. Absent → read `reference/config-protocol.md` and run its first-run interview, then
 continue.
@@ -95,7 +100,7 @@ Alternatives, Open Risks, Principles & Host Rules Touched, Waivers.
    ```
    Design approved for <slug> (<depth>, <N> rounds).
    Artifacts: <dir>/recon.md, <dir>/design.md
-   Next: /design-buddy:plan <slug>
+   Next: run design-buddy's **plan** skill on <slug>
    ```
 
 ## HARD CONSTRAINTS — never violate

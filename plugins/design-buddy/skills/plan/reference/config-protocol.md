@@ -1,10 +1,10 @@
 # design-buddy — config protocol
 
-Load this only when `.claude/design-buddy.json` is absent (first run in a repo) or unreadable.
+Load this only when `.agents/design-buddy.json` is absent (first run in a repo) or unreadable.
 
 ## The config file
 
-`.claude/design-buddy.json` at the host repo root — committable, so a team shares one setting.
+`.agents/design-buddy.json` at the host repo root — committable, so a team shares one setting.
 Whether to gitignore it is the host repo's call. Schema (version 1):
 
 ```json
@@ -22,7 +22,9 @@ Whether to gitignore it is the host repo's call. Schema (version 1):
 
 ## First-run interview
 
-Ask once, via a single `AskUserQuestion` with two questions:
+Ask once — a single structured multiple-choice prompt (the `AskUserQuestion` tool in Claude
+Code; where it's unavailable, e.g. under Cursor, ask the same thing in plain chat) — with two
+questions:
 
 1. **Where should design-buddy store its artifacts (recon/design/plan docs)?**
    - `docs/design/` (recommended) — durable, reviewable design records committed with the code.
@@ -36,7 +38,7 @@ Ask once, via a single `AskUserQuestion` with two questions:
 
 Then, with the Write tool (never a script):
 
-1. Write `.claude/design-buddy.json` (create `.claude/` if missing).
+1. Write `.agents/design-buddy.json` (create `.agents/` if missing).
 2. If `ledger: true` and `<artifactsDir>/ledger.md` is absent, seed it:
 
 ```markdown
