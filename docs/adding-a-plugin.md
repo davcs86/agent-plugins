@@ -87,7 +87,26 @@ integrity validator can resolve the entry):
 > reference plugins by bare directory name. We keep explicit `./plugins/...`
 > paths so both the Claude Code and Cursor catalogs read identically.
 
-## 3. Validate before committing
+## 3. Keep it semver-compliant
+
+`version` must be `MAJOR.MINOR.PATCH` (an optional `-prerelease` and/or
+`+build` suffix is allowed) — that's what lets Claude Code and Cursor tell
+users an update is available. Bump it on every release:
+
+- **PATCH** (`1.0.0` → `1.0.1`) — bug fixes, wording tweaks, no behavior change
+- **MINOR** (`1.0.1` → `1.1.0`) — backward-compatible additions (new skill,
+  new optional field)
+- **MAJOR** (`1.1.0` → `2.0.0`) — breaking changes (renamed/removed skill or
+  command, changed required inputs)
+
+Start a new plugin at `0.1.0` if it's not yet stable, or `1.0.0` if it is.
+
+If a plugin ships both manifests, their `version` fields must be **exactly
+identical** — `scripts/validate_manifests.py` fails the build on any
+mismatch, since a stale version on one tool means that tool's users never see
+the update.
+
+## 4. Validate before committing
 
 Run the validator (standard-library Python 3, no dependencies):
 
@@ -97,10 +116,11 @@ python3 scripts/validate_manifests.py
 
 It fails if a registered plugin has no matching `plugins/<name>/` directory,
 is missing the required manifest for that tool, or if any manifest is invalid
-JSON. CI runs the same check on every push and pull request, so a green local
-run means a green pipeline.
+JSON or non-semver, including a version mismatch between a plugin's own
+manifests. CI runs the same check on every push and pull request, so a green
+local run means a green pipeline.
 
-## 4. Commit
+## 5. Commit
 
 Commit the new plugin directory and both updated catalogs together so the
 marketplace stays internally consistent.

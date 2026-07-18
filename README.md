@@ -58,16 +58,26 @@ agent-plugins/
 │   └── marketplace.json     # Claude Code marketplace catalog
 ├── .cursor-plugin/
 │   └── marketplace.json     # Cursor marketplace catalog
-├── plugins/                 # individual plugins live here, one dir each
+├── .claude/
+│   ├── settings.json         # PostToolUse hook: re-validate manifests on edit
+│   ├── agents/
+│   │   └── manifest-parity-reviewer.md  # read-only manifest/semver auditor
+│   └── skills/
+│       └── scaffold-plugin/  # scaffolds a new plugin + registers it
+├── .mcp.json                 # project-scoped GitHub MCP server
+├── plugins/                  # individual plugins live here, one dir each
 ├── docs/
 │   └── adding-a-plugin.md    # how to add + register a new plugin
 ├── scripts/
-│   └── validate_manifests.py # validates every marketplace manifest (CI)
+│   ├── validate_manifests.py # validates every marketplace manifest (CI)
+│   └── hooks/
+│       └── validate_on_edit.py  # the PostToolUse hook's implementation
 └── .github/workflows/
     └── validate.yml          # runs the validator on push / PR
 ```
 
-To add another plugin, see [docs/adding-a-plugin.md](docs/adding-a-plugin.md).
+To add another plugin, see [docs/adding-a-plugin.md](docs/adding-a-plugin.md)
+— or run `/scaffold-plugin` in Claude Code to have it scaffolded for you.
 
 ## Validate locally
 
@@ -77,9 +87,12 @@ The validator is standard-library Python 3 (no dependencies):
 python3 scripts/validate_manifests.py
 ```
 
-It confirms each marketplace manifest is valid JSON and that every registered
+It confirms each marketplace manifest is valid JSON, that every registered
 plugin resolves to a real `plugins/<name>/` directory with the required
-manifest. CI runs the same check on every push and pull request.
+manifest, and that every plugin manifest's `version` is valid semver and
+identical across every tool the plugin targets. CI runs the same check on
+every push and pull request, and a `.claude/settings.json` hook reruns it
+automatically whenever a manifest is edited in a Claude Code session.
 
 ## License
 

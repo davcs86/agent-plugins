@@ -10,6 +10,11 @@ It checks, for each supported agent tool (Claude Code and Cursor):
 2. The marketplace has the required top-level fields (``name``, ``plugins``).
 3. Every plugin listed in ``marketplace.json`` resolves to a directory under
    ``plugins/<name>/`` that contains the tool-specific plugin manifest.
+4. That manifest's ``version`` is present and is valid MAJOR.MINOR.PATCH
+   semver (optionally with a ``-prerelease`` and/or ``+build`` suffix).
+5. When a plugin ships manifests for more than one tool, their ``version``
+   fields are identical — a mismatch means one tool's users are stuck on a
+   stale (or ahead-of-schedule) release.
 
 It prints a clear pass/fail summary and exits non-zero on any failure so it
 can gate a CI pipeline.
@@ -18,7 +23,9 @@ Adding a new agent tool later is a matter of appending an entry to ``TOOLS``.
 """
 
 import json
+import re
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 # Repository root (this file lives in <root>/scripts/).
@@ -44,6 +51,11 @@ TOOLS = [
     },
 ]
 
+# MAJOR.MINOR.PATCH, with optional -prerelease and +build metadata suffixes
+# (https://semver.org). Deliberately looser than the spec's numeric-only
+# prerelease-identifier rule to keep this stdlib-only script simple.
+SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
+
 
 def _plugin_dir_name(source, name):
     """Resolve the plugins/ subdirectory name for a marketplace entry.
@@ -65,8 +77,13 @@ def _plugin_dir_name(source, name):
     return None
 
 
-def validate_tool(tool):
-    """Validate one tool's marketplace file. Returns a list of error strings."""
+def validate_tool(tool, plugin_versions):
+    """Validate one tool's marketplace file. Returns a list of error strings.
+
+    ``plugin_versions`` is a ``{plugin_name: {tool_label: version}}`` map that
+    this call adds its findings to, so the caller can cross-check version
+    parity across tools once every tool has been validated.
+    """
     errors = []
     label = tool["label"]
     marketplace_path = tool["marketplace"]
@@ -133,11 +150,35 @@ def validate_tool(tool):
             continue
 
         try:
-            json.loads(manifest.read_text(encoding="utf-8"))
+            manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             errors.append(f"[{label}] plugin '{name}' has invalid manifest JSON "
                           f"({manifest.relative_to(ROOT)}): {exc}")
+            continue
 
+        version = manifest_data.get("version")
+        if version is None:
+            errors.append(f"[{label}] plugin '{name}' manifest is missing required "
+                          f"'version' ({manifest.relative_to(ROOT)})")
+        elif not isinstance(version, str) or not SEMVER_RE.match(version):
+            errors.append(f"[{label}] plugin '{name}' has a non-semver version "
+                          f"'{version}' ({manifest.relative_to(ROOT)}) — expected "
+                          f"MAJOR.MINOR.PATCH, e.g. 1.2.3")
+        else:
+            plugin_versions[name][label] = version
+
+    return errors
+
+
+def check_version_parity(plugin_versions):
+    """Flag plugins whose semver-valid version differs across tool manifests."""
+    errors = []
+    for name, versions_by_tool in sorted(plugin_versions.items()):
+        distinct = set(versions_by_tool.values())
+        if len(distinct) > 1:
+            detail = ", ".join(f"{label}={version}"
+                                for label, version in sorted(versions_by_tool.items()))
+            errors.append(f"plugin '{name}' has mismatched versions across tools: {detail}")
     return errors
 
 
@@ -145,12 +186,15 @@ def main():
     print("Validating agent-plugins marketplace manifests...\n")
 
     all_errors = []
+    plugin_versions = defaultdict(dict)
     for tool in TOOLS:
-        errors = validate_tool(tool)
+        errors = validate_tool(tool, plugin_versions)
         count = len(tool_plugins(tool))
         status = "FAIL" if errors else "ok"
         print(f"  [{status}] {tool['label']}: {count} plugin(s) registered")
         all_errors.extend(errors)
+
+    all_errors.extend(check_version_parity(plugin_versions))
 
     print()
     if all_errors:
