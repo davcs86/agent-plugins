@@ -71,11 +71,12 @@ unchanged. To enable Context7 specifically, add it to your host repo's MCP confi
 ```
 
 **Refresh vs. write.** `write` forges from a full scan. `refresh` is the keep-it-current mode: it
-diffs each target from its **own** last-forged commit (a per-target baseline, so a scoped write to
-one module never throws off another module's or the repo's baseline), re-derives only the changed
-areas, flags rules whose citations went stale, and applies the approved deltas — without re-emitting
-unchanged rules. `refresh … check` reports drift and writes nothing, so it is safe to run in CI or on
-a schedule.
+diffs each target from **git** — the last commit that wrote that target's `constitution.md`, so a
+scoped write to one module never throws off another's baseline and a **manual edit** to a constitution
+is respected like any other commit — re-derives only the changed areas, flags rules whose citations
+went stale, and applies the approved deltas without re-emitting unchanged rules. No baseline is stored
+anywhere; git is the source of truth. `refresh … check` reports drift and writes nothing, so it is
+safe to run in CI or on a schedule.
 
 First run in a repo asks two questions (where to write each `constitution.md`, and whether the
 contract should cite the generated IDs) and saves them to `.agents/constitution-forge.json`.
