@@ -18,6 +18,18 @@
       },
       "license": "MIT",
       "keywords": ["design", "architecture", "planning", "debate", "adversarial", "sdd"]
+    },
+    {
+      "name": "constitution-forge",
+      "displayName": "Constitution Forge",
+      "source": "./plugins/constitution-forge",
+      "description": "Extracts a repo's hidden patterns, asymmetries, cross-module contracts, and git-history scars — the tribal knowledge an agent misses on a normal read — into an evidence-cited constitution.md (per module and repo-wide for monorepos), and prepends a concise behavioral contract to each CLAUDE.md. Invents nothing; every rule is grounded.",
+      "author": {
+        "name": "David Castillo",
+        "email": "davcs86@gmail.com"
+      },
+      "license": "MIT",
+      "keywords": ["constitution", "claude-md", "governance", "conventions", "behavioral-contract", "monorepo", "codebase-analysis"]
     }
   ]
 }

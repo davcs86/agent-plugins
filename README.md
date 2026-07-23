@@ -22,6 +22,7 @@ tools.
 | Plugin | Tools | Description |
 | ------ | ----- | ----------- |
 | [`design-buddy`](plugins/design-buddy/) | Claude Code · Cursor | A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures. |
+| [`constitution-forge`](plugins/constitution-forge/) | Claude Code · Cursor | Extracts a repo's hidden patterns, cross-module contracts, and git-history scars — the tribal knowledge an agent misses on a normal read — into an evidence-cited `constitution.md` (per module and repo-wide for monorepos) and prepends a concise behavioral contract to each `CLAUDE.md`. |
 
 `design-buddy` ships one shared `skills/` + `agents/` tree with a manifest for
 each tool. Its subagents run through the same `Task` tool on both Claude Code
