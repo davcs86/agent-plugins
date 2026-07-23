@@ -18,6 +18,18 @@
       },
       "license": "MIT",
       "keywords": ["design", "architecture", "planning", "debate", "adversarial", "sdd"]
+    },
+    {
+      "name": "constitution-forge",
+      "displayName": "Constitution Forge",
+      "source": "./plugins/constitution-forge",
+      "description": "Reverse-engineers a repo's implicit rules into an evidence-cited constitution.md (per module and repo-wide for monorepos) and prepends a concise behavioral contract to each CLAUDE.md — behaviors up top, facts in the constitution, nothing invented.",
+      "author": {
+        "name": "David Castillo",
+        "email": "davcs86@gmail.com"
+      },
+      "license": "MIT",
+      "keywords": ["constitution", "claude-md", "governance", "conventions", "behavioral-contract", "monorepo", "codebase-analysis"]
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "name": "constitution-forge",
+  "displayName": "Constitution Forge",
+  "version": "0.1.0",
+  "description": "Reverse-engineers a repo's implicit rules into an evidence-cited constitution.md (per module and repo-wide for monorepos) and prepends a concise behavioral contract to each CLAUDE.md — behaviors up top, facts in the constitution, nothing invented.",
+  "author": {
+    "name": "davcs86",
+    "email": "davcs86@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["constitution", "claude-md", "governance", "conventions", "behavioral-contract", "monorepo", "codebase-analysis"]
+}
