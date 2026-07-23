@@ -3,10 +3,10 @@
   bearing: on re-run the skill finds this exact start/end pair and replaces the block in place,
   so a re-run never stacks a second copy. Do not remove or edit the markers by hand.
 
-  Two forms: the generic block (citeIds:false, or no constitution for this target) and the cited
-  variant (citeIds:true) where each behavior gains a "(enforced by <IDS>)" tail referencing the
-  constitution IDs generated for this target. Only the generic block is shown here; the synthesis
-  protocol (reference/synthesis-protocol.md, Step 7) defines the citation tails.
+  This file is the SINGLE SOURCE of the contract block — synthesis-protocol.md Step 6 points here
+  rather than re-inlining it, so the two never drift. Two forms: the generic block below (citeIds:false,
+  or no constitution for this target) and the cited variant (citeIds:true) where each behavior gains a
+  "(enforced by <IDS>)" tail; those citation tails are defined in reference/synthesis-protocol.md Step 6.
 -->
 <!-- constitution-forge:behavioral-contract:start -->
 ## How to Act

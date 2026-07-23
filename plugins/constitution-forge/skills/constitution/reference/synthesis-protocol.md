@@ -94,31 +94,10 @@ modules, not inside one). Before writing a module rule, confirm it isn't already
 
 ## Step 6 — Build the behavioral contract
 
-Same four behaviors for every repo (that portability is the point). Wrap in sentinel markers so
-re-runs replace in place. Canonical block:
-
-```markdown
-<!-- constitution-forge:behavioral-contract:start -->
-## How to Act
-
-Read this first — it governs *how* you work here; everything below is the *what* you work with.
-These four behaviors are the operating defaults; the rest of this file (and the constitution) is
-context you load per task.
-
-1. **Don't assume — ask, and surface tradeoffs.** On ambiguity, a missing detail, or a design fork,
-   stop and raise it; never paper over it with a silent guess.
-2. **Write the minimum that solves the stated problem.** Nothing speculative — no abstraction,
-   option, or "while I'm here" scaffolding the task didn't ask for. Would a senior engineer call it
-   overbuilt for what was requested? Then simplify.
-3. **Touch only what the task requires.** Keep diffs surgical and auditable; clean up orphans *you*
-   introduced, but don't reformat or "improve" code nobody asked you to touch.
-4. **Define success up front, then loop until verified.** State the pass condition before you start,
-   then run to it — write the check, run it, fix, re-run — and don't declare victory mid-loop.
-
-> Litmus test for any future line in this file: *does it shape how the agent thinks (a behavior), or
-> restate a fact the agent can read from the code?* If it's a fact already in the repo, leave it out.
-<!-- constitution-forge:behavioral-contract:end -->
-```
+Same four behaviors for every repo (that portability is the point). The canonical block — including
+the load-bearing `<!-- constitution-forge:behavioral-contract:start -->` … `:end` sentinels that let
+a re-run replace it in place — is **`templates/behavioral-contract.md`**. Use it verbatim; it is the
+single source, so the block never drifts between the template and this protocol.
 
 **Citation variant (`citeIds: true`).** When this target produced a constitution, append to each
 behavior a short pointer to the IDs that enforce it — anchoring the generic principle to the local,

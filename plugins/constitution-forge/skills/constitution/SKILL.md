@@ -7,7 +7,7 @@ disable-model-invocation: true
 ---
 
 You capture the knowledge an agent would **miss on a normal-effort read** — and thereby cause
-rework — into two durable, complementary artifacts:
+rework — into durable, complementary artifacts (two core; a third when defects surface):
 
 - a **`constitution.md`**: the repo's *non-obvious* invariants — undocumented patterns followed
   across many files, asymmetries (the one file that breaks a pattern), implicit cross-module
@@ -137,9 +137,10 @@ Read **`reference/synthesis-protocol.md`** and follow it. Per target (each modul
    inherited rules — never restates them. Cross-module contracts and repo-wide defects live at the root.
 4. **Evidence or candidate (CF-1).** Every emitted rule cites `path:line` (or a commit). Anything
    plausible but unverified goes under `## Candidate rules (unverified)`, never asserted.
-5. **Build the behavioral contract** from the four behaviors (`reference/synthesis-protocol.md` holds
-   the canonical text). If `citeIds` is on and this target produced a constitution, each behavior cites
-   the IDs that enforce it; otherwise the generic phrasing stands alone.
+5. **Build the behavioral contract** from `templates/behavioral-contract.md` (the canonical block —
+   single source); `reference/synthesis-protocol.md` Step 6 covers the `citeIds` variant. If `citeIds`
+   is on and this target produced a constitution, each behavior cites the IDs that enforce it;
+   otherwise the generic block stands alone.
 
 **GATE** via `AskUserQuestion`, showing: the target list, each constitution's rule counts by tier, the
 unverified-candidate count, the **findings-log count** (defects/doc-lies), and the exact contract block

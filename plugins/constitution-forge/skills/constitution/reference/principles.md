@@ -47,6 +47,15 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   A line that restates a doc the agent already loads, a CI gate, something visible in the single file
   it would edit, or a dependency list in a manifest **fails** — the agent finds it for free. The
   constitution earns its cost only by holding what an agent would otherwise *miss*.
+- **CF-N5 — Preserve the host's own IDs — but only extend a scheme of the *same kind*.** If the repo
+  already has a constitution or ID'd rule scheme, extend it in its own style and numbering rather than
+  imposing this skill's `CF-*` prefix. **However**, only fold new rules into an existing scheme when it
+  governs the *same kind* of rule. If the host's scheme is, say, a process/workflow constitution
+  (review gates, branch policy) and you are deriving *codebase invariants* (runtime contracts, pool
+  budgets, alignment rules), do **not** renumber into it — that conflates two different rule families.
+  Use a clearly-labeled **sibling namespace** (e.g. `PLAT-*` for the repo, `<MODULE>-*` per module) and
+  cross-reference the existing IDs where they overlap. `CF-*` names *this skill's* governance, never
+  the constitutions it writes.
 - **CF-N6 — Capture the non-obvious, not the documented.** The file's purpose is Tier 2/3 knowledge:
   undocumented emergent patterns, asymmetries (the one file that breaks a pattern), implicit
   cross-module contracts, and scars (*why* something is the way it is / "looks wrong but is
@@ -59,15 +68,6 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   something an agent can look up and is a pointer at most. When a documentation-lookup tool (e.g.
   Context7) is available, use it to make this call (`reference/library-docs.md`); when it isn't, fall
   back to consistency-based judgment — the integration is optional and never blocks a run.
-- **CF-N5 — Preserve the host's own IDs — but only extend a scheme of the *same kind*.** If the repo
-  already has a constitution or ID'd rule scheme, extend it in its own style and numbering rather than
-  imposing this skill's `CF-*` prefix. **However**, only fold new rules into an existing scheme when it
-  governs the *same kind* of rule. If the host's scheme is, say, a process/workflow constitution
-  (review gates, branch policy) and you are deriving *codebase invariants* (runtime contracts, pool
-  budgets, alignment rules), do **not** renumber into it — that conflates two different rule families.
-  Use a clearly-labeled **sibling namespace** (e.g. `PLAT-*` for the repo, `<MODULE>-*` per module) and
-  cross-reference the existing IDs where they overlap. `CF-*` names *this skill's* governance, never
-  the constitutions it writes.
 - **CF-N8 — No silent drops (capture everything we paid to find).** A scan costs real tokens, so
   nothing a scout grounded is ever discarded. Every finding lands in a durable home: a tiered rule, a
   `## Pointers` line, a `## Gotchas & scars` entry, a `## Candidate rules (unverified)` row, or the
