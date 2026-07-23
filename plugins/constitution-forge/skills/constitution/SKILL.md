@@ -2,7 +2,7 @@
 name: constitution
 description: "Reverse-engineer a repository's implicit rules into a durable constitution and prepend a concise behavioral contract to its CLAUDE.md. Usage: `constitution [scan|write] [path]`. Phase 0 (Scan) discovers the repo with read-only subagents — module map, stated hard rules, CI-enforced checks, conventions — and, for a monorepo, runs one scoped scan per module plus a repo-wide pass. Phase 1 (Synthesize) clusters the findings into an evidence-cited, ID'd constitution.md (per module, then root) and builds the four-behavior contract. Phase 2 (Write) writes each constitution and idempotently prepends the contract to each CLAUDE.md. Every rule cites path:line; nothing is invented."
 argument-hint: "[scan|write] [path]"
-allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *)
+allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *) mcp__Context7__resolve-library-id mcp__Context7__query-docs
 disable-model-invocation: true
 ---
 
@@ -45,6 +45,8 @@ when its step activates — do not read them up front:
 - `reference/scan-protocol.md` — at the start of Phase 0.
 - `reference/monorepo-protocol.md` — only when Phase 0 detects a monorepo.
 - `reference/synthesis-protocol.md` — at the start of Phase 1.
+- `reference/library-docs.md` — only when classifying a third-party-library usage **and** a
+  documentation-lookup MCP tool (e.g. Context7) is available. Optional enhancement; skip if absent.
 
 ## Arguments
 

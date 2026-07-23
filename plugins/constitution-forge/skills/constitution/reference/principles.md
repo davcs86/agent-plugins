@@ -53,6 +53,12 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   intentional"). Rules the repo already states or CI already enforces are **pointers**, at most —
   one line each, never restated as constitution rules. A finding is more valuable the harder it
   would be for an agent to discover on its own.
+- **CF-N7 — Library usage is judged as deviation vs. default.** A finding about how the repo uses a
+  third-party library earns a rule only if it **deviates** from the library's documented default
+  (a custom setting, a non-obvious option, a documented workaround); usage that matches the docs is
+  something an agent can look up and is a pointer at most. When a documentation-lookup tool (e.g.
+  Context7) is available, use it to make this call (`reference/library-docs.md`); when it isn't, fall
+  back to consistency-based judgment — the integration is optional and never blocks a run.
 - **CF-N5 — Preserve the host's own IDs.** If the repo already has a constitution or an ID'd rule
   scheme, extend it in its own style and numbering — never impose this skill's `CF-*` prefix on the
   host's rules. `CF-*` names *this skill's* governance, not the constitutions it writes.

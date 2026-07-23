@@ -51,6 +51,11 @@ Report it under `## Ask the human` or `## Candidates`, phrased as a question.
    - test layout & fixtures (how a new test is wired, required coverage patterns).
    For each consistent pattern with **no doc stating it**, report: the pattern, the sites (cite),
    and — critically — **the wrong default an agent would reach for instead** (the rework it prevents).
+   If the pattern is really about a **third-party library** (a configured timeout, pool size, retry,
+   client option, init order), tag it `library: <dependency name from the manifest>` and name the
+   specific option — the orchestrator may cross-check it against the library's docs to decide whether
+   it is a deviation worth a rule or just the documented default. Do not look it up yourself; you are
+   read-only over the repo.
 
 3. **Asymmetries (landmines).** Where a pattern is consistent *except* for one or two sites, report
    the norm, the deviant site (cite both), and whether the deviation looks intentional (a documented

@@ -27,6 +27,15 @@ For every candidate line, from any source, ask:
 
 This cut comes *before* tiering so you never spend effort ID'ing a rule that shouldn't exist.
 
+**Library-usage findings — classify with docs (optional, CF-N7).** For a finding that is really about
+how the repo uses a third-party library, the litmus turns on one question: *is this a deviation from
+the library's documented default, or the default itself?* If a documentation-lookup MCP tool
+(e.g. Context7) is available, read `reference/library-docs.md` and use it to decide — a **deviation**
+(custom timeout, non-default option, a documented-elsewhere workaround) is high-value and stays (its
+*why* is often a scar); usage that merely **matches the docs** is something an agent can look up, so
+it drops to a `## Pointers` line or out entirely. If no docs tool is available, judge from
+consistency alone and don't block on it.
+
 ## Step 3 — Cluster into rules and assign a tier
 
 Group surviving findings (two citations enforcing one intent = one rule). Tier by strength, using
