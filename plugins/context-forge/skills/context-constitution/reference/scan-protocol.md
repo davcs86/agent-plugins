@@ -1,4 +1,4 @@
-# constitution-forge — scan protocol (Phase 0)
+# context-forge — scan protocol (Phase 0)
 
 Goal: gather the **non-obvious** knowledge a constitution is built from — the patterns, asymmetries,
 contracts, and scars an agent would miss on a normal read — without loading whole files into the
@@ -54,7 +54,7 @@ finding earns a durable home.
      (Benchmark: a positions-parity fix left three other paths recomputing the wrong way; a camelCase
      fix corrected the outbound path but not the inbound one.)
 
-4. **Detect merge targets.** For each target dir, note whether a `CLAUDE.md` and `constitution.md`
+4. **Detect merge targets.** For each target dir, note whether a `CLAUDE.md` and `context-constitution.md`
    already exist (the scout reports these) — inputs to synthesis, not overwrite targets.
 
 5. **Do not synthesize yet.** Phase 0 only gathers. Clustering, the inclusion cut, tiering, and the

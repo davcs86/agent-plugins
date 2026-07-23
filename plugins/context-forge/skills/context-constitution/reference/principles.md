@@ -1,8 +1,16 @@
-# constitution-forge — principles
+# context-forge — principles
 
-The rules the **`/constitution`** skill holds itself to while forging a constitution for a host
-repo. They exist so the artifact it produces is trustworthy: a constitution full of invented rules
-is worse than none. Two tiers, two strengths.
+The shared governance the **context-forge** skills hold themselves to. `/context-constitution` obeys them
+while *forging* a constitution (adding high-signal context); `/context-scrubber` obeys them while *auditing*
+context files (finding low-signal content to remove). They exist so every artifact these skills produce is
+trustworthy: a constitution full of invented rules — or a scrub that deletes load-bearing context — is worse
+than none. `CF-*` reads as **Context Forge**; the same IDs govern both skills, so an objection or a gate
+decision in either can point at a precise rule instead of re-deriving it. Two tiers, two strengths.
+
+> How to read these across the two skills: where a rule says "constitution," the constitution skill applies it
+> to the file it writes and the scrubber applies it to the files it audits. The litmus test (**CF-N4**) is the
+> hinge — the constitution skill runs it forward (*keep only what an agent would miss*), the scrubber runs it in
+> reverse (*flag what an agent would find for free*).
 
 ## Floor rules (`CF-*`) — blocking, never bypassed
 
@@ -21,7 +29,7 @@ skill to *resolve* it, or stop.
   by a silent guess.
 - **CF-3 — Single orchestrator.** The skill session owns every file write and every user gate.
   Subagents are advisory only: they locate and quote; they never write or decide.
-- **CF-4 — Non-destructive writes.** An existing `constitution.md` is *merged*, never overwritten:
+- **CF-4 — Non-destructive writes.** An existing `context-constitution.md` is *merged*, never overwritten:
   existing rules and their IDs are preserved verbatim; only new rules are appended. The behavioral
   contract is prepended to `CLAUDE.md` inside sentinel markers and, on re-run, replaced in place —
   never stacked into a second copy, never clobbering surrounding content.
@@ -79,7 +87,7 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   alignment contract) is a constitution rule or gotcha. A **defect** — a latent bug, dead/orphaned
   code, an unused config key, or **documentation that describes behavior the code does not have** — is
   NOT a rule (you don't govern "the audit route has an auth gap"); it goes to the **findings log**
-  (`constitution-findings.md`, sibling to the constitution) with its `path:line`/commit citation and a
+  (`context-constitution-findings.md`, sibling to the constitution) with its `path:line`/commit citation and a
   suggested action, so it is actioned rather than frozen into governance. Both are durable outputs;
   neither is dropped.
 - **CF-N10 — Validate a cross-cutting quirk against its owner before enshrining it.** A pattern
@@ -93,7 +101,7 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   the consumers had a bug, not the platform a convention.) Confirming a contract from **both** the
   producer and a consumer is the strongest grounding; a one-sided cross-module claim is weaker.
 - **CF-N11 — Make the constitution discoverable; don't duplicate the generic contract.** Only the
-  auto-loaded `CLAUDE.md` pulls context into an agent's window — a `constitution.md` that no `CLAUDE.md`
+  auto-loaded `CLAUDE.md` pulls context into an agent's window — a `context-constitution.md` that no `CLAUDE.md`
   references is **inert**. So every target's `CLAUDE.md` carries a one-line **pointer** to its own
   constitution (and findings), added to the host's what-to-read index if it has one. The behavioral
   **contract**, by contrast, is generic and `CLAUDE.md` loads root-downward, so it belongs in the

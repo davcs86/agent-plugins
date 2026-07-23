@@ -1,4 +1,4 @@
-# constitution-forge — refresh protocol
+# context-forge — refresh protocol
 
 Load this at the start of a `refresh` run. Refresh keeps an existing constitution + contract current
 as the code evolves, **incrementally** — it re-derives only what changed since each target's
@@ -8,7 +8,7 @@ periodically or in CI; `refresh … check` is the write-nothing linter form.
 ## The baseline is git, not stored state
 
 Refresh keeps **no persisted baseline**. Each target's "last forged" point is simply the last commit
-that wrote its `constitution.md`:
+that wrote its `context-constitution.md`:
 
 ```
 R = git log -1 --format=%H -- <target dir>/<constitutionPath>
@@ -43,7 +43,7 @@ For each in-scope target `T`, resolve `R` from git as above, then:
    touching the changed files. It may still report a pattern spanning changed + unchanged sites —
    changes often *reveal* an existing invariant.
 3. **Staleness check (always — this is the correctness net).** For every rule already in `T`'s
-   `constitution.md`, verify each cited `path:line` still resolves to the referenced code (Read/Grep).
+   `context-constitution.md`, verify each cited `path:line` still resolves to the referenced code (Read/Grep).
    A citation that no longer resolves flags the rule **stale**. A rule whose sites still resolve but
    whose count dropped below the induction bar (e.g. a 9/9 pattern is now 3/9) flags **weakening**.
    This runs even when the change set is empty, so drift is caught no matter where R landed.
@@ -84,10 +84,10 @@ in a normal write.
 
 On **Apply deltas**, per target actually written:
 
-1. Merge the approved deltas into `constitution.md` (append additions; apply approved retire/re-ground
+1. Merge the approved deltas into `context-constitution.md` (append additions; apply approved retire/re-ground
    edits; promote/drop resolved candidates). Refresh the `<!-- …:behavioral-contract… -->` block in
    place only if the behaviors or cited IDs changed.
-2. Stage only this target's `constitution.md` and its `CLAUDE.md`. **No baseline to record** — the
+2. Stage only this target's `context-constitution.md` and its `CLAUDE.md`. **No baseline to record** — the
    commit that lands this change *is* the new baseline (git derives it next time). This is why a
    manual edit and a refresh are indistinguishable to the next run: both are just commits to the
    constitution.

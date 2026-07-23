@@ -8,7 +8,7 @@
   or no constitution for this target) and the cited variant (citeIds:true) where each behavior gains a
   "(enforced by <IDS>)" tail; those citation tails are defined in reference/synthesis-protocol.md Step 6.
 -->
-<!-- constitution-forge:behavioral-contract:start -->
+<!-- context-forge:behavioral-contract:start -->
 ## How to Act
 
 Read this first — it governs *how* you work here; everything below is the *what* you work with.
@@ -27,4 +27,4 @@ context you load per task.
 
 > Litmus test for any future line in this file: *does it shape how the agent thinks (a behavior), or
 > restate a fact the agent can read from the code?* If it's a fact already in the repo, leave it out.
-<!-- constitution-forge:behavioral-contract:end -->
+<!-- context-forge:behavioral-contract:end -->

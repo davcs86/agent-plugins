@@ -1,7 +1,7 @@
-# constitution-forge — synthesis protocol (Phase 1)
+# context-forge — synthesis protocol (Phase 1)
 
 Turn the Phase 0 evidence — emergent patterns, asymmetries, cross-module contracts, git scars, and
-"ask the human" flags — into, per target, a `constitution.md` and a behavioral-contract block. This
+"ask the human" flags — into, per target, a `context-constitution.md` and a behavioral-contract block. This
 is where judgment lives. You (the orchestrator) do all of it; no subagent writes.
 
 ## Step 1 — Resolve the "ask the human" flags FIRST
@@ -36,7 +36,7 @@ Before tiering, sort each finding that passed the inclusion test into exactly on
   asymmetry to follow, a cross-module contract, or a *confirmed* looks-wrong-but-intentional (with its
   rationale) → a rule or a `## Gotchas & scars` entry.
 - **Defect to fix** → the **findings log** (`templates/findings.md`, written as
-  `constitution-findings.md` beside the constitution) — **never a rule** (**CF-N9**): documentation
+  `context-constitution-findings.md` beside the constitution) — **never a rule** (**CF-N9**): documentation
   that lies (a config key/dependency/behavior the docs promise but the code lacks), a latent bug, or
   dead/orphaned code. You don't govern "the audit route has an auth gap"; you record it, cited, with a
   suggested action, so it gets fixed.
@@ -95,7 +95,7 @@ modules, not inside one). Before writing a module rule, confirm it isn't already
 ## Step 6 — Build the behavioral contract
 
 Same four behaviors for every repo (that portability is the point). The canonical block — including
-the load-bearing `<!-- constitution-forge:behavioral-contract:start -->` … `:end` sentinels that let
+the load-bearing `<!-- context-forge:behavioral-contract:start -->` … `:end` sentinels that let
 a re-run replace it in place — is **`templates/behavioral-contract.md`**. Use it verbatim; it is the
 single source, so the block never drifts between the template and this protocol.
 
@@ -113,14 +113,14 @@ no constitution, use the generic block unchanged.
 
 ## Step 7 — Assemble each constitution
 
-Fill `templates/constitution.md`: a one-paragraph preamble (what this target is, that the file
+Fill `templates/context-constitution.md`: a one-paragraph preamble (what this target is, that the file
 captures the *non-obvious* — patterns, contracts, scars — not restated docs), the tiered rule tables
 with evidence + why, a `## Gotchas & scars` section for the Tier-3 items, the `## Candidate rules
 (unverified)` section (or "none"), and the footer. When merging into an existing file, keep every
 existing rule and ID verbatim (**CF-4**); only append.
 
 **Also assemble the findings log** when Step 2b routed anything there: fill `templates/findings.md`
-into `constitution-findings.md` beside the constitution (doc-lies, latent bugs, dead code, open
+into `context-constitution-findings.md` beside the constitution (doc-lies, latent bugs, dead code, open
 questions), each cited with a suggested action. Skip the file only when a target has zero defects
 (don't manufacture an empty one); if it has even one, the log is a first-class output, not an
 afterthought. Merge non-destructively like the constitution.
