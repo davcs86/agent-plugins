@@ -12,10 +12,9 @@ written down — and turns that into two durable artifacts:
 2. a **behavioral contract** prepended to the repo's **`CLAUDE.md`** — four repo-agnostic behaviors
    that shape *how* an agent works, pointing into the constitution IDs that enforce each.
 
-The premise (from the "4-line CLAUDE.md" argument): agents fail on **behavior**, not capability — and
-they waste time and tokens rediscovering, or missing, the patterns nobody wrote down. So put
-behaviors up top, and fill the constitution with exactly the knowledge an agent would **miss on a
-normal read**. The value of any line is inversely proportional to how easily an agent would find it
+The premise: agents rarely fail for lack of capability — they fail on **behavior**, and they waste
+time and tokens rediscovering, or missing, the patterns nobody wrote down. So put behaviors up top,
+and fill the constitution with exactly the knowledge an agent would **miss on a normal read**. The value of any line is inversely proportional to how easily an agent would find it
 alone; a rule already in the docs or CI is a one-line pointer, not a restatement.
 
 ## What it does

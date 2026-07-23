@@ -22,8 +22,8 @@ Whether to gitignore it is the host repo's call. Schema (version 1):
   setting applies uniformly to every target. `null` = scratch mode (see below).
 - `citeIds` — boolean. When `true`, each behavior in the prepended contract cites the generated
   constitution IDs that enforce it (e.g. "*ask before assuming* — CF-2, and the design gate"). When
-  `false`, the contract uses the generic four-line phrasing with no IDs — the right choice when you
-  want a maximally portable contract, or aren't generating a constitution at all.
+  `false`, the contract uses the generic four-behavior phrasing with no IDs — the right choice when
+  you want a maximally portable contract, or aren't generating a constitution at all.
 
 ## First-run interview
 
