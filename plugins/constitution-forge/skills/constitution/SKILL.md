@@ -14,9 +14,14 @@ rework — into durable, complementary artifacts (two core; a third when defects
   contracts, and scars (*why* something is the way it is) — grouped into ID'd tiers (Floor / Rules /
   Norms), each grounded in real evidence (multi-site citations, an authoritative site, or a commit);
   and
-- a **behavioral contract** prepended to the repo's **`CLAUDE.md`**: four repo-agnostic behaviors
-  (ask before assuming · minimum viable · surgical diffs · verify against a stated finish line)
-  that shape *how* an agent works, pointing into the constitution IDs that enforce each.
+- a **behavioral contract** prepended to the **root `CLAUDE.md`**: four repo-agnostic behaviors
+  (ask before assuming · minimum viable · surgical diffs · verify against a stated finish line) that
+  shape *how* an agent works. It goes in the root only — it's generic and `CLAUDE.md` loads from the
+  root down, so one copy is always in context; an identical copy per module is the duplication this
+  tool fights (**CF-N11**); and
+- a **constitution pointer** added to every target's `CLAUDE.md` (a one-line reference to that target's
+  `constitution.md` + findings). This is what makes the constitution *reachable at all*: only
+  `CLAUDE.md` is auto-loaded, so a constitution nothing points to is inert (**CF-N11**).
 
 Plus a conditional third output: a **`constitution-findings.md`** log whenever the scan surfaces
 things that are *defects to fix* rather than *invariants to respect* — documentation that lies
@@ -155,14 +160,22 @@ Only after Approve, and never in `scan` mode. Per target:
 1. **Constitution.** If none exists at `constitutionPath`, write it from the synthesized content. If
    one exists, **merge** (**CF-4**): keep every existing rule and ID, append newly-found rules under
    their tier, and show the user the added lines — never rewrite or renumber existing rules.
-2. **Behavioral contract.** Prepend it to the target's `CLAUDE.md`, wrapped in the sentinel markers
-   `<!-- constitution-forge:behavioral-contract:start -->` … `<!-- …:end -->`. If those markers are
-   already present, **replace the block in place** (idempotent re-run) — never stack a second copy.
-   If the target has no `CLAUDE.md`, create one containing just the contract.
-3. **Findings log.** If Step 2b routed any defects here, write/merge them into `constitution-findings.md`
+2. **Behavioral contract — root `CLAUDE.md` only (CF-N11).** Prepend the contract to the **root**
+   target's `CLAUDE.md`, wrapped in `<!-- constitution-forge:behavioral-contract:start -->` … `:end`.
+   If the markers are present, **replace the block in place** (never stack a copy); if the root has no
+   `CLAUDE.md`, create one with just the contract. **Do not** copy the generic block into module
+   `CLAUDE.md` files. (Exception: if `citeIds` is on *and* a module produced its own constitution, its
+   contract is module-specific — cites that module's IDs — so prepending it there is not duplication.)
+3. **Constitution pointer — every target's `CLAUDE.md` (CF-N11).** Add/refresh a one-line pointer to
+   this target's `constitution.md` (and its findings, if any), wrapped in
+   `<!-- constitution-forge:constitution-pointer:start -->` … `:end` (replace in place on re-run). This
+   is mandatory — it's the only thing that makes the constitution discoverable, since bare docs aren't
+   auto-loaded. If the host has a `CLAUDE.md` index/table of what-to-read (a "Context Guide"), add the
+   constitution as a row there instead of a loose line, matching the host's style.
+4. **Findings log.** If Step 2b routed any defects here, write/merge them into `constitution-findings.md`
    beside the constitution (`templates/findings.md`), non-destructively. Skip the file only when the
    target has zero defects — never manufacture an empty one.
-4. Stage nothing outside the written targets' `constitution.md` + `CLAUDE.md` + `constitution-findings.md`
+5. Stage nothing outside the written targets' `constitution.md` + `CLAUDE.md` + `constitution-findings.md`
    (plus `.agents/constitution-forge.json` on first-run config creation). **No baseline is recorded** —
    the commit that lands the write is itself the baseline `refresh` reads from git next time.
 
