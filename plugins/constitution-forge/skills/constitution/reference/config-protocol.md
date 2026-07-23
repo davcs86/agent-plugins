@@ -12,7 +12,11 @@ Whether to gitignore it is the host repo's call. Schema (version 1):
   "version": 1,
   "constitutionPath": "docs/constitution.md",
   "citeIds": true,
-  "created": "<ISO date>"
+  "created": "<ISO date>",
+  "forged": {
+    ".": { "ref": "<commit sha>", "at": "<ISO date>" },
+    "services/foo": { "ref": "<commit sha>", "at": "<ISO date>" }
+  }
 }
 ```
 
@@ -24,6 +28,23 @@ Whether to gitignore it is the host repo's call. Schema (version 1):
   constitution IDs that enforce it (e.g. "*ask before assuming* — CF-2, and the design gate"). When
   `false`, the contract uses the generic four-behavior phrasing with no IDs — the right choice when
   you want a maximally portable contract, or aren't generating a constitution at all.
+- `forged` — **per-target** baseline map. Keys are target directories relative to the repo root
+  (`.` = root, `services/foo` = that module); each value records the commit `ref` at which that
+  target's constitution + contract were last written, and the date. Absent until the first write.
+
+### Why `forged` is per-target, not a single `lastForgedRef`
+
+A single repo-wide baseline is **wrong** the moment a write is scoped to one module. Consider: a
+full-repo forge at commit `A` (baseline = `A`), then later `write services/foo` at commit `C`. A
+scalar baseline forces a bad choice — set it to `C` and a subsequent full-repo `refresh` diffs from
+`C`, silently missing every change to *other* modules between `A` and `C`; leave it at `A` and
+`services/foo`'s own next refresh re-scans changes it already captured. Neither is correct.
+
+Per-target baselines remove the dilemma: **each write updates only the `forged` entries for the
+targets it actually wrote.** A scoped `write services/foo` touches only `forged["services/foo"]`; the
+root and every other module keep their own `ref`. `refresh` then diffs each in-scope target from *its
+own* baseline, and a target with no entry (never forged, or a newly-added module) falls back to a full
+scan. Scratch mode (`constitutionPath: null`) writes nothing, so it never records a baseline.
 
 ## First-run interview
 

@@ -65,7 +65,17 @@ unchanged. To enable Context7 specifically, add it to your host repo's MCP confi
 /constitution scan         # dry run — present artifacts inline, write nothing
 /constitution write        # explicit full flow (same as no argument)
 /constitution scan apps/web  # scope the analysis to one subdirectory
+/constitution refresh      # incremental: re-derive only what changed since each target's baseline
+/constitution refresh apps/web  # refresh just one target, from its own baseline
+/constitution refresh check     # CI/linter: report drift, write nothing
 ```
+
+**Refresh vs. write.** `write` forges from a full scan. `refresh` is the keep-it-current mode: it
+diffs each target from its **own** last-forged commit (a per-target baseline, so a scoped write to
+one module never throws off another module's or the repo's baseline), re-derives only the changed
+areas, flags rules whose citations went stale, and applies the approved deltas — without re-emitting
+unchanged rules. `refresh … check` reports drift and writes nothing, so it is safe to run in CI or on
+a schedule.
 
 First run in a repo asks two questions (where to write each `constitution.md`, and whether the
 contract should cite the generated IDs) and saves them to `.agents/constitution-forge.json`.

@@ -1,6 +1,6 @@
 ---
 name: constitution
-description: "Reverse-engineer a repository's implicit rules into a durable constitution and prepend a concise behavioral contract to its CLAUDE.md. Usage: `constitution [scan|write] [path]`. Phase 0 (Scan) discovers the repo with read-only subagents — module map, stated hard rules, CI-enforced checks, conventions — and, for a monorepo, runs one scoped scan per module plus a repo-wide pass. Phase 1 (Synthesize) clusters the findings into an evidence-cited, ID'd constitution.md (per module, then root) and builds the four-behavior contract. Phase 2 (Write) writes each constitution and idempotently prepends the contract to each CLAUDE.md. Every rule cites path:line; nothing is invented."
+description: "Reverse-engineer a repository's implicit rules into a durable constitution and prepend a concise behavioral contract to its CLAUDE.md. Usage: `constitution [scan|write] [path]`. Phase 0 (Scan) discovers the repo with read-only subagents — module map, stated hard rules, CI-enforced checks, conventions — and, for a monorepo, runs one scoped scan per module plus a repo-wide pass. Phase 1 (Synthesize) clusters the findings into an evidence-cited, ID'd constitution.md (per module, then root) and builds the four-behavior contract. Phase 2 (Write) writes each constitution and idempotently prepends the contract to each CLAUDE.md, recording a per-target baseline commit. A `refresh` mode then updates an already-forged repo incrementally — diffing each target from its own baseline, reporting drift/stale rules, and applying approved deltas (`refresh … check` reports drift without writing). Every rule cites path:line; nothing is invented."
 argument-hint: "[scan|write] [path]"
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *) mcp__Context7__resolve-library-id mcp__Context7__query-docs
 disable-model-invocation: true
@@ -45,25 +45,32 @@ when its step activates — do not read them up front:
 - `reference/scan-protocol.md` — at the start of Phase 0.
 - `reference/monorepo-protocol.md` — only when Phase 0 detects a monorepo.
 - `reference/synthesis-protocol.md` — at the start of Phase 1.
+- `reference/refresh-protocol.md` — at the start of a `refresh` run (instead of the full Phase 0/1/2).
 - `reference/library-docs.md` — only when classifying a third-party-library usage **and** a
   documentation-lookup MCP tool (e.g. Context7) is available. Optional enhancement; skip if absent.
 
 ## Arguments
 
-- Optional leading token `scan` | `write`:
+- Optional leading token `scan` | `write` | `refresh`:
   - `scan` — run Phase 0 + Phase 1 and **present** the artifacts inline; write nothing. A dry run.
-  - `write` — run all phases including the Phase 2 writes (still gated on approval).
+  - `write` — run all phases including the Phase 2 writes (still gated on approval). Default.
+  - `refresh` — **incremental** update of an already-forged repo: re-derive only what changed since
+    each target's own baseline, report drift, apply approved deltas. Follows
+    `reference/refresh-protocol.md`. Add a trailing `check` token (`refresh [path] check`) for the
+    write-nothing CI/linter form.
   - Absent → default to the full flow (`write`), gated at Phase 1.
 - Optional trailing `path` — a subdirectory to treat as the analysis root (e.g. a single module).
-  Absent → the repo root.
+  Absent → the repo root. Under `refresh`, `path` scopes to that target and its baseline only.
 
 ## BOOT SEQUENCE
 
 **B0 — Config.** Read `.agents/constitution-forge.json` at the repo root. Present → load
 `constitutionPath` (where each constitution is written, relative to its target dir), `citeIds`
-(does the behavioral contract cite generated constitution IDs?), and announce them in one line.
+(does the behavioral contract cite generated constitution IDs?), and the `forged` **per-target
+baseline map** (target dir → last-forged commit; drives `refresh`), and announce them in one line.
 Absent → read `reference/config-protocol.md`, run its first-run interview, then continue. `scan`
-mode never writes config — it uses defaults and notes them.
+mode never writes config — it uses defaults and notes them. `refresh` requires baselines: if
+`forged` is empty (nothing ever written), tell the user to run `write` first.
 
 **B1 — Locate targets.** Find the analysis root (arg `path` or repo root). Detect existing
 `CLAUDE.md` and any existing `constitution.md` under the root — these are *merge targets*, never
@@ -73,7 +80,11 @@ overwrite targets (**CF-4**).
 enforce). These govern *this skill's* own output — the constitution you forge must itself obey
 them.
 
-**B3 — Announce**: analysis root, mode (`scan`/`write`), config location, "Starting Phase 0 — Scan."
+**B3 — Announce**: analysis root, mode (`scan`/`write`/`refresh`), config location, next step.
+
+**B4 — Route by mode.** If mode is `refresh` (or `refresh … check`), read
+**`reference/refresh-protocol.md`** and follow it — it replaces the full Phase 0/1/2 below with a
+diff-scoped, per-target-baseline update. Otherwise continue to Phase 0.
 
 ## PHASE 0 — SCAN (read-only discovery → evidence digest)
 
@@ -136,7 +147,13 @@ Only after Approve, and never in `scan` mode. Per target:
    `<!-- constitution-forge:behavioral-contract:start -->` … `<!-- …:end -->`. If those markers are
    already present, **replace the block in place** (idempotent re-run) — never stack a second copy.
    If the target has no `CLAUDE.md`, create one containing just the contract.
-3. Stage nothing outside the target's `constitution.md` and `CLAUDE.md` (plus config on first run).
+3. **Re-baseline this target.** Set `forged["<target dir>"] = { ref: <HEAD sha>, at: <date> }` in
+   `.agents/constitution-forge.json` — **only for the targets actually written.** A scoped
+   `write <path>` updates only that target's entry; a full-repo write updates the root and every
+   module it wrote. Never collapse these to one repo-wide ref (see `config-protocol.md`). Skip in
+   scratch mode (nothing was written, so there is no baseline).
+4. Stage nothing outside the written targets' `constitution.md` + `CLAUDE.md` and
+   `.agents/constitution-forge.json`.
 
 ## COMPLETION
 
@@ -157,3 +174,7 @@ was created / updated / unchanged. Then one reminder:
   writes.
 - **Monorepo = per-module then root.** Every module gets its own scoped pass; the root gets the
   cross-cutting pass. Repo-wide rules live at the root; module constitutions never duplicate them.
+- **Baselines are per-target.** A write records `forged[<target>]` only for targets it wrote; a
+  scoped `write <path>` never touches another target's baseline, and there is never a single
+  repo-wide `lastForgedRef`. `refresh` diffs each target from its own baseline; `refresh … check`
+  writes nothing at all — no files, no baseline.
