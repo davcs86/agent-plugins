@@ -9,11 +9,13 @@ is worse than none. Two tiers, two strengths.
 A violation blocks the write. "Proceed anyway" never clears a Floor item — the user may steer the
 skill to *resolve* it, or stop.
 
-- **CF-1 — Never invent.** Every rule emitted into a `constitution.md`, and every `path:line`
-  citation in it, must trace to a search hit actually seen (a subagent digest, or a Read/Grep the
-  orchestrator ran). A plausible-but-unverified rule is never asserted as binding — it goes under
-  `## Candidate rules (unverified)` for the user to confirm at a gate. A constitution's authority
-  comes entirely from being grounded; an invented rule poisons the whole file.
+- **CF-1 — Never invent (but induction is allowed).** Every rule and every citation must trace to
+  something actually seen — code sites, a commit message, or a human answer. A rule may be *induced*
+  from **multiple consistent code sites** (N ≥ 3, all citable) or rest on **one authoritative site**;
+  that is grounding, not invention. What is forbidden is asserting a rule with no such basis, or a
+  *rationale* ("we do X because Y broke") you did not read in history or hear from the user. Anything
+  short of grounded goes under `## Candidate rules (unverified)`, phrased as a question. A
+  constitution's authority comes entirely from being grounded; one invented rule poisons the file.
 - **CF-2 — No silent deviation.** Ambiguity, a conflict between sources (e.g. a doc says one thing,
   CI enforces another), or a missing prerequisite is surfaced to the user at a gate — never resolved
   by a silent guess.
@@ -40,10 +42,17 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
 - **CF-N3 — Dedup up the tree.** A rule that holds repo-wide lives once, in the **root** constitution.
   A module constitution states only what is specific to that module and points to the root for
   inherited rules — it never restates them. Duplication is the drift bug the whole exercise fights.
-- **CF-N4 — Concision (the litmus test).** For every candidate line, ask: *would removing it cause a
-  mistake the agent couldn't recover from, or does it just restate a fact already readable from the
-  code?* Keep the first kind; drop the second. Architecture the agent can read, style it can infer,
-  and dependency lists already in a manifest do not belong in either artifact.
+- **CF-N4 — The inclusion test (concision).** For every candidate line ask: *would a competent agent,
+  reading only the files its task touches, **miss this** and get it wrong?* Keep only what passes.
+  A line that restates a doc the agent already loads, a CI gate, something visible in the single file
+  it would edit, or a dependency list in a manifest **fails** — the agent finds it for free. The
+  constitution earns its cost only by holding what an agent would otherwise *miss*.
+- **CF-N6 — Capture the non-obvious, not the documented.** The file's purpose is Tier 2/3 knowledge:
+  undocumented emergent patterns, asymmetries (the one file that breaks a pattern), implicit
+  cross-module contracts, and scars (*why* something is the way it is / "looks wrong but is
+  intentional"). Rules the repo already states or CI already enforces are **pointers**, at most —
+  one line each, never restated as constitution rules. A finding is more valuable the harder it
+  would be for an agent to discover on its own.
 - **CF-N5 — Preserve the host's own IDs.** If the repo already has a constitution or an ID'd rule
   scheme, extend it in its own style and numbering — never impose this skill's `CF-*` prefix on the
   host's rules. `CF-*` names *this skill's* governance, not the constitutions it writes.

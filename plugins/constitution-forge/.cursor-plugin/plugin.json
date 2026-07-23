@@ -2,7 +2,7 @@
   "name": "constitution-forge",
   "displayName": "Constitution Forge",
   "version": "0.1.0",
-  "description": "Reverse-engineers a repo's implicit rules into an evidence-cited constitution.md (per module and repo-wide for monorepos) and prepends a concise behavioral contract to each CLAUDE.md — behaviors up top, facts in the constitution, nothing invented.",
+  "description": "Extracts a repo's hidden patterns, asymmetries, cross-module contracts, and git-history scars — the tribal knowledge an agent misses on a normal read — into an evidence-cited constitution.md (per module and repo-wide for monorepos), and prepends a concise behavioral contract to each CLAUDE.md. Invents nothing; every rule is grounded.",
   "author": {
     "name": "davcs86",
     "email": "davcs86@gmail.com"

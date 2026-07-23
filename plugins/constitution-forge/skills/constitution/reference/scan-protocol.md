@@ -1,51 +1,58 @@
 # constitution-forge — scan protocol (Phase 0)
 
-Goal: gather the **evidence** a constitution is built from, without loading whole files into the
-orchestrator. You spawn read-only scouts; they return compact digests; you keep the digests, not the
-file bodies. Nothing here writes.
+Goal: gather the **non-obvious** knowledge a constitution is built from — the patterns, asymmetries,
+contracts, and scars an agent would miss on a normal read — without loading whole files into the
+orchestrator. You spawn read-only scouts and run git archaeology yourself; you keep the digests, not
+the file bodies. Nothing here writes.
 
-## What a rule *is* (so the scout knows what to collect)
+## What you are hunting (and what you are NOT)
 
-A constitution rule is a statement the repo already makes or enforces about how work is done. The
-scout hunts these evidence classes — each is a `path:line` citation waiting to happen:
+The value of a constitution is inversely proportional to how easily an agent would find the same
+thing on its own. So the scan targets **Tier 2 and Tier 3** knowledge and deliberately demotes
+Tier 1:
 
-1. **Stated hard rules** — absolute imperatives in convention files: "never …", "always …", "must
-   (not) …", "do not …", "required", "forbidden". Sources: `CLAUDE.md` (root and nested), `AGENTS.md`,
-   `CONTRIBUTING*`, `docs/` (architecture / conventions / patterns / ADRs), `.github/` templates.
-   Quote verbatim + cite; never soften or harden.
-2. **CI-enforced checks** — anything a pipeline fails on is a *de facto* rule even if no prose states
-   it: required lint, format, type-check, coverage thresholds, `buf breaking`, schema/migration
-   checks, "must be green" gates. Sources: `.github/workflows/*`, `.gitlab-ci.yml`, `Jenkinsfile`,
-   `.circleci/`, pre-commit hooks (`.husky/`, `.pre-commit-config.yaml`).
-3. **Encoded conventions** — rules living in config rather than prose: lint/format configs, branch
-   protection / naming, migration naming + "never edit an applied migration", commit conventions,
-   codeowners, dependency/version pins, connection/resource budgets.
-4. **Structural invariants** — a naming scheme or layout the repo clearly holds to (env-var prefixes,
-   config-key shapes, port assignments, directory-per-service). Only collect these when the repo
-   *states* them or they are unambiguous across many instances — otherwise they are candidates, not
-   rules (**CF-1**).
+| Tier | What | Treatment |
+|---|---|---|
+| **1 — Stated & enforced** | rules in docs, gates in CI/lint | **pointer only** — one line, never a restated rule (fails the litmus) |
+| **2 — Latent/emergent** | patterns followed across many files with no doc; the one file that breaks a pattern; implicit cross-module contracts | **the core of the file** — grounded in multi-site citations |
+| **3 — Rationale & scars** | *why* something is the way it is; "looks wrong but is intentional"; what broke before | **highest value** — from git history + asking the human |
 
-Anything expected but absent is reported under `## Not found`, never guessed.
+The inclusion test for every finding: *would a competent agent, reading only its task's files, miss
+this and get it wrong?* If no, it doesn't belong.
 
 ## Procedure
 
-1. **One root scout.** Spawn `convention-scout` (Agent tool) against the analysis root with the four
-   evidence classes above and a request for the **module map**. It returns the Repo Profile digest
-   (its output format is defined in the agent file).
-2. **Decide monorepo vs. single module** from the digest's module map and workspace markers. If more
-   than one module → read `reference/monorepo-protocol.md` and follow it (parallel per-module scouts
-   + root pass). Otherwise the single root digest is your only input to Phase 1.
-3. **Detect merge targets.** For each target dir, note whether a `CLAUDE.md` and a `constitution.md`
-   already exist (the scout reports these). They are inputs to synthesis (dedup, merge), not things
-   to overwrite.
-4. **Do not synthesize yet.** Phase 0 only gathers. Clustering, tiering, and dedup happen in Phase 1
-   so the whole evidence set — every module + root — is in hand before any rule is written.
+1. **One root scout.** Spawn `convention-scout` (Agent tool) against the analysis root. It returns
+   emergent patterns (with the *wrong default* each prevents), asymmetries, cross-module contracts,
+   "ask the human" flags, Tier-1 pointers, and the module map — all grounded per the agent's evidence
+   rule (N ≥ 3 sites, or one authoritative site). See its output format in the agent file.
+
+2. **Monorepo?** From the module map + workspace markers, decide. If more than one module → read
+   `reference/monorepo-protocol.md` and follow it (parallel per-module scouts + a root pass whose
+   special focus is cross-module contracts). Otherwise the single digest feeds Phase 1.
+
+3. **Git archaeology (you run this — the scout can't).** With your allowed git tools, recover Tier-3
+   scars the code alone can't show. Keep it bounded — a handful of targeted queries, not a full log:
+   - `git log --oneline` filtered for `revert`, `hotfix`, `fix:`, `regression`, `rollback` — each is
+     a candidate scar; read the message (`git show`) for the *why*.
+   - For any file the scout flagged as an asymmetry or "looks-wrong", `git log -n 5 --oneline <file>`
+     and read the commit that introduced the oddity — its message often *is* the rationale.
+   - A recovered scar cites the **commit SHA / PR** as its evidence. If history is shallow
+     (`git rev-parse --is-shallow-repository` = true), say so — note in the digest that scar
+     recovery was limited and, if it matters, offer to `git fetch --unshallow`. Never invent a
+     rationale you didn't read (**CF-1** covers commit messages too).
+
+4. **Detect merge targets.** For each target dir, note whether a `CLAUDE.md` and `constitution.md`
+   already exist (the scout reports these) — inputs to synthesis, not overwrite targets.
+
+5. **Do not synthesize yet.** Phase 0 only gathers. Clustering, the inclusion cut, tiering, and the
+   human-Q&A gate happen in Phase 1, once the whole evidence set is in hand.
 
 ## Guardrails
 
-- **Read-only.** The scout has no Write/Edit/Bash-mutation tools; you (the orchestrator) run only
-  read/inspect Bash. Nothing in Phase 0 changes the repo.
-- **Distill, don't dump.** Digests are names, paths, one-line roles, and quoted rules with citations
-  — never pasted file bodies. The orchestrator's context window is the resource being protected.
-- **Evidence beats plausibility.** A rule "every mature repo has" but this one does not state or
-  enforce is a candidate at most. The scan reports what *is*, not what *ought to be*.
+- **Read-only.** The scout has Glob/Grep/Read only. You run only read/inspect git and shell. Nothing
+  in Phase 0 changes the repo.
+- **Distill, don't dump.** Digests are findings + citations, never file bodies.
+- **Grounded beats plausible.** A pattern "every repo has" that this one doesn't actually follow is a
+  candidate at most. A rationale you didn't read in a commit or hear from the human is a *question*,
+  not a rule.

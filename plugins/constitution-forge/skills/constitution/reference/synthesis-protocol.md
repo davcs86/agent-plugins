@@ -1,59 +1,65 @@
 # constitution-forge — synthesis protocol (Phase 1)
 
-Turn the Phase 0 evidence digests into, per target, a `constitution.md` and a behavioral-contract
-block. This is where judgment lives — clustering, tiering, dedup, and the concision cut. You (the
-orchestrator) do all of it; no subagent writes.
+Turn the Phase 0 evidence — emergent patterns, asymmetries, cross-module contracts, git scars, and
+"ask the human" flags — into, per target, a `constitution.md` and a behavioral-contract block. This
+is where judgment lives. You (the orchestrator) do all of it; no subagent writes.
 
-## Step 1 — Cluster evidence into rules
+## Step 1 — Resolve the "ask the human" flags FIRST
 
-Group the digest's citations into distinct rules. Two citations that enforce the same intent (a
-prose "always run the linter" + the CI lint step) become **one** rule citing both. A rule is one
-enforceable intent, not one sentence.
+Before writing anything, clear the scout's `## Ask the human` list — this is where Tier-3 tribal
+knowledge actually enters the file. For each flagged observation, ask the user (one
+`AskUserQuestion` batching related items; plain chat under Cursor): "*Found `<observation>` at
+`<path:line>` — it looks like `<anti-pattern>` but appears intentional (`<N sites>`). Is it, and
+why?*" Record the answer as the rule's **rationale**. If the user doesn't know or says "it's a bug,"
+it becomes a candidate or a noted cleanup — never a rule dressed up as intentional (**CF-1, CF-2**).
 
-## Step 2 — Assign a tier
+## Step 2 — Apply the inclusion test (the concision cut, up front)
 
-Three tiers, strongest first. Use the repo's own framing when it has one (**CF-N5**); otherwise:
+For every candidate line, from any source, ask:
 
-- **Floor** — non-overridable, "never do" invariants where a violation is a defect: "never edit an
-  applied migration", "never push to `main`", "never commit secrets", "never exceed the connection
-  budget". A Floor rule usually maps to something CI or infra *hard-fails* on.
-- **Rules** — binding conventions the repo expects followed: naming schemes, required test/coverage,
-  header propagation, proto/lint gates, branch/PR flow. Overridable only with a recorded reason.
-- **Norms** — defaults and preferences: "prefer enums over strings", "reuse over rebuild", style
-  leanings. Waivable at judgment.
+> Would a competent agent, reading only the files its task touches, **miss this** and get it wrong?
 
-## Step 3 — Assign IDs
+- **No** → drop it, or demote to a one-line pointer. Anything already stated in a doc the agent
+  loads, enforced by a CI step, visible in the single file it would edit, or readable from a manifest
+  is **out** (**CF-N4**). A constitution of restated rules is worse than none.
+- **Yes** → keep it. Emergent patterns, asymmetries, cross-module contracts, and scars pass because
+  they are invisible on a normal-effort read.
 
-Give each rule a stable `<PREFIX>-NN`. Derive `<PREFIX>` from the target: root → a repo token
-(e.g. the repo name's initials); module → the module name (e.g. `TRADING-01`). **If the target
-already has an ID scheme, extend it — never renumber or re-prefix existing rules (CF-N5, CF-4).**
-IDs are what the behavioral contract and future reviews cite, so they must be stable across re-runs.
+This cut comes *before* tiering so you never spend effort ID'ing a rule that shouldn't exist.
 
-## Step 4 — Evidence gate (CF-1)
+## Step 3 — Cluster into rules and assign a tier
 
-Every rule in a binding tier cites `path:line`. A rule you believe is true but found no evidence for
-does **not** go in a tier — it goes under `## Candidate rules (unverified)` with a note on why you
-suspect it and what would confirm it. The user promotes candidates to real rules at the gate, or
-drops them. Never assert a candidate as binding.
+Group surviving findings (two citations enforcing one intent = one rule). Tier by strength, using
+the repo's own framing if it has one (**CF-N5**):
+
+- **Floor** — non-overridable "never do" invariants a violation of which is a defect (often the thing
+  a scar proves: "never edit an applied migration — PR #412 outage").
+- **Rules** — binding patterns an agent must follow to fit in (the undocumented conventions,
+  cross-module contracts).
+- **Norms** — defaults/preferences and asymmetry guidance ("follow the `path:line` shape, not the
+  `path:line` outlier").
+
+Every rule carries: the intent, its **evidence** (multi-site citations, an authoritative site, or a
+commit/PR for a scar), and — when known — a one-line **why**. The *why* is what makes it stick;
+include it whenever git or the human supplied it.
+
+## Step 4 — Ground or quarantine (CF-1)
+
+A rule in any binding tier is grounded by real sites (N ≥ 3, or one authoritative site, or a commit).
+Anything short of that goes under `## Candidate rules (unverified)` phrased as a question — never
+asserted. Multi-instance induction is *not* invention; a rationale you never read *is*.
 
 ## Step 5 — Dedup up the tree (CF-N3)
 
-For a monorepo: any rule that holds repo-wide belongs in the **root** constitution only. A module
-constitution lists module-specific rules and adds one line — "Inherits all root constitution rules
-(`<root path>`)." — instead of restating them. Before writing a module rule, check it is not already
-a root rule; if it is, drop it from the module.
+Monorepo: a rule that holds repo-wide lives in the **root** constitution only. A module constitution
+lists only module-specific findings and adds one line — "Inherits all root constitution rules
+(`<root path>`)." Cross-module contracts live at the **root** (they are about the seams between
+modules, not inside one). Before writing a module rule, confirm it isn't already a root rule.
 
-## Step 6 — Concision cut (CF-N4)
+## Step 6 — Build the behavioral contract
 
-Apply the litmus test to every line, in both the constitution and the contract: *would removing it
-cause a mistake the agent couldn't recover from, or does it just restate a fact readable from the
-code?* Cut architecture the agent can read, style it can infer, and dependency lists already in a
-manifest. A short, dense constitution beats a long, padded one.
-
-## Step 7 — Build the behavioral contract
-
-The contract is the same four behaviors for every repo (that portability is the point). Wrap it in
-sentinel markers so re-runs replace it in place. Canonical block:
+Same four behaviors for every repo (that portability is the point). Wrap in sentinel markers so
+re-runs replace in place. Canonical block:
 
 ```markdown
 <!-- constitution-forge:behavioral-contract:start -->
@@ -79,22 +85,18 @@ context you load per task.
 ```
 
 **Citation variant (`citeIds: true`).** When this target produced a constitution, append to each
-behavior a short pointer to the IDs that enforce it — the specialization that turns a generic
-principle into a locally-anchored one. Example, using generated IDs:
+behavior a short pointer to the IDs that enforce it — anchoring the generic principle to the local,
+hard-won rules. Only cite IDs you actually generated for this target (or the root, for an inheriting
+module). Never cite an ID that doesn't exist (**CF-1**). If `citeIds` is off or the target has no
+constitution, use the generic block unchanged.
 
-> 1. **Don't assume — ask, and surface tradeoffs.** … (enforced by **XS-02** and the design gate.)
-> 4. **Define success up front, then loop until verified.** … (enforced by **XS-07** test-pairing,
->    **XS-09** "never commit before verification passes".)
+## Step 7 — Assemble each constitution
 
-Only cite IDs that exist in the constitution you just synthesized for this target (or the root, for a
-module whose behaviors are enforced by inherited rules). Never cite an ID you did not generate
-(**CF-1**). If `citeIds` is off, or the target has no constitution, use the generic block unchanged.
+Fill `templates/constitution.md`: a one-paragraph preamble (what this target is, that the file
+captures the *non-obvious* — patterns, contracts, scars — not restated docs), the tiered rule tables
+with evidence + why, a `## Gotchas & scars` section for the Tier-3 items, the `## Candidate rules
+(unverified)` section (or "none"), and the footer. When merging into an existing file, keep every
+existing rule and ID verbatim (**CF-4**); only append.
 
-## Step 8 — Assemble each constitution
-
-Fill `templates/constitution.md`: a one-paragraph preamble naming the target and how the file was
-derived, the tiered rule tables, the `## Candidate rules (unverified)` section (or "none"), and a
-footer noting it was forged by `/constitution` and should be refreshed by re-running it. Keep the
-existing file's rules verbatim when merging (**CF-4**).
-
-Then present everything at the Phase 1 gate.
+Then present everything at the Phase 1 gate (targets, rule counts by tier, candidate count, the
+contract block + prepend preview).

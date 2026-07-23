@@ -31,9 +31,13 @@ module list — do not silently pick one.
    module-scoped digest: local hard rules, local CI (if the module has its own), local conventions,
    and — importantly — which of its "rules" are really *inherited* from the root (the scout flags a
    rule it sees stated at the root, so synthesis can dedup).
-3. **Treat the root as one more target.** The root scout's digest, minus everything that clearly
-   belongs to a single module, is the evidence for the **root** constitution — the cross-cutting
-   rules (branch strategy, repo-wide CI, shared resource budgets, org-wide conventions).
+3. **Treat the root as one more target — with a special focus on the seams.** The root scout's
+   digest, minus everything that clearly belongs to a single module, is the evidence for the **root**
+   constitution: cross-cutting rules (branch strategy, repo-wide CI, shared resource budgets) **and
+   especially cross-module contracts** — the implicit expectations one module places on another
+   (headers/context a caller must forward, a seeded/shared resource that must not be mutated, a value
+   that must stay in parity across read paths). These live at the root because they are about the
+   space *between* modules, and their violation causes the nastiest cross-cutting rework.
 4. **Synthesize per target, root-first (Phase 1).** Build the **root** constitution first so its IDs
    exist, then each module constitution — each stating only module-specific rules and *pointing to*
    the root for inherited ones (**CF-N3**). A module constitution that would just re-list root rules
