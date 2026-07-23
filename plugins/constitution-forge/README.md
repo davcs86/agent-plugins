@@ -29,7 +29,13 @@ alone; a rule already in the docs or CI is a one-line pointer, not a restatement
   the rule's rationale — the only reliable way to capture true tribal knowledge.
 - **Synthesizes** an evidence-cited `constitution.md` (Floor / Rules / Norms + a `Gotchas & scars`
   section), applying an inclusion test — *would an agent miss this on a normal read?* — so restated
-  docs get cut and anything unproven is quarantined under `## Candidate rules (unverified)`.
+  docs become one-line pointers and anything unproven is quarantined under `## Candidate rules
+  (unverified)`.
+- **Never drops what it found.** Things the scan surfaces that are *defects to fix* rather than
+  *invariants to respect* — **documentation that lies** (behavior/config the docs promise but the code
+  lacks), latent bugs, dead code — go into a sibling `constitution-findings.md` log, cited and with a
+  suggested action, for triage. A defect is recorded, never frozen into a governance rule; and nothing
+  grounded is silently discarded.
 - **Prepends** the four-behavior contract to `CLAUDE.md`, idempotently (sentinel-wrapped, so a
   re-run updates in place instead of stacking a second copy).
 - **Handles monorepos**: one constitution + contract **per module**, then a **repo-wide** pass at

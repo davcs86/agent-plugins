@@ -20,6 +20,12 @@ Tier 1:
 The inclusion test for every finding: *would a competent agent, reading only its task's files, miss
 this and get it wrong?* If no, it doesn't belong.
 
+A finding can also be a **defect** rather than an invariant — documentation that lies (behavior/config
+the docs promise but the code lacks), a latent bug, or dead code. The scout surfaces these too (its
+`## Documentation drift & dead code` section); synthesis routes them to the **findings log**, not the
+constitution (**CF-N9**), and nothing grounded is ever dropped (**CF-N8**). A scan costs tokens — every
+finding earns a durable home.
+
 ## Procedure
 
 1. **One root scout.** Spawn `convention-scout` (Agent tool) against the analysis root. It returns

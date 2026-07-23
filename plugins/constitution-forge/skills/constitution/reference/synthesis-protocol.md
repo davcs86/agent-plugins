@@ -27,6 +27,28 @@ For every candidate line, from any source, ask:
 
 This cut comes *before* tiering so you never spend effort ID'ing a rule that shouldn't exist.
 
+## Step 2b — Route every surviving finding (invariant vs. defect; no drops)
+
+Before tiering, sort each finding that passed the inclusion test into exactly one durable home — and
+**nothing is discarded** (**CF-N8**; a scan cost real tokens):
+
+- **Invariant to respect** → the constitution (tier it in Step 3): an undocumented pattern, an
+  asymmetry to follow, a cross-module contract, or a *confirmed* looks-wrong-but-intentional (with its
+  rationale) → a rule or a `## Gotchas & scars` entry.
+- **Defect to fix** → the **findings log** (`templates/findings.md`, written as
+  `constitution-findings.md` beside the constitution) — **never a rule** (**CF-N9**): documentation
+  that lies (a config key/dependency/behavior the docs promise but the code lacks), a latent bug, or
+  dead/orphaned code. You don't govern "the audit route has an auth gap"; you record it, cited, with a
+  suggested action, so it gets fixed.
+- **Unresolved *why*** → the findings log's Open questions (and, if it's a maybe-intentional oddity,
+  also the scout's Ask-the-human gate in Step 1): once answered, "intentional" promotes to a
+  constitution gotcha, "it's a bug" stays a finding.
+- **Already documented / CI-enforced** → a `## Pointers` line (captured, not restated).
+- **Suspected but ungrounded** → `## Candidate rules (unverified)`.
+
+Severity ranks *within* the constitution (outage/data-loss → Floor; nuance → Norm) — it never deletes
+a finding. "Too minor for a rule" means "a Norm or a findings-log line," never "gone."
+
 **Library-usage findings — classify with docs (optional, CF-N7).** For a finding that is really about
 how the repo uses a third-party library, the litmus turns on one question: *is this a deviation from
 the library's documented default, or the default itself?* If a documentation-lookup MCP tool
@@ -107,5 +129,11 @@ with evidence + why, a `## Gotchas & scars` section for the Tier-3 items, the `#
 (unverified)` section (or "none"), and the footer. When merging into an existing file, keep every
 existing rule and ID verbatim (**CF-4**); only append.
 
-Then present everything at the Phase 1 gate (targets, rule counts by tier, candidate count, the
-contract block + prepend preview).
+**Also assemble the findings log** when Step 2b routed anything there: fill `templates/findings.md`
+into `constitution-findings.md` beside the constitution (doc-lies, latent bugs, dead code, open
+questions), each cited with a suggested action. Skip the file only when a target has zero defects
+(don't manufacture an empty one); if it has even one, the log is a first-class output, not an
+afterthought. Merge non-destructively like the constitution.
+
+Then present everything at the Phase 1 gate (targets, rule counts by tier, candidate count, **findings
+count**, the contract block + prepend preview).

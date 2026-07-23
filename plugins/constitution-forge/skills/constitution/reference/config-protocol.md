@@ -61,9 +61,13 @@ continue the boot sequence.
 ## Scratch mode semantics
 
 `constitutionPath: null` means **no files are written anywhere** — not the constitution, not the
-`CLAUDE.md` contract, not even temp files. Every artifact (each module constitution, the root
-constitution, each contract block) is emitted inline in the conversation as a complete fenced
-markdown block, so the user can place them wherever they want. Scratch mode is implied by the `scan`
-argument regardless of config, and is the safe way to preview what the skill would produce before
-letting it write. The first-run interview labels a real path as recommended because scratch mode has
-no durable output.
+`CLAUDE.md` contract, not the findings log, not even temp files. Every artifact (each module
+constitution, the root constitution, each contract block, and each `constitution-findings.md`) is
+emitted inline in the conversation as a complete fenced markdown block, so the user can place them
+wherever they want. Scratch mode is implied by the `scan` argument regardless of config, and is the
+safe way to preview what the skill would produce before letting it write. The first-run interview
+labels a real path as recommended because scratch mode has no durable output.
+
+> The findings log is not separately configured: it is always written as `constitution-findings.md`
+> beside the constitution (same directory as `constitutionPath`), per target, and only when that
+> target has at least one defect.

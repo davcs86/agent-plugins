@@ -59,6 +59,26 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   something an agent can look up and is a pointer at most. When a documentation-lookup tool (e.g.
   Context7) is available, use it to make this call (`reference/library-docs.md`); when it isn't, fall
   back to consistency-based judgment — the integration is optional and never blocks a run.
-- **CF-N5 — Preserve the host's own IDs.** If the repo already has a constitution or an ID'd rule
-  scheme, extend it in its own style and numbering — never impose this skill's `CF-*` prefix on the
-  host's rules. `CF-*` names *this skill's* governance, not the constitutions it writes.
+- **CF-N5 — Preserve the host's own IDs — but only extend a scheme of the *same kind*.** If the repo
+  already has a constitution or ID'd rule scheme, extend it in its own style and numbering rather than
+  imposing this skill's `CF-*` prefix. **However**, only fold new rules into an existing scheme when it
+  governs the *same kind* of rule. If the host's scheme is, say, a process/workflow constitution
+  (review gates, branch policy) and you are deriving *codebase invariants* (runtime contracts, pool
+  budgets, alignment rules), do **not** renumber into it — that conflates two different rule families.
+  Use a clearly-labeled **sibling namespace** (e.g. `PLAT-*` for the repo, `<MODULE>-*` per module) and
+  cross-reference the existing IDs where they overlap. `CF-*` names *this skill's* governance, never
+  the constitutions it writes.
+- **CF-N8 — No silent drops (capture everything we paid to find).** A scan costs real tokens, so
+  nothing a scout grounded is ever discarded. Every finding lands in a durable home: a tiered rule, a
+  `## Pointers` line, a `## Gotchas & scars` entry, a `## Candidate rules (unverified)` row, or the
+  **findings log** (**CF-N9**). The inclusion test (**CF-N4**) and severity decide *where* a finding
+  goes and how prominently — never *whether* it survives. "Low severity" means "rank it lower / make it
+  a Norm," never "delete it."
+- **CF-N9 — Invariant vs. defect: route, don't enshrine.** Separate a property to **respect** from a
+  property to **fix**. An invariant (looks-wrong-but-intentional, a write-dead column, an ordering or
+  alignment contract) is a constitution rule or gotcha. A **defect** — a latent bug, dead/orphaned
+  code, an unused config key, or **documentation that describes behavior the code does not have** — is
+  NOT a rule (you don't govern "the audit route has an auth gap"); it goes to the **findings log**
+  (`constitution-findings.md`, sibling to the constitution) with its `path:line`/commit citation and a
+  suggested action, so it is actioned rather than frozen into governance. Both are durable outputs;
+  neither is dropped.

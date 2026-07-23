@@ -18,6 +18,12 @@ rework — into two durable, complementary artifacts:
   (ask before assuming · minimum viable · surgical diffs · verify against a stated finish line)
   that shape *how* an agent works, pointing into the constitution IDs that enforce each.
 
+Plus a conditional third output: a **`constitution-findings.md`** log whenever the scan surfaces
+things that are *defects to fix* rather than *invariants to respect* — documentation that lies
+(behavior/config the docs promise but the code lacks), latent bugs, dead code. A scan costs real
+tokens, so nothing grounded is discarded (**CF-N8**): a defect is recorded and cited for triage, never
+frozen into a governance rule (**CF-N9**).
+
 Two things this is **not**: it is not a re-index of rules already stated in docs or enforced by CI
 (an agent finds those for free — they become one-line pointers, **CF-N6**), and it is not a place for
 facts readable from the code. The split is the whole point (**CF-N2**): behaviors up top shape how
@@ -116,25 +122,30 @@ Read **`reference/synthesis-protocol.md`** and follow it. Per target (each modul
    Cursor), ask about each "looks-wrong-but-intentional" observation and record the answer as the
    rule's *why*. This is where Tier-3 tribal knowledge enters the file; never fabricate a rationale
    (**CF-1, CF-2**).
-1. **Apply the inclusion test, then cluster** the surviving findings into ID'd rules across three
-   tiers — **Floor** (never-do,
-   non-overridable), **Rules** (binding conventions), **Norms** (defaults, waivable). Give each a
-   stable ID (`<PREFIX>-NN`); derive `<PREFIX>` from the module name.
-2. **Dedup up the tree (CF-N3).** A rule that holds repo-wide belongs in the **root** constitution;
+1. **Apply the inclusion test, then route every surviving finding — no drops (CF-N8).** Sort each into
+   exactly one durable home: an **invariant to respect** → the constitution; a **defect to fix**
+   (documentation that lies, a latent bug, dead code) → the **findings log**, never a rule (**CF-N9**);
+   already-documented → a `## Pointers` line; suspected-but-ungrounded → a candidate. Severity ranks
+   *within* the constitution, it never deletes a finding.
+2. **Cluster invariants into ID'd tiers** — **Floor** (never-do, non-overridable), **Rules** (binding
+   conventions), **Norms** (defaults, waivable). Give each a stable `<PREFIX>-NN`. **Extend the host's
+   existing ID scheme only if it governs the *same kind* of rule (CF-N5)**; if the host scheme is a
+   process/workflow constitution and you're deriving codebase invariants, use a sibling namespace
+   (`PLAT-*` root, `<MODULE>-*` per module) and cross-reference — don't renumber into it.
+3. **Dedup up the tree (CF-N3).** A rule that holds repo-wide belongs in the **root** constitution;
    a module constitution states only what is specific to that module and *points to* the root for
-   inherited rules — never restates them. This mirrors how a good monorepo keeps shared law at the
-   root and module docs thin.
-3. **Evidence or candidate (CF-1).** Every emitted rule cites `path:line`. Anything plausible but
-   unverified goes under `## Candidate rules (unverified)`, never asserted.
-4. **Build the behavioral contract** from the four behaviors (`reference/synthesis-protocol.md`
-   holds the canonical text). If `citeIds` is on and this target produced a constitution, each
-   behavior cites the IDs that enforce it; otherwise the generic phrasing stands alone.
+   inherited rules — never restates them. Cross-module contracts and repo-wide defects live at the root.
+4. **Evidence or candidate (CF-1).** Every emitted rule cites `path:line` (or a commit). Anything
+   plausible but unverified goes under `## Candidate rules (unverified)`, never asserted.
+5. **Build the behavioral contract** from the four behaviors (`reference/synthesis-protocol.md` holds
+   the canonical text). If `citeIds` is on and this target produced a constitution, each behavior cites
+   the IDs that enforce it; otherwise the generic phrasing stands alone.
 
-**GATE** via `AskUserQuestion`, showing: the target list, each constitution's rule counts by tier,
-the number of unverified candidates, and the exact contract block + a preview of where it prepends.
-Options: **Approve & write** / **Adjust** (fold a correction and re-synthesize) / **Scan only**
-(present inline, write nothing). In `scan` mode the only outcome is present-inline; there is no
-write gate.
+**GATE** via `AskUserQuestion`, showing: the target list, each constitution's rule counts by tier, the
+unverified-candidate count, the **findings-log count** (defects/doc-lies), and the exact contract block
++ a preview of where it prepends. Options: **Approve & write** / **Adjust** (fold a correction and
+re-synthesize) / **Scan only** (present inline, write nothing). In `scan` mode the only outcome is
+present-inline; there is no write gate.
 
 ## PHASE 2 — WRITE (idempotent, non-destructive)
 
@@ -147,14 +158,18 @@ Only after Approve, and never in `scan` mode. Per target:
    `<!-- constitution-forge:behavioral-contract:start -->` … `<!-- …:end -->`. If those markers are
    already present, **replace the block in place** (idempotent re-run) — never stack a second copy.
    If the target has no `CLAUDE.md`, create one containing just the contract.
-3. Stage nothing outside the written targets' `constitution.md` + `CLAUDE.md` (plus
-   `.agents/constitution-forge.json` on first-run config creation). **No baseline is recorded** — the
-   commit that lands the write is itself the baseline `refresh` reads from git next time.
+3. **Findings log.** If Step 2b routed any defects here, write/merge them into `constitution-findings.md`
+   beside the constitution (`templates/findings.md`), non-destructively. Skip the file only when the
+   target has zero defects — never manufacture an empty one.
+4. Stage nothing outside the written targets' `constitution.md` + `CLAUDE.md` + `constitution-findings.md`
+   (plus `.agents/constitution-forge.json` on first-run config creation). **No baseline is recorded** —
+   the commit that lands the write is itself the baseline `refresh` reads from git next time.
 
 ## COMPLETION
 
-Print, per target: its `constitution.md` path and rule counts, and whether its `CLAUDE.md` contract
-was created / updated / unchanged. Then one reminder:
+Print, per target: its `constitution.md` path and rule counts, whether its `CLAUDE.md` contract was
+created / updated / unchanged, and — if any — its `constitution-findings.md` path and defect count
+(doc-lies / latent bugs / dead code) so the user can triage them. Then one reminder:
 
 > Facts live in the constitution and `CLAUDE.md`; behaviors live in the contract. Before adding any
 > future line, apply the litmus test (**CF-N4**): *does it shape how the agent thinks, or restate a
@@ -164,6 +179,14 @@ was created / updated / unchanged. Then one reminder:
 
 - **You are the only writer (CF-3).** Subagents never write.
 - **Never invent a rule or a citation (CF-1).** Unverified → `## Candidate rules (unverified)`.
+- **No silent drops (CF-N8).** Every grounded finding lands somewhere durable — a rule, a pointer, a
+  gotcha, a candidate, or the findings log. Severity ranks a finding; it never deletes one.
+- **Defects go to the findings log, not the constitution (CF-N9).** Documentation that lies, latent
+  bugs, and dead code are recorded (cited, with a suggested action) for triage — never enshrined as
+  governance rules.
+- **Extend a host ID scheme only if it's the same *kind* of rule (CF-N5);** otherwise use a labeled
+  sibling namespace (`PLAT-*`/`<MODULE>-*`) and cross-reference — never renumber a process
+  constitution to hold codebase invariants.
 - **Never overwrite (CF-4).** Existing constitutions and `CLAUDE.md` content are merged/prepended,
   never clobbered; the contract block is replaced in place, never duplicated.
 - **Approve before write (CF-5).** No file is written before the Phase 1 gate; `scan` mode never

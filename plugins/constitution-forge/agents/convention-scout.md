@@ -72,14 +72,23 @@ Report it under `## Ask the human` or `## Candidates`, phrased as a question.
    **not** "fix" it in your head — surface it under `## Ask the human` as a question, because only a
    maintainer knows the *why*.
 
-6. **Pointers, not restatements.** For rules the repo already states (docs) or enforces (CI/lint),
+6. **Documentation drift & dead code (high value — the docs that lie).** Places where the docs and
+   the code **disagree**, or where code exists but does nothing: a documented config key / env var
+   read by no code, a CLAUDE.md-promised behavior (a retry loop, a limit, a guard, a dependency call)
+   with no implementation, an orphaned module nothing imports, a write-dead column. These are the
+   findings an agent trusting the docs gets *wrong*. Report each with the doc claim, the code reality,
+   and a `path:line` (or "grep found zero call sites"). Do **not** phrase them as rules — they are
+   defects for the orchestrator's findings log (CF-N9), not governance.
+
+7. **Pointers, not restatements.** For rules the repo already states (docs) or enforces (CI/lint),
    emit a single pointer line each — so the orchestrator can reference them without duplicating them.
 
-7. **Existing governance.** Report whether a `constitution.md` (or ID'd rule doc) and a `CLAUDE.md`
-   already exist here, and the ID prefix/scheme they use — so the orchestrator extends, never
-   overwrites (CF-4, CF-N5).
+8. **Existing governance.** Report whether a `constitution.md` (or ID'd rule doc) and a `CLAUDE.md`
+   already exist here, the ID prefix/scheme they use, **and what *kind* of rules it governs** (a
+   process/workflow constitution vs. codebase invariants) — so the orchestrator extends the right
+   scheme or opens a sibling namespace (CF-4, CF-N5).
 
-8. **Scope.** When invoked for a module, stay in that module's directory. Flag any pattern you can
+9. **Scope.** When invoked for a module, stay in that module's directory. Flag any pattern you can
    see is actually set at the repo root as `inherited` so the orchestrator can dedup (CF-N3).
 
 ## Distill, don't dump
@@ -113,12 +122,16 @@ its citations. Prefer 12 sharp findings over 40 shallow ones.
 - <observation + citation> — question: <the exact thing to ask a maintainer>
 - (or "none")
 
+## Documentation drift & dead code (defects — NOT rules)
+- <doc claim> — but code: <reality> — `path:line` (or "zero call sites")  [kind: doc-lie | dead-config | dead-code | write-dead | latent-bug]
+- (or "none")
+
 ## Pointers (already stated/enforced — do NOT restate as rules)
 - <stated rule or CI gate> — `path:line`
 - (or "none")
 
 ## Existing governance
-- constitution: `<path>` (prefix `<X>-`) | none
+- constitution: `<path>` (prefix `<X>-`, governs: <process|codebase-invariants>) | none
 - CLAUDE.md: `<path>` | none
 
 ## Candidates (suspected, not yet grounded)
