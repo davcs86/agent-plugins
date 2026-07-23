@@ -37,15 +37,17 @@ alone; a rule already in the docs or CI is a one-line pointer, not a restatement
   the root whose special focus is the cross-module contracts. Repo-wide rules live once at the root;
   module constitutions stay thin and inherit.
 
-### Optional: library-doc cross-referencing (Context7)
+### Optional: library-doc cross-referencing
 
-If a documentation-lookup MCP tool such as [Context7](https://github.com/upstash/context7) is
-configured in your session, the skill uses it to sharpen the inclusion test for third-party-library
-usage: a setting that **deviates** from the library's documented default is kept as a rule (a
-deliberate choice worth capturing), while usage that just **matches the docs** is dropped or demoted
-to a pointer (an agent can look it up). This is a pure enhancement — with no such tool available the
-skill falls back to consistency-based judgment and runs unchanged. To enable it, add Context7 to your
-host repo's MCP config, e.g.:
+If **any** documentation-lookup MCP tool — one that resolves a package name and returns its docs,
+[Context7](https://github.com/upstash/context7) being the reference example — is available in your
+session, the skill uses it to sharpen the inclusion test for third-party-library usage: a setting
+that **deviates** from the library's documented default is kept as a rule (a deliberate choice worth
+capturing), while usage that just **matches the docs** is dropped or demoted to a pointer (an agent
+can look it up). The skill matches on capability, not a fixed server name, so it works whether the
+tool is user-configured (`mcp__<server>__…`) or plugin-bundled (`mcp__plugin_…__…`). This is a pure
+enhancement — with no such tool available the skill falls back to consistency-based judgment and runs
+unchanged. To enable Context7 specifically, add it to your host repo's MCP config, e.g.:
 
 ```json
 {
