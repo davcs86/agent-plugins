@@ -99,11 +99,17 @@ the load-bearing `<!-- constitution-forge:behavioral-contract:start -->` … `:e
 a re-run replace it in place — is **`templates/behavioral-contract.md`**. Use it verbatim; it is the
 single source, so the block never drifts between the template and this protocol.
 
-**Citation variant (`citeIds: true`).** When this target produced a constitution, append to each
-behavior a short pointer to the IDs that enforce it — anchoring the generic principle to the local,
-hard-won rules. Only cite IDs you actually generated for this target (or the root, for an inheriting
-module). Never cite an ID that doesn't exist (**CF-1**). If `citeIds` is off or the target has no
-constitution, use the generic block unchanged.
+**Placement (CF-N11).** The generic contract is built once and written to the **root `CLAUDE.md` only**
+(Phase 2, step 2) — it's identical everywhere, so an extra copy per module is dead weight. Each target's
+`CLAUDE.md` instead gets a one-line **constitution pointer** (Phase 2, step 3) — that pointer, not the
+contract, is what makes the constitution discoverable.
+
+**Citation variant (`citeIds: true`).** When a target produced a constitution, each behavior may append
+a short pointer to the IDs that enforce it — anchoring the generic principle to the local, hard-won
+rules. This is also the *only* case where a **module** contract is justified (it becomes module-specific
+rather than an identical copy). Only cite IDs you actually generated for this target (or the root, for an
+inheriting module); never cite an ID that doesn't exist (**CF-1**). If `citeIds` is off or the target has
+no constitution, use the generic block unchanged.
 
 ## Step 7 — Assemble each constitution
 

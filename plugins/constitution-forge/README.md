@@ -9,8 +9,10 @@ written down — and turns that into two durable artifacts:
    contracts, and scars (*why* something is the way it is), grouped into ID'd tiers (Floor / Rules /
    Norms) and grounded in real evidence (multi-site citations, an authoritative site, or a commit);
    and
-2. a **behavioral contract** prepended to the repo's **`CLAUDE.md`** — four repo-agnostic behaviors
-   that shape *how* an agent works, pointing into the constitution IDs that enforce each.
+2. a **behavioral contract** prepended to the **root `CLAUDE.md`** — four repo-agnostic behaviors that
+   shape *how* an agent works (root only, since `CLAUDE.md` loads root-down and the block is generic);
+   plus a one-line **constitution pointer** in every `CLAUDE.md` so the constitution is actually
+   discoverable (only `CLAUDE.md` is auto-loaded).
 
 The premise: agents rarely fail for lack of capability — they fail on **behavior**, and they waste
 time and tokens rediscovering, or missing, the patterns nobody wrote down. So put behaviors up top,
@@ -36,8 +38,9 @@ alone; a rule already in the docs or CI is a one-line pointer, not a restatement
   lacks), latent bugs, dead code — go into a sibling `constitution-findings.md` log, cited and with a
   suggested action, for triage. A defect is recorded, never frozen into a governance rule; and nothing
   grounded is silently discarded.
-- **Prepends** the four-behavior contract to `CLAUDE.md`, idempotently (sentinel-wrapped, so a
-  re-run updates in place instead of stacking a second copy).
+- **Prepends** the four-behavior contract to the **root** `CLAUDE.md` (not duplicated per module), and
+  adds a **constitution pointer** to every `CLAUDE.md` so the constitution is discoverable — both
+  idempotently sentinel-wrapped, so a re-run updates in place instead of stacking a copy.
 - **Handles monorepos**: one constitution + contract **per module**, then a **repo-wide** pass at
   the root whose special focus is the cross-module contracts. Repo-wide rules live once at the root;
   module constitutions stay thin and inherit.

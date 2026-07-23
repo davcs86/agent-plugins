@@ -92,3 +92,11 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   looked like a rule, but the producing service's `oneof` contract *supported* distinguishing 0 — so
   the consumers had a bug, not the platform a convention.) Confirming a contract from **both** the
   producer and a consumer is the strongest grounding; a one-sided cross-module claim is weaker.
+- **CF-N11 — Make the constitution discoverable; don't duplicate the generic contract.** Only the
+  auto-loaded `CLAUDE.md` pulls context into an agent's window — a `constitution.md` that no `CLAUDE.md`
+  references is **inert**. So every target's `CLAUDE.md` carries a one-line **pointer** to its own
+  constitution (and findings), added to the host's what-to-read index if it has one. The behavioral
+  **contract**, by contrast, is generic and `CLAUDE.md` loads root-downward, so it belongs in the
+  **root `CLAUDE.md` only** — an identical copy in every module is exactly the duplication **CF-N3**/
+  **CF-N4** fight. A per-module contract is justified *only* when `citeIds` makes it genuinely
+  module-specific (it cites that module's constitution IDs); an identical generic copy never is.
