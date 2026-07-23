@@ -43,6 +43,11 @@ Before tiering, sort each finding that passed the inclusion test into exactly on
 - **Unresolved *why*** → the findings log's Open questions (and, if it's a maybe-intentional oddity,
   also the scout's Ask-the-human gate in Step 1): once answered, "intentional" promotes to a
   constitution gotcha, "it's a bug" stays a finding.
+- **A cross-cutting quirk seen from the consumer side → validate against its owner first (CF-N10).**
+  Before you tier a "quirk N services share" as an invariant, check the producing/owning module's
+  contract (in a monorepo this is the cross-module reconciliation pass, `monorepo-protocol.md` step 4).
+  If the owner supports the correct behavior and the consumers diverge, it's a **defect** → findings
+  log, not a rule — however many consumers share it.
 - **Already documented / CI-enforced** → a `## Pointers` line (captured, not restated).
 - **Suspected but ungrounded** → `## Candidate rules (unverified)`.
 

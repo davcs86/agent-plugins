@@ -47,6 +47,12 @@ finding earns a durable home.
      (`git rev-parse --is-shallow-repository` = true), say so — note in the digest that scar
      recovery was limited and, if it matters, offer to `git fetch --unshallow`. Never invent a
      rationale you didn't read (**CF-1** covers commit messages too).
+   - **Incomplete-fix check.** For each fix scar, ask whether the same bug class exists at *sibling
+     sites the fix didn't touch* — a parity fix applied to one read path but not its twins, an
+     encoding fix applied outbound but not inbound. An unpatched sibling is a **latent bug** for the
+     findings log (**CF-N9**), and it's high-value precisely because the closed PR reads as "done."
+     (Benchmark: a positions-parity fix left three other paths recomputing the wrong way; a camelCase
+     fix corrected the outbound path but not the inbound one.)
 
 4. **Detect merge targets.** For each target dir, note whether a `CLAUDE.md` and `constitution.md`
    already exist (the scout reports these) — inputs to synthesis, not overwrite targets.

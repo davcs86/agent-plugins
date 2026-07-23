@@ -65,7 +65,10 @@ Report it under `## Ask the human` or `## Candidates`, phrased as a question.
 4. **Cross-module contracts.** Implicit expectations one module places on another: headers/context a
    caller must forward, a seeded/shared resource that must not be mutated, a value that must stay in
    parity across multiple read paths, ordering/versioning assumptions. Cite the producer and consumer
-   sites. These cause the nastiest cross-cutting rework.
+   sites. These cause the nastiest cross-cutting rework. **Say which side you actually saw** — if you
+   only observed the *consumer* end (this module consumes value X a certain way), mark it
+   `consumer-observed` and name the owning module, so the orchestrator can validate the quirk against
+   the producer (a consumer-side quirk can be a shared bug, not a contract — CF-N10).
 
 5. **Looks-wrong-but-intentional.** Code that resembles an anti-pattern (a magic constant, a bypass,
    a duplicated block, an odd timeout) but is consistent/load-bearing. Do **not** rule on it and do

@@ -82,3 +82,13 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   (`constitution-findings.md`, sibling to the constitution) with its `path:line`/commit citation and a
   suggested action, so it is actioned rather than frozen into governance. Both are durable outputs;
   neither is dropped.
+- **CF-N10 — Validate a cross-cutting quirk against its owner before enshrining it.** A pattern
+  observed from the *consumer* side can be an invariant to respect **or** a bug to fix, and you cannot
+  tell from the consumers alone. Before recording a cross-service "quirk" as a rule, check the
+  **producing/owning** module (the service that defines the contract, type, or value). If the owner's
+  contract *contradicts* the observed quirk — the producer supports the correct behavior and the
+  consumers get it wrong — it is a **defect** (findings log, **CF-N9**), not an invariant, even when
+  many consumers share it. (Benchmark example: a "treat 0 as unset" quirk seen across consumer services
+  looked like a rule, but the producing service's `oneof` contract *supported* distinguishing 0 — so
+  the consumers had a bug, not the platform a convention.) Confirming a contract from **both** the
+  producer and a consumer is the strongest grounding; a one-sided cross-module claim is weaker.

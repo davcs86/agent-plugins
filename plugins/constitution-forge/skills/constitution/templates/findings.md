@@ -12,6 +12,10 @@ deriving the constitution — the things an agent trusting the docs or the surfa
 These are for triage/fixing (feed them to your issue tracker), not governance: a defect is not a rule.
 Every entry cites the code. Refresh by re-running `/constitution`.
 
+> Lead with a **⚠ security** marker on any defect that affects an authz/authn/secret/tenant-isolation
+> boundary (e.g. documentation that claims a validation the code doesn't perform) — those are the most
+> dangerous to leave buried in aspirational docs. Order each section most-severe first.
+
 ## Documentation that lies (docs claim behavior the code lacks)
 
 | What the docs say | What the code does | Evidence | Suggested action |

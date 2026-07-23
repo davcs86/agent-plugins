@@ -38,7 +38,19 @@ module list — do not silently pick one.
    (headers/context a caller must forward, a seeded/shared resource that must not be mutated, a value
    that must stay in parity across read paths). These live at the root because they are about the
    space *between* modules, and their violation causes the nastiest cross-cutting rework.
-4. **Synthesize per target, root-first (Phase 1).** Build the **root** constitution first so its IDs
+4. **Cross-module reconciliation (do this once you hold all module digests) — two passes only a
+   whole-tree view enables:**
+   - **Validate consumer-observed quirks against their owner (CF-N10).** When several modules exhibit
+     the same cross-cutting "quirk" (a shared type decoded oddly, a value treated a certain way),
+     find the **producing/owning** module in the digests and check its contract. If the owner supports
+     the correct behavior and the consumers diverge, it's a **defect** for the findings log, not an
+     invariant — no matter how many consumers share it. Confirm every cross-module contract from
+     **both** sides (producer + a consumer) where the digests allow; a one-sided claim is weaker.
+   - **Hunt repeated dead code / copied scaffolding across modules.** A file or helper that is dead in
+     *one* module is a per-module finding; the same orphan repeated across N modules (a hand-copied
+     config watcher, an unused propagation shim, a dead helper in every service of one language) is a
+     **repo-wide** structural finding — record the pattern at the root (findings log), not N times.
+5. **Synthesize per target, root-first (Phase 1).** Build the **root** constitution first so its IDs
    exist, then each module constitution — each stating only module-specific rules and *pointing to*
    the root for inherited ones (**CF-N3**). A module constitution that would just re-list root rules
    is wrong; it should be short.
