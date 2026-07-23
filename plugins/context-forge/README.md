@@ -1,25 +1,36 @@
 # context-forge
 
-A repo-agnostic **tribal-knowledge extractor**. It analyzes a repository the way a senior engineer
-onboarding a new hire would — not to recite the docs, but to warn about the things that aren't
-written down — and turns that into two durable artifacts:
+A repo-agnostic **context-engineering toolkit** for AI coding agents — two complementary skills that
+manage the context an agent loads from a repo. One **adds** the high-signal knowledge an agent would
+miss; the other **removes** the low-signal content that just costs tokens:
 
-1. a **`context-constitution.md`** — the repo's *non-obvious* invariants: undocumented patterns it follows
-   across many files, asymmetries (the one file that breaks a pattern), implicit cross-module
+- **`/context-constitution`** — a tribal-knowledge *extractor*. It analyzes a repo the way a senior
+  engineer onboarding a new hire would — not to recite the docs, but to warn about the things nobody
+  wrote down — and forges an evidence-cited `context-constitution.md` plus a behavioral contract in
+  `CLAUDE.md`.
+- **`/context-scrubber`** — the *inverse*: a context auditor. It reads the repo's already-loaded
+  context files and reports every line that **fails the litmus test** — stale citations, restated
+  facts, cross-file duplication, contradicted-by-code claims, and bloat — with an optional gated trim.
+
+Both run on the same premise and the same litmus test: *the value of a context line is inversely
+proportional to how easily an agent would find it alone.* `context-constitution` keeps only what an
+agent would **miss**; `context-scrubber` flags what an agent would **find for free**. Both are single
+orchestrators that own every write and every gate, spawn only read-only advisory subagents, and never
+invent — every rule and every verdict is grounded in `path:line` evidence. They share one config file
+(`.agents/context-forge.json`) and one governance set (`CF-*` Floor rules, `CF-N*` Norms).
+
+## `/context-constitution` — forge the high-signal context
+
+Turns a repo's non-obvious knowledge into two durable artifacts:
+
+1. a **`context-constitution.md`** — the repo's *non-obvious* invariants: undocumented patterns it
+   follows across many files, asymmetries (the one file that breaks a pattern), implicit cross-module
    contracts, and scars (*why* something is the way it is), grouped into ID'd tiers (Floor / Rules /
    Norms) and grounded in real evidence (multi-site citations, an authoritative site, or a commit);
-   and
 2. a **behavioral contract** prepended to the **root `CLAUDE.md`** — four repo-agnostic behaviors that
    shape *how* an agent works (root only, since `CLAUDE.md` loads root-down and the block is generic);
    plus a one-line **constitution pointer** in every `CLAUDE.md` so the constitution is actually
    discoverable (only `CLAUDE.md` is auto-loaded).
-
-The premise: agents rarely fail for lack of capability — they fail on **behavior**, and they waste
-time and tokens rediscovering, or missing, the patterns nobody wrote down. So put behaviors up top,
-and fill the constitution with exactly the knowledge an agent would **miss on a normal read**. The value of any line is inversely proportional to how easily an agent would find it
-alone; a rule already in the docs or CI is a one-line pointer, not a restatement.
-
-## What it does
 
 - **Scans** the repo with a read-only subagent (`convention-scout`) that hunts the non-obvious:
   emergent multi-site patterns (each with the *wrong default* it prevents), asymmetries, implicit
@@ -29,82 +40,90 @@ alone; a rule already in the docs or CI is a one-line pointer, not a restatement
   the code alone can't show, cited to commits/PRs.
 - **Asks you** about anything that looks wrong but appears intentional, and records your answer as
   the rule's rationale — the only reliable way to capture true tribal knowledge.
-- **Synthesizes** an evidence-cited `context-constitution.md` (Floor / Rules / Norms + a `Gotchas & scars`
-  section), applying an inclusion test — *would an agent miss this on a normal read?* — so restated
-  docs become one-line pointers and anything unproven is quarantined under `## Candidate rules
-  (unverified)`.
-- **Never drops what it found.** Things the scan surfaces that are *defects to fix* rather than
-  *invariants to respect* — **documentation that lies** (behavior/config the docs promise but the code
-  lacks), latent bugs, dead code — go into a sibling `context-constitution-findings.md` log, cited and with a
-  suggested action, for triage. A defect is recorded, never frozen into a governance rule; and nothing
-  grounded is silently discarded.
-- **Prepends** the four-behavior contract to the **root** `CLAUDE.md` (not duplicated per module), and
-  adds a **constitution pointer** to every `CLAUDE.md` so the constitution is discoverable — both
-  idempotently sentinel-wrapped, so a re-run updates in place instead of stacking a copy.
-- **Handles monorepos**: one constitution + contract **per module**, then a **repo-wide** pass at
-  the root whose special focus is the cross-module contracts. Repo-wide rules live once at the root;
-  module constitutions stay thin and inherit.
+- **Never drops what it found.** Defects to *fix* rather than invariants to *respect* — **documentation
+  that lies**, latent bugs, dead code — go into a sibling `context-constitution-findings.md` log, cited
+  and with a suggested action, for triage; nothing grounded is silently discarded.
+- **Handles monorepos**: one constitution + contract **per module**, then a **repo-wide** pass at the
+  root whose special focus is the cross-module contracts. Repo-wide rules live once at the root.
+
+```shell
+/context-constitution              # full flow: scan → synthesize → (gated) write
+/context-constitution scan         # dry run — present artifacts inline, write nothing
+/context-constitution scan apps/web  # scope the analysis to one subdirectory
+/context-constitution refresh      # incremental: re-derive only what changed since each target's baseline
+/context-constitution refresh check  # CI/linter: report drift, write nothing
+```
+
+`refresh` is the keep-it-current mode: it diffs each target from **git** — the last commit that wrote
+that target's `context-constitution.md`, so a manual edit is respected like any other commit —
+re-derives only the changed areas, flags rules whose citations went stale, and applies approved deltas.
+`refresh … check` reports drift and writes nothing, so it is safe in CI.
 
 ### Optional: library-doc cross-referencing
 
 If **any** documentation-lookup MCP tool — one that resolves a package name and returns its docs,
 [Context7](https://github.com/upstash/context7) being the reference example — is available in your
-session, the skill uses it to sharpen the inclusion test for third-party-library usage: a setting
-that **deviates** from the library's documented default is kept as a rule (a deliberate choice worth
-capturing), while usage that just **matches the docs** is dropped or demoted to a pointer (an agent
-can look it up). The skill matches on capability, not a fixed server name, so it works whether the
-tool is user-configured (`mcp__<server>__…`) or plugin-bundled (`mcp__plugin_…__…`). This is a pure
-enhancement — with no such tool available the skill falls back to consistency-based judgment and runs
-unchanged. To enable Context7 specifically, add it to your host repo's MCP config, e.g.:
+session, `context-constitution` uses it to sharpen the inclusion test for third-party-library usage: a
+setting that **deviates** from the library's documented default is kept as a rule, while usage that just
+**matches the docs** is dropped or demoted to a pointer. It matches on capability, not a fixed server
+name, so it works whether the tool is user-configured (`mcp__<server>__…`) or plugin-bundled
+(`mcp__plugin_…__…`). This is a pure enhancement — with no such tool available the skill falls back to
+consistency-based judgment and runs unchanged.
 
-```json
-{
-  "mcpServers": {
-    "Context7": { "type": "http", "url": "https://mcp.context7.com/mcp" }
-  }
-}
-```
+## `/context-scrubber` — remove the low-signal context
 
-(See the Context7 docs for the current URL and any API-key requirement.)
+The inverse of `context-constitution`: instead of adding what an agent would miss, it finds and reports
+what an agent would find for free and is therefore dead weight in an auto-loaded context file.
 
-## Usage
+- **Audits** the repo's auto-loaded instruction files — root + nested `CLAUDE.md`, `AGENTS.md`, the
+  generated `context-constitution.md` / findings, `.cursor/rules/*` — with a read-only subagent
+  (`context-auditor`), classifying each line against the actual repo.
+- **Five failure categories**, every verdict cited: **stale citations** (a `path:line` that no longer
+  resolves), **restated facts** (a line an agent reads for free), **cross-file duplication** (the same
+  rule in two context files), **contradicted by code** (a claim the code disproves), and **bloat**.
+- **Primary output** is an evidence-cited `context-scrubber-findings.md` — one row per failing line,
+  cited on both sides, with the category, why it fails, and a suggested action
+  (remove / trim / move / keep-but-verify). Anything unproven is a `keep-but-verify` question, never
+  asserted (**CF-1**); nothing grounded is dropped (**CF-N8**).
+- **Optional gated trim** (`apply` mode): after you approve the findings *and* a second edit-set gate,
+  it trims the approved lines **in place** — non-destructive and sentinel-safe. It never trims inside
+  `context-constitution`'s behavioral-contract or constitution-pointer blocks, and never deletes on its
+  own.
 
 ```shell
-/context-constitution              # full flow: scan → synthesize → (gated) write
-/context-constitution scan         # dry run — present artifacts inline, write nothing
-/context-constitution write        # explicit full flow (same as no argument)
-/context-constitution scan apps/web  # scope the analysis to one subdirectory
-/context-constitution refresh      # incremental: re-derive only what changed since each target's baseline
-/context-constitution refresh apps/web  # refresh just one target, from its own baseline
-/context-constitution refresh check     # CI/linter: report drift, write nothing
+/context-scrubber              # default: audit → write findings only (nothing trimmed)
+/context-scrubber apps/web     # scope the audit to one subdirectory
+/context-scrubber apply        # audit → findings → (double-gated) trim approved lines in place
 ```
 
-**Refresh vs. write.** `write` forges from a full scan. `refresh` is the keep-it-current mode: it
-diffs each target from **git** — the last commit that wrote that target's `context-constitution.md`, so a
-scoped write to one module never throws off another's baseline and a **manual edit** to a constitution
-is respected like any other commit — re-derives only the changed areas, flags rules whose citations
-went stale, and applies the approved deltas without re-emitting unchanged rules. No baseline is stored
-anywhere; git is the source of truth. `refresh … check` reports drift and writes nothing, so it is
-safe to run in CI or on a schedule.
+`scan` (the default) is report-only — deliberately opposite of `context-constitution`'s write default,
+because the scrubber's `apply` step *removes* lines, so the safe default must never trim.
 
-First run in a repo asks two questions (where to write each `context-constitution.md`, and whether the
-contract should cite the generated IDs) and saves them to `.agents/context-forge.json`.
-Everything is gated: nothing is written before you approve the synthesized result, and `scan` mode
-never writes at all.
+## Config
+
+Both skills share `.agents/context-forge.json` at the repo root (committable, so a team shares one
+setting). Whichever skill runs first creates it via a short first-run interview; the other reads it.
+Keys: `constitutionPath` (where each `context-constitution.md` is written, or `null` for scratch mode),
+`citeIds` (whether the behavioral contract cites generated IDs), and the optional `scrubberFindingsPath`
+(where `context-scrubber` writes its report; default `context-scrubber-findings.md` at the root).
+Everything is gated: nothing is written before you approve, and the report-only modes never write to
+your files at all.
 
 ## Design
 
-Single orchestrator (the skill) owns every write and every gate; the subagent is advisory and
-read-only. The skill holds itself to its own Floor + Norms — see
-[`skills/context-constitution/reference/principles.md`](skills/context-constitution/reference/principles.md) — the
-first of which is **never invent a rule**. Progressive disclosure keeps the router
-([`SKILL.md`](skills/context-constitution/SKILL.md)) small; protocol detail loads only when its phase runs.
+Each skill is a single orchestrator that owns every write and every gate; its subagents
+(`convention-scout`, `context-auditor`) are advisory and read-only. Both hold themselves to the shared
+`CF-*` Floor + `CF-N*` Norms — see
+[`skills/context-constitution/reference/principles.md`](skills/context-constitution/reference/principles.md)
+— the first of which is **never invent**. Progressive disclosure keeps each router `SKILL.md` small;
+protocol detail loads only when its phase runs. The two skills' shared `principles.md` and
+`config-protocol.md` are byte-identical copies.
 
 ## Compatibility
 
-Ships one shared `skills/` + `agents/` tree with a manifest for each tool, so it runs on **Claude
-Code** and **Cursor**. In Claude Code the gates use `AskUserQuestion`; under Cursor the skill asks
-the same questions in plain chat.
+Ships one shared `skills/` + `agents/` tree with a manifest for each tool, so it runs on **Claude Code**
+and **Cursor**. In Claude Code the gates use `AskUserQuestion`; under Cursor each skill asks the same
+questions in plain chat.
 
 ## License
 
