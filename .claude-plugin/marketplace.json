@@ -20,16 +20,16 @@
       "keywords": ["design", "architecture", "planning", "debate", "adversarial", "sdd"]
     },
     {
-      "name": "constitution-forge",
-      "displayName": "Constitution Forge",
-      "source": "./plugins/constitution-forge",
-      "description": "Extracts a repo's hidden patterns, asymmetries, cross-module contracts, and git-history scars — the tribal knowledge an agent misses on a normal read — into an evidence-cited constitution.md (per module and repo-wide for monorepos), with the behavioral contract in the root CLAUDE.md and a constitution pointer in each. Invents nothing; every rule is grounded.",
+      "name": "context-forge",
+      "displayName": "Context Forge",
+      "source": "./plugins/context-forge",
+      "description": "A context-engineering toolkit: context-constitution reverse-engineers a repo's non-obvious tribal knowledge into an evidence-cited context-constitution.md plus a behavioral contract in CLAUDE.md; context-scrubber audits the repo's context files and reports every line that fails the litmus test — stale citations, restated facts, duplication, contradictions, just-in-time, brittle instructions, bloat — plus a file-level context-budget signal, with an optional gated trim. Adds the high-signal context, removes the low-signal; invents nothing, every rule and verdict is grounded.",
       "author": {
         "name": "David Castillo",
         "email": "davcs86@gmail.com"
       },
       "license": "MIT",
-      "keywords": ["constitution", "claude-md", "governance", "conventions", "behavioral-contract", "monorepo", "codebase-analysis"]
+      "keywords": ["context-engineering", "constitution", "claude-md", "governance", "conventions", "behavioral-contract", "token-budget", "context-hygiene", "monorepo", "codebase-analysis"]
     }
   ]
 }

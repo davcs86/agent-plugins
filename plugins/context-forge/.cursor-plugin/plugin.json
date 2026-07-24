@@ -1,0 +1,12 @@
+{
+  "name": "context-forge",
+  "displayName": "Context Forge",
+  "version": "0.3.0",
+  "description": "A context-engineering toolkit for AI coding agents. context-constitution reverse-engineers a repo's non-obvious tribal knowledge into an evidence-cited context-constitution.md plus a behavioral contract in CLAUDE.md; context-scrubber audits the repo's context files and reports every line that fails the litmus test — stale citations, restated facts, cross-file duplication, contradicted-by-code, should-be-just-in-time, brittle/over-specified, bloat — plus a file-level context-budget signal, with an optional gated trim. Adds the high-signal context, removes the low-signal; invents nothing, every rule and verdict is grounded.",
+  "author": {
+    "name": "davcs86",
+    "email": "davcs86@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["context-engineering", "constitution", "claude-md", "governance", "conventions", "behavioral-contract", "token-budget", "context-hygiene", "monorepo", "codebase-analysis"]
+}

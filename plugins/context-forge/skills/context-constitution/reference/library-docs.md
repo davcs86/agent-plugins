@@ -1,4 +1,4 @@
-# constitution-forge — library-docs cross-reference (optional)
+# context-forge — library-docs cross-reference (optional)
 
 Load this only when Phase 1 is classifying a **third-party-library usage** finding **and** a
 documentation-lookup MCP tool is available in the host session. It is an *enhancement* to the
@@ -14,7 +14,7 @@ for a resolve-then-query pair among the session's available tools under any of t
 - **User- or project-configured** server → tools named `mcp__<server>__<tool>`, e.g.
   `mcp__Context7__resolve-library-id` + `mcp__Context7__query-docs`.
 - **Plugin-bundled** server (if a host bundles one) → tools named
-  `mcp__plugin_<plugin>_<server>__<tool>`, e.g. `mcp__plugin_constitution-forge_Context7__query-docs`.
+  `mcp__plugin_<plugin>_<server>__<tool>`, e.g. `mcp__plugin_context-forge_Context7__query-docs`.
 - **Any equivalent** — a differently-named docs/registry MCP with a resolve + query capability.
 
 Match on capability (resolve a package name → fetch its docs), not on an exact server name. Found one

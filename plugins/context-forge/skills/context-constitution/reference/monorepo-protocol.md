@@ -1,4 +1,4 @@
-# constitution-forge — monorepo protocol
+# context-forge — monorepo protocol
 
 Load this only when Phase 0 detects more than one module. A monorepo gets **one constitution per
 module, plus one repo-wide constitution at the root** — and a behavioral contract prepended to each
@@ -70,10 +70,10 @@ module list — do not silently pick one.
 At the Phase 1 gate, show the target tree explicitly, e.g.:
 
 ```
-root                → docs/constitution.md   (Floor 3 · Rules 6 · Norms 4) · CLAUDE.md contract: update
-services/trading    → docs/constitution.md   (Rules 2 · Norms 1)          · CLAUDE.md contract: create
+root                → docs/context-constitution.md   (Floor 3 · Rules 6 · Norms 4) · CLAUDE.md contract: update
+services/trading    → docs/context-constitution.md   (Rules 2 · Norms 1)          · CLAUDE.md contract: create
 services/ledger     → (inherits root only)                                 · CLAUDE.md contract: create
-packages/proto      → docs/constitution.md   (Floor 1 · Rules 3)          · CLAUDE.md contract: update
+packages/proto      → docs/context-constitution.md   (Floor 1 · Rules 3)          · CLAUDE.md contract: update
 ```
 
 so the user approves the whole shape in one decision, then all writes happen in Phase 2.

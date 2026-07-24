@@ -1,6 +1,6 @@
 ---
-name: constitution
-description: "Reverse-engineer a repository's implicit rules into a durable constitution and prepend a concise behavioral contract to its CLAUDE.md. Usage: `constitution [scan|write] [path]`. Phase 0 (Scan) discovers the repo with read-only subagents — module map, stated hard rules, CI-enforced checks, conventions — and, for a monorepo, runs one scoped scan per module plus a repo-wide pass. Phase 1 (Synthesize) clusters the findings into an evidence-cited, ID'd constitution.md (per module, then root) and builds the four-behavior contract. Phase 2 (Write) writes each constitution and idempotently prepends the contract to each CLAUDE.md. A `refresh` mode then updates an already-forged repo incrementally — diffing each target from git (the last commit that wrote its constitution, so manual edits are respected), reporting drift/stale rules, and applying approved deltas (`refresh … check` reports drift without writing). Every rule cites path:line; nothing is invented."
+name: context-constitution
+description: "Reverse-engineer a repository's implicit rules into a durable constitution and prepend a concise behavioral contract to its CLAUDE.md. Usage: `context-constitution [scan|write] [path]`. Phase 0 (Scan) discovers the repo with read-only subagents — module map, stated hard rules, CI-enforced checks, conventions — and, for a monorepo, runs one scoped scan per module plus a repo-wide pass. Phase 1 (Synthesize) clusters the findings into an evidence-cited, ID'd context-constitution.md (per module, then root) and builds the four-behavior contract. Phase 2 (Write) writes each constitution and idempotently prepends the contract to each CLAUDE.md. A `refresh` mode then updates an already-forged repo incrementally — diffing each target from git (the last commit that wrote its constitution, so manual edits are respected), reporting drift/stale rules, and applying approved deltas (`refresh … check` reports drift without writing). Every rule cites path:line; nothing is invented."
 argument-hint: "[scan|write] [path]"
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *) mcp__Context7__resolve-library-id mcp__Context7__query-docs
 disable-model-invocation: true
@@ -9,7 +9,7 @@ disable-model-invocation: true
 You capture the knowledge an agent would **miss on a normal-effort read** — and thereby cause
 rework — into durable, complementary artifacts (two core; a third when defects surface):
 
-- a **`constitution.md`**: the repo's *non-obvious* invariants — undocumented patterns followed
+- a **`context-constitution.md`**: the repo's *non-obvious* invariants — undocumented patterns followed
   across many files, asymmetries (the one file that breaks a pattern), implicit cross-module
   contracts, and scars (*why* something is the way it is) — grouped into ID'd tiers (Floor / Rules /
   Norms), each grounded in real evidence (multi-site citations, an authoritative site, or a commit);
@@ -20,10 +20,10 @@ rework — into durable, complementary artifacts (two core; a third when defects
   root down, so one copy is always in context; an identical copy per module is the duplication this
   tool fights (**CF-N11**); and
 - a **constitution pointer** added to every target's `CLAUDE.md` (a one-line reference to that target's
-  `constitution.md` + findings). This is what makes the constitution *reachable at all*: only
+  `context-constitution.md` + findings). This is what makes the constitution *reachable at all*: only
   `CLAUDE.md` is auto-loaded, so a constitution nothing points to is inert (**CF-N11**).
 
-Plus a conditional third output: a **`constitution-findings.md`** log whenever the scan surfaces
+Plus a conditional third output: a **`context-constitution-findings.md`** log whenever the scan surfaces
 things that are *defects to fix* rather than *invariants to respect* — documentation that lies
 (behavior/config the docs promise but the code lacks), latent bugs, dead code. A scan costs real
 tokens, so nothing grounded is discarded (**CF-N8**): a defect is recorded and cited for triage, never
@@ -34,7 +34,7 @@ Two things this is **not**: it is not a re-index of rules already stated in docs
 facts readable from the code. The split is the whole point (**CF-N2**): behaviors up top shape how
 the agent *thinks*; hard-won, easy-to-miss facts live in the constitution. The value of any line is
 inversely proportional to how easily an agent would find it alone. This has side effects (new/edited
-files), so it is invoked deliberately via `/constitution`, never automatically.
+files), so it is invoked deliberately via `/context-constitution`, never automatically.
 
 **Authority (CF-3).** You are the single orchestrator: you own every file write and every user
 gate. The subagents you spawn are advisory only — they locate and quote; they never write. You
@@ -75,16 +75,16 @@ when its step activates — do not read them up front:
 
 ## BOOT SEQUENCE
 
-**B0 — Config.** Read `.agents/constitution-forge.json` at the repo root. Present → load
+**B0 — Config.** Read `.agents/context-forge.json` at the repo root. Present → load
 `constitutionPath` (where each constitution is written, relative to its target dir) and `citeIds`
 (does the behavioral contract cite generated constitution IDs?), and announce them in one line.
 Absent → read `reference/config-protocol.md`, run its first-run interview, then continue. `scan`
 mode never writes config — it uses defaults and notes them. No baseline is stored: `refresh` derives
 each target's baseline from git (`refresh-protocol.md`); if no target has a committed
-`constitution.md` yet, tell the user to run `write` first.
+`context-constitution.md` yet, tell the user to run `write` first.
 
 **B1 — Locate targets.** Find the analysis root (arg `path` or repo root). Detect existing
-`CLAUDE.md` and any existing `constitution.md` under the root — these are *merge targets*, never
+`CLAUDE.md` and any existing `context-constitution.md` under the root — these are *merge targets*, never
 overwrite targets (**CF-4**).
 
 **B2 — Principles.** Read `reference/principles.md` (the `CF-*` Floor and `CF-N*` Norms you
@@ -161,33 +161,33 @@ Only after Approve, and never in `scan` mode. Per target:
    one exists, **merge** (**CF-4**): keep every existing rule and ID, append newly-found rules under
    their tier, and show the user the added lines — never rewrite or renumber existing rules.
 2. **Behavioral contract — root `CLAUDE.md` only (CF-N11).** Prepend the contract to the **root**
-   target's `CLAUDE.md`, wrapped in `<!-- constitution-forge:behavioral-contract:start -->` … `:end`.
+   target's `CLAUDE.md`, wrapped in `<!-- context-forge:behavioral-contract:start -->` … `:end`.
    If the markers are present, **replace the block in place** (never stack a copy); if the root has no
    `CLAUDE.md`, create one with just the contract. **Do not** copy the generic block into module
    `CLAUDE.md` files. (Exception: if `citeIds` is on *and* a module produced its own constitution, its
    contract is module-specific — cites that module's IDs — so prepending it there is not duplication.)
 3. **Constitution pointer — every target's `CLAUDE.md` (CF-N11).** Add/refresh a one-line pointer to
-   this target's `constitution.md` (and its findings, if any), wrapped in
-   `<!-- constitution-forge:constitution-pointer:start -->` … `:end` (replace in place on re-run). This
+   this target's `context-constitution.md` (and its findings, if any), wrapped in
+   `<!-- context-forge:constitution-pointer:start -->` … `:end` (replace in place on re-run). This
    is mandatory — it's the only thing that makes the constitution discoverable, since bare docs aren't
    auto-loaded. If the host has a `CLAUDE.md` index/table of what-to-read (a "Context Guide"), add the
    constitution as a row there instead of a loose line, matching the host's style.
-4. **Findings log.** If Step 2b routed any defects here, write/merge them into `constitution-findings.md`
+4. **Findings log.** If Step 2b routed any defects here, write/merge them into `context-constitution-findings.md`
    beside the constitution (`templates/findings.md`), non-destructively. Skip the file only when the
    target has zero defects — never manufacture an empty one.
-5. Stage nothing outside the written targets' `constitution.md` + `CLAUDE.md` + `constitution-findings.md`
-   (plus `.agents/constitution-forge.json` on first-run config creation). **No baseline is recorded** —
+5. Stage nothing outside the written targets' `context-constitution.md` + `CLAUDE.md` + `context-constitution-findings.md`
+   (plus `.agents/context-forge.json` on first-run config creation). **No baseline is recorded** —
    the commit that lands the write is itself the baseline `refresh` reads from git next time.
 
 ## COMPLETION
 
-Print, per target: its `constitution.md` path and rule counts, whether its `CLAUDE.md` contract was
-created / updated / unchanged, and — if any — its `constitution-findings.md` path and defect count
+Print, per target: its `context-constitution.md` path and rule counts, whether its `CLAUDE.md` contract was
+created / updated / unchanged, and — if any — its `context-constitution-findings.md` path and defect count
 (doc-lies / latent bugs / dead code) so the user can triage them. Then one reminder:
 
 > Facts live in the constitution and `CLAUDE.md`; behaviors live in the contract. Before adding any
 > future line, apply the litmus test (**CF-N4**): *does it shape how the agent thinks, or restate a
-> fact it can read from the code?* If the latter, leave it out. Re-run `/constitution` to refresh.
+> fact it can read from the code?* If the latter, leave it out. Re-run `/context-constitution` to refresh.
 
 ## HARD CONSTRAINTS — never violate
 
@@ -208,5 +208,5 @@ created / updated / unchanged, and — if any — its `constitution-findings.md`
 - **Monorepo = per-module then root.** Every module gets its own scoped pass; the root gets the
   cross-cutting pass. Repo-wide rules live at the root; module constitutions never duplicate them.
 - **The baseline is git — persist nothing.** `refresh` derives each target's last-forged point from
-  `git log` on its `constitution.md`, never a stored ref. This is per-target for free and makes a
+  `git log` on its `context-constitution.md`, never a stored ref. This is per-target for free and makes a
   manual edit indistinguishable from a forge to the next run. `refresh … check` writes nothing.
