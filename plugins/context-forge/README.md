@@ -78,9 +78,12 @@ what an agent would find for free and is therefore dead weight in an auto-loaded
 - **Audits** the repo's auto-loaded instruction files — root + nested `CLAUDE.md`, `AGENTS.md`, the
   generated `context-constitution.md` / findings, `.cursor/rules/*` — with a read-only subagent
   (`context-auditor`), classifying each line against the actual repo.
-- **Five failure categories**, every verdict cited: **stale citations** (a `path:line` that no longer
+- **Seven failure categories**, every verdict cited: **stale citations** (a `path:line` that no longer
   resolves), **restated facts** (a line an agent reads for free), **cross-file duplication** (the same
-  rule in two context files), **contradicted by code** (a claim the code disproves), and **bloat**.
+  rule in two context files), **contradicted by code** (a claim the code disproves), **should be
+  just-in-time** (accurate but pre-loaded content that belongs behind a pointer), **brittle /
+  over-specified** (an if-else block that should be a heuristic), and **bloat** — plus a file-level
+  **context-budget** signal that flags whole files large enough to strain attention (context rot).
 - **Primary output** is an evidence-cited `context-scrubber-findings.md` — one row per failing line,
   cited on both sides, with the category, why it fails, and a suggested action
   (remove / trim / move / keep-but-verify). Anything unproven is a `keep-but-verify` question, never

@@ -9,7 +9,7 @@ disable-model-invocation: true
 You are the **inverse** of `/context-constitution`. That skill *adds* the high-signal knowledge an agent would
 miss on a normal read; you *find and report* the low-signal content already sitting in a repo's context files —
 the lines that **fail the litmus test** (**CF-N4**) and cost tokens on every load without changing how the agent
-works. You audit five kinds of failing content:
+works. You audit seven kinds of failing content:
 
 - **Stale citations** — a `path:line` the context file cites that no longer resolves (file moved/deleted, or the
   line drifted off the cited code).
@@ -19,7 +19,15 @@ works. You audit five kinds of failing content:
   **CF-N3**).
 - **Contradicted by code** — a context line that now disagrees with what the code actually does (a "docs that lie"
   case, at the context-file layer).
+- **Should be just-in-time** — accurate but *pre-loaded* content that belongs behind a pointer to an on-demand
+  doc: task-specific / rarely-needed detail an agent should retrieve when it needs it, not carry on every load.
+  Misplaced, not redundant — the action is `move-to-<doc>` + a pointer, not delete.
+- **Brittle / over-specified (anti-altitude)** — a long if-else or step-by-step instruction block that should be a
+  strong one-line heuristic. It *does* steer the agent, just too rigidly, and rots as the code moves.
 - **Bloat / low-value prose** — verbose filler that shapes no agent action and just spends the context budget.
+
+Plus one **file-level** signal: a whole context file whose **measured** size strains attention (context rot) even
+when no single line fails — reported as a budget advisory, biggest first, never an automatic removal.
 
 Two hard boundaries. You audit only the **instruction/context files** a tool auto-loads — never source code *as
 context* (source is evidence, never a scrub target). And you never delete on your own: the findings file comes
@@ -121,14 +129,20 @@ in scratch mode):
    finding *within* the report (higher-token / higher-certainty first), it never deletes one. An ungrounded
    suspicion lands under `## Keep-but-verify`, phrased as a question — never asserted as removable (**CF-1**).
 2. **One row per failing context line**, cited on both sides: the context `file:line`, the evidence it fails
-   (the free-to-read `path:line`, the contradicting site, or the duplicate location), the category, why it fails,
-   and a suggested action — `remove` / `trim` / `move-to-<file>` / `keep-but-verify`.
-3. **Never propose trimming a protected block.** The sentinel-wrapped behavioral-contract and constitution-pointer
+   (the free-to-read `path:line`, the contradicting site, the duplicate location, or — for *just-in-time* and
+   *brittle* — the reason it's mis-placed or over-specified), the category, why it fails, and a suggested action
+   — `remove` / `trim` / `move-to-<doc>` (just-in-time) / `trim to a heuristic` (brittle) / `keep-but-verify`.
+   A *just-in-time* row's action leaves a pointer behind (it relocates, it doesn't delete); a *brittle* row keeps
+   the intent as a heuristic (it doesn't drop the behavior).
+3. **Include the file-level budget section.** Beyond the per-line rows, list any audited file over the soft size
+   budget in `## Context budget (file-level)` with its **measured** lines/characters — a context-rot advisory,
+   biggest first, never an automatic removal.
+4. **Never propose trimming a protected block.** The sentinel-wrapped behavioral-contract and constitution-pointer
    blocks that `/context-constitution` installs are excluded by construction (see HARD CONSTRAINTS). A pointer
    whose citation looks stale is reported `keep-but-verify` with "re-run `/context-constitution`", never
    `remove` — that block is the constitution skill's to own (**CF-N11**).
 
-4. **Report savings as measured facts, never invented (CF-1).** The findings file's `## Summary` quantifies the
+5. **Report savings as measured facts, never invented (CF-1).** The findings file's `## Summary` quantifies the
    flagged content in **lines and characters counted directly from the files** — real, verifiable numbers.
    Report a **token** figure only if a token-counting tool is actually available this run (match on capability,
    like the constitution skill's optional docs lookup); otherwise report lines/characters, and mark any token

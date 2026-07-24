@@ -7,8 +7,9 @@ that is Phase 2 (`apply-protocol.md`), gated and `apply`-only.
 ## What you are hunting (and what you are NOT)
 
 The scrubber is the litmus test (**CF-N4**) run in reverse. `/context-constitution` keeps only what an agent
-would **miss**; you flag what an agent would **find for free** and is therefore dead weight in an auto-loaded
-context file. Five categories, each grounded in real evidence (**CF-1**):
+would **miss**; you flag what an agent would **find for free**, what no longer holds, or what is mis-placed —
+all of it dead weight or attention drag in an auto-loaded context file. Seven line-level categories, each
+grounded in real evidence (**CF-1**):
 
 | Category | What it is | Grounded by |
 |---|---|---|
@@ -16,10 +17,20 @@ context file. Five categories, each grounded in real evidence (**CF-1**):
 | **Restated (fails CF-N4)** | a fact plain in the one file an agent would edit, a manifest, or a doc/CI file it already loads | the free-to-read `path:line` that makes it redundant |
 | **Cross-file duplication (CF-N3)** | the same rule/fact in ≥2 context files | every duplicate location + which copy is highest in the tree |
 | **Contradicted by code** | a context claim the code now disproves | the contradicting `path:line` |
+| **Should be just-in-time** | accurate but *pre-loaded* content that belongs behind a pointer to an on-demand doc — task-specific/rarely-needed detail that costs tokens on every load | the content is narrow/rarely-needed and an on-demand home exists or should; **not** a duplicate (that's cross-file) — it's *misplaced*, not redundant |
+| **Brittle / over-specified (anti-altitude)** | a long if-else / step-by-step instruction block that should be a heuristic — it shapes behavior but too rigidly, and rots as the code moves | the block enumerates cases/steps a strong one-line heuristic would cover; **not** filler (that's bloat) — it *does* steer the agent, just brittly |
 | **Bloat / low-value prose** | verbose filler that shapes no agent action | — (judgment; mark lower-confidence, never assert removal without a clear reason) |
 
-Anything you *suspect* but cannot ground this way is **`keep-but-verify`**, phrased as a question — never asserted
-as removable (**CF-1**). Severity/confidence ranks a finding within the report; it never deletes one (**CF-N8**).
+Suggested actions map to the category: `remove` (stale/restated/duplication), `fix the code or the claim`
+(contradicted), `move-to-<on-demand doc>` + leave a pointer (just-in-time), `trim to a heuristic` (brittle), or
+`trim` (bloat). Anything you *suspect* but cannot ground is **`keep-but-verify`**, phrased as a question — never
+asserted as removable (**CF-1**). Severity/confidence ranks a finding within the report; it never deletes one
+(**CF-N8**).
+
+Plus one **file-level** signal (not a per-line row): **context budget / rot risk** — a whole context file whose
+**measured** size is large enough to strain attention (context rot) even when no single line fails. Report the
+biggest files with their measured lines/characters against a soft budget; it is advisory (points at what to
+review), never an automatic removal.
 
 ## Step 1 — Discover the context targets
 
@@ -86,6 +97,13 @@ total" (rows actioned `remove`/`trim`/confirmed `move`; `keep-but-verify` exclud
 only from a real tokenizer: if a token-counting tool is available in the session, use it and label the column
 measured; otherwise report lines/characters and, at most, an explicit `≈ chars ÷ 4` approximation — never a bare
 token number that reads as exact. Do not invent a savings figure of any kind.
+
+**Measure the file-level budget too.** For every audited context file, record its **measured** total lines and
+characters (you already hold its bytes). Flag any file over a soft budget — default **~2,000 characters** for a
+single auto-loaded context file, adjustable — as a context-rot risk in the report's `## Context budget
+(file-level)` section, biggest first. This is advisory: a large file is a prompt to review, not an automatic
+removal, and the number is measured, never invented (**CF-1**). It catches the case where every individual line
+looks defensible but the file as a whole is too big to keep sharp attention on.
 
 Then present the Phase 1 gate (target list, failing counts by category, `keep-but-verify` count, findings
 destination) and route by the user's choice — write the findings file on approval, or present it inline in scratch

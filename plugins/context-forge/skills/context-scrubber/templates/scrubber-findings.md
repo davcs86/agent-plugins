@@ -32,9 +32,15 @@ available this run; otherwise this table shows lines/characters, and any token n
 | Restated (agent reads for free) | <n> | <lines> | <chars> | <…> |
 | Cross-file duplication | <n> | <lines> | <chars> | <…> |
 | Contradicted by code | <n> | <lines> | <chars> | <…> |
+| Should be just-in-time | <n> | <lines> | <chars> | <…> |
+| Brittle / over-specified | <n> | <lines> | <chars> | <…> |
 | Bloat / low-value prose | <n> | <lines> | <chars> | <…> |
 | **Removable total** (excludes keep-but-verify) | <n> | <lines> | <chars> | <…> |
 | Keep-but-verify (unconfirmed) | <n> | — | — | — |
+
+> "Should be just-in-time" and "Brittle" are counted in the removable total only for the part actually
+> subtracted — a JIT row relocates (leaves a pointer), a brittle row shortens to a heuristic; neither is a bare
+> deletion. See the file-level `## Context budget` section below for whole-file size (measured, advisory).
 
 > "Removable total" counts only rows whose action is `remove`/`trim`/confirmed `move` — the content `apply`
 > would actually subtract. `keep-but-verify` rows are excluded from any savings claim (they are unproven, CF-1).
@@ -74,6 +80,24 @@ Context claims the code now disproves. ⚠-mark and order security-boundary rows
 |---|---|---|---|
 | ⚠ `CLAUDE.md:NN` — "<claimed check>" | no such validation runs | `src/auth.go:40` | fix the code, or remove the claim |
 
+## Should be just-in-time (pre-loaded → pointer)
+
+Accurate, even useful content that is *auto-loaded* when it should be retrieved on demand — task-specific or
+rarely-needed detail that costs tokens every load. Misplaced, not redundant: relocate it and leave a pointer.
+
+| Context line(s) | Why it's mis-placed (narrow / rarely-needed) | On-demand home | Suggested action |
+|---|---|---|---|
+| `CLAUDE.md:NN–MM` — "<passage>" | only relevant when touching `payments/`; loaded on every task | `payments/README.md` | move-to-`payments/README.md` + pointer |
+
+## Brittle / over-specified (anti-altitude)
+
+Instruction blocks that steer the agent but too rigidly — long if-else / step-by-step that a strong one-line
+heuristic would cover, and that rots as the code moves. Keep the intent as a heuristic; don't drop the behavior.
+
+| Context line(s) | Why it's brittle | Heuristic it should become | Suggested action |
+|---|---|---|---|
+| `CLAUDE.md:NN–MM` — "<if X do A; if Y do B; if Z…>" | enumerates cases a principle covers | "<one-line heuristic>" | trim to a heuristic |
+
 ## Bloat / low-value prose
 
 Verbose filler that shapes no agent action and just spends the context budget.
@@ -81,6 +105,16 @@ Verbose filler that shapes no agent action and just spends the context budget.
 | Context line(s) | Why it is filler | Suggested action |
 |---|---|---|
 | `CLAUDE.md:NN–MM` — "<passage>" | narrative with no directive an agent acts on | trim |
+
+## Context budget (file-level)
+
+Whole context files whose **measured** size strains attention (context rot) even when no single line above fails.
+Advisory — a prompt to review/split, never an automatic removal. Measured, never invented (**CF-1**). Biggest
+first; soft budget ~2,000 characters per auto-loaded file (adjust to taste).
+
+| File | Measured lines | Measured characters | Over soft budget? |
+|---|---|---|---|
+| `path/CLAUDE.md` | <lines> | <chars> | yes / no |
 
 ## Keep-but-verify (unconfirmed — CF-1)
 

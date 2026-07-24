@@ -24,15 +24,19 @@ enforces (see `## Pointers`). Refresh by re-running `/context-constitution`.
 
 ## Rules (`<PREFIX>-*`) — binding, easy-to-miss conventions
 
-| ID | Rule | Why | Evidence |
-|---|---|---|---|
-| **<PREFIX>-NN** | <the undocumented convention or cross-module contract> | <why it holds> | `path:line`, `path:line`, … |
+The **Example** column is a *pointer* to the one site that best demonstrates the rule — the canonical thing to
+copy when following it (few-shot by reference, not inlined code). Fill it only when a single site clearly shows
+the shape; leave it `—` otherwise. Never invent one (**CF-1**).
+
+| ID | Rule | Why | Evidence | Example (canonical `path:line`) |
+|---|---|---|---|---|
+| **<PREFIX>-NN** | <the undocumented convention or cross-module contract> | <why it holds> | `path:line`, `path:line`, … | `path:line` (copy this) / — |
 
 ## Norms (`<PREFIX>-*`) — defaults & asymmetry guidance
 
-| ID | Norm | Why | Evidence |
-|---|---|---|---|
-| **<PREFIX>-NN** | <the default; or "follow X's shape, not the Y outlier"> | <rationale> | `path:line` (norm) vs `path:line` (outlier) |
+| ID | Norm | Why | Evidence | Example (canonical `path:line`) |
+|---|---|---|---|---|
+| **<PREFIX>-NN** | <the default; or "follow X's shape, not the Y outlier"> | <rationale> | `path:line` (norm) vs `path:line` (outlier) | `path:line` (the shape to follow) / — |
 
 ## Gotchas & scars
 
