@@ -18,7 +18,9 @@ works. You audit seven kinds of failing content:
 - **Cross-file duplication** — the same rule/fact stated in more than one context file (violates dedup-up-the-tree,
   **CF-N3**).
 - **Contradicted by code** — a context line that now disagrees with what the code actually does (a "docs that lie"
-  case, at the context-file layer).
+  case, at the context-file layer). This is a **defect** (**CF-N9**), not a scrub target: whether the fix is to
+  *implement the missing behavior* or *remove the doc* is a human triage call. You report it and route it to
+  `/context-constitution`'s findings log — `apply` **never deletes** a contradicted line (see HARD CONSTRAINTS).
 - **Should be just-in-time** — accurate but *pre-loaded* content that belongs behind a pointer to an on-demand
   doc: task-specific / rarely-needed detail an agent should retrieve when it needs it, not carry on every load.
   Misplaced, not redundant — the action is `move-to-<doc>` + a pointer, not delete.
@@ -158,7 +160,9 @@ fourth option, **Approve findings & proceed to Apply**. In `scan` mode there is 
 
 Only after the Phase 1 gate, and never in `scan` mode. Read **`reference/apply-protocol.md`** and follow it.
 Present the concrete edit set — per file, the exact lines to remove or trim — at a **second** `AskUserQuestion`
-gate (**CF-5**: approve before any write). Then, per approved line:
+gate (**CF-5**: approve before any write). Only `remove` / `trim` / confirmed `move` rows are candidates;
+**contradicted-by-code rows are excluded by construction** — they are defects routed to the findings log, never
+apply targets (**CF-N9**; see HARD CONSTRAINTS). Then, per approved line:
 
 1. **Trim in place (CF-4).** Remove or shorten only the approved line(s); leave every surrounding byte untouched.
    Never rewrite a whole file.
@@ -191,6 +195,12 @@ invented or unlabeled token number (**CF-1**). Then one reminder:
   never deletes one.
 - **Audit context files only — never source code.** Source is evidence a claim is checked against, never a scrub
   target.
+- **Never delete a contradicted-by-code line (CF-N9).** A line the code disproves is a *defect* — documentation
+  that lies — and the fix (implement the missing behavior, or remove the doc) is a human triage call that belongs
+  to `/context-constitution`'s findings log. Report it, route it there, mark it `keep-but-verify`; `apply` never
+  subtracts it. `apply` removes only genuinely *redundant* (restated / duplicated) or *filler* (bloat) content —
+  never a claim the code contradicts. Deleting a doc-lie both drops a grounded finding (**CF-N8**) and can bury a
+  spec for an intended-but-unbuilt control (a risk limit, an approval event).
 - **Never overwrite (CF-4).** Apply *trims in place* — it subtracts approved lines and leaves every other byte
   intact. It never rewrites a file wholesale.
 - **Approve before any trim (CF-5).** No file is edited before the Phase 2 gate. `scan` mode never trims,

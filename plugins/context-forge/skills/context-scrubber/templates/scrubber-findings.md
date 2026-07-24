@@ -35,7 +35,7 @@ available this run; otherwise this table shows lines/characters, and any token n
 | Should be just-in-time | <n> | <lines> | <chars> | <…> |
 | Brittle / over-specified | <n> | <lines> | <chars> | <…> |
 | Bloat / low-value prose | <n> | <lines> | <chars> | <…> |
-| **Removable total** (excludes keep-but-verify) | <n> | <lines> | <chars> | <…> |
+| **Removable total** (excludes keep-but-verify + contradicted) | <n> | <lines> | <chars> | <…> |
 | Keep-but-verify (unconfirmed) | <n> | — | — | — |
 
 > "Should be just-in-time" and "Brittle" are counted in the removable total only for the part actually
@@ -43,7 +43,9 @@ available this run; otherwise this table shows lines/characters, and any token n
 > deletion. See the file-level `## Context budget` section below for whole-file size (measured, advisory).
 
 > "Removable total" counts only rows whose action is `remove`/`trim`/confirmed `move` — the content `apply`
-> would actually subtract. `keep-but-verify` rows are excluded from any savings claim (they are unproven, CF-1).
+> would actually subtract. `keep-but-verify` rows are excluded from any savings claim (they are unproven, CF-1),
+> and so are **contradicted-by-code** rows (defects routed to `/context-constitution`'s findings log, never
+> `apply`-deleted — CF-N9).
 
 ## Stale citations
 
@@ -74,11 +76,14 @@ or go.
 
 ## Contradicted by code
 
-Context claims the code now disproves. ⚠-mark and order security-boundary rows first.
+Context claims the code now disproves — *documentation that lies*. These are **defects (CF-N9), not scrub
+targets**: the honest fix (implement the missing behavior, or remove the doc) is a human triage call, so every row
+here is **routed to `/context-constitution`'s findings log** and carried as `keep-but-verify` — it is excluded
+from the removable total and **`apply` never deletes it**. ⚠-mark and order security-boundary rows first.
 
 | Context line | What the code does | Evidence | Suggested action |
 |---|---|---|---|
-| ⚠ `CLAUDE.md:NN` — "<claimed check>" | no such validation runs | `src/auth.go:40` | fix the code, or remove the claim |
+| ⚠ `CLAUDE.md:NN` — "<claimed check>" | no such validation runs | `src/auth.go:40` | route to findings log — implement the check, or remove the claim (via `/context-constitution`); never `apply`-deleted |
 
 ## Should be just-in-time (pre-loaded → pointer)
 
