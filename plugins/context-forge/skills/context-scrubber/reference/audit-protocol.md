@@ -21,11 +21,21 @@ grounded in real evidence (**CF-1**):
 | **Brittle / over-specified (anti-altitude)** | a long if-else / step-by-step instruction block that should be a heuristic — it shapes behavior but too rigidly, and rots as the code moves | the block enumerates cases/steps a strong one-line heuristic would cover; **not** filler (that's bloat) — it *does* steer the agent, just brittly |
 | **Bloat / low-value prose** | verbose filler that shapes no agent action | — (judgment; mark lower-confidence, never assert removal without a clear reason) |
 
-Suggested actions map to the category: `remove` (stale/restated/duplication), `fix the code or the claim`
-(contradicted), `move-to-<on-demand doc>` + leave a pointer (just-in-time), `trim to a heuristic` (brittle), or
-`trim` (bloat). Anything you *suspect* but cannot ground is **`keep-but-verify`**, phrased as a question — never
-asserted as removable (**CF-1**). Severity/confidence ranks a finding within the report; it never deletes one
-(**CF-N8**).
+Suggested actions map to the category: `remove` (stale/restated/duplication), **`route to findings / fix the code
+or the claim`** (contradicted — a defect, **never** an `apply` delete; see below), `move-to-<on-demand doc>` +
+leave a pointer (just-in-time), `trim to a heuristic` (brittle), or `trim` (bloat). Anything you *suspect* but
+cannot ground is **`keep-but-verify`**, phrased as a question — never asserted as removable (**CF-1**).
+Severity/confidence ranks a finding within the report; it never deletes one (**CF-N8**).
+
+**Contradicted-by-code is a defect, not a scrub target (CF-N9).** A context line the code disproves is
+*documentation that lies* — the same class `/context-constitution` routes to its findings log for human triage.
+Whether the fix is to *implement the missing behavior* or *remove the doc* is a decision the scrubber does not
+get to make silently: a dead config key or an unimplemented event may be an intended-but-unbuilt control (a risk
+limit, an approval flow), and deleting the row buries the spec. So a contradicted verdict is **reported and
+deferred to `/context-constitution`** (its findings log owns the fix-vs-remove call), carried as
+`keep-but-verify` in this report — it is **excluded from the removable total and is never an `apply` candidate**.
+The only line-level correction the scrubber suggests here is a pure *re-ground* (a drifted `path:line`), and even
+that is a `/context-constitution` refresh job, not a scrubber trim.
 
 Plus one **file-level** signal (not a per-line row): **context budget / rot risk** — a whole context file whose
 **measured** size is large enough to strain attention (context rot) even when no single line fails. Report the
@@ -73,7 +83,10 @@ word alone. For each returned verdict, do the cheap confirmation:
   **CF-N3**).
 - **Contradicted by code** — read the contradicting site and confirm the disagreement is real (not a version skew
   or a case the context line already excepts). Mark **⚠ security** if it touches an authz/authn/secret/tenant
-  boundary.
+  boundary. Confirmed → it is a **defect** (**CF-N9**): record it, note whether the honest fix is *implement* or
+  *remove-the-doc*, and route it to the findings log / a `/context-constitution` refresh — carried here as
+  `keep-but-verify`, **never** a `remove` row and **never** an `apply` candidate. Do not resolve the
+  implement-vs-remove question yourself.
 - **Bloat** — sanity-check that the line really shapes no action; when in doubt, downgrade to `keep-but-verify`.
 
 A verdict that fails confirmation is dropped from the "fails" set and, if still suspicious, recorded under

@@ -90,7 +90,13 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   NOT a rule (you don't govern "the audit route has an auth gap"); it goes to the **findings log**
   (`context-constitution-findings.md`, sibling to the constitution) with its `path:line`/commit citation and a
   suggested action, so it is actioned rather than frozen into governance. Both are durable outputs;
-  neither is dropped.
+  neither is dropped. **The scrubber honors this in reverse:** a *contradicted-by-code* line that is such a
+  defect (documented behavior the code lacks — a dead config key, a fictional dependency, an unimplemented
+  event, a promised safety/risk control) is **routed** to the findings log and deferred to
+  `/context-constitution`, **never deleted by `apply`**. Silently trimming a defect both drops a grounded
+  finding (**CF-N8**) and unilaterally resolves an *implement-it-vs-remove-the-doc* triage question that
+  belongs to a human. `apply` subtracts only what is genuinely *redundant* (restated, duplicated) or *filler*
+  (bloat) — never a claim the code contradicts.
 - **CF-N10 — Validate a cross-cutting quirk against its owner before enshrining it.** A pattern
   observed from the *consumer* side can be an invariant to respect **or** a bug to fix, and you cannot
   tell from the consumers alone. Before recording a cross-service "quirk" as a rule, check the

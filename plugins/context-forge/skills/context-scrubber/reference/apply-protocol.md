@@ -9,7 +9,9 @@ protocol.
 
 You are here only because the user chose **Approve findings & proceed to Apply** at the Phase 1 gate. The findings
 file has been written (or presented inline). Only rows whose suggested action is `remove`, `trim`, or a confirmed
-`move-to-<file>` are apply candidates — `keep-but-verify` rows are never applied (they are unproven, **CF-1**).
+`move-to-<file>` are apply candidates — `keep-but-verify` rows are never applied (they are unproven, **CF-1**),
+and **contradicted-by-code rows are never applied** either: they are defects routed to the findings log for human
+triage (**CF-N9**), not lines this skill deletes.
 
 ## Step 1 — Build the edit set
 
@@ -18,6 +20,8 @@ located by **content** (quote the current line), not by a bare line number — l
 content-anchored edits stay correct. Group by file so each file is opened once. Exclude, up front:
 
 - any line inside a `context-forge:*` / `constitution-forge:*` sentinel span (**CF-N11** — off-limits);
+- **every contradicted-by-code row** (a defect deferred to `/context-constitution`'s findings log, **CF-N9** —
+  never trimmed here, even if it reads like a "clean subtraction" of a dead config key or a fictional dependency);
 - any `move-to-<file>` whose destination has not been confirmed to already hold the content;
 - anything the user deselected.
 
@@ -58,4 +62,7 @@ Per approved item, using Edit (a targeted string replacement), on the file's cur
 - **Approve before write (CF-5).** The Step-2 gate is mandatory; there is no "apply without confirming the edit
   set."
 - **Never trim a protected block (CF-N11).** Behavioral-contract and constitution-pointer spans are always skipped.
+- **Never delete a contradicted-by-code line (CF-N9).** Apply subtracts only genuinely *redundant* (restated /
+  duplicated) or *filler* (bloat) content. A line the code contradicts is a defect for `/context-constitution`'s
+  findings log — resolving *implement vs. remove* is a human call, not a trim.
 - **Never invent (CF-1).** Apply removes and shortens what was approved; it never writes new context prose.

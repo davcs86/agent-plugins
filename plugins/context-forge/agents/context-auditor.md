@@ -46,6 +46,9 @@ A `fails` verdict is grounded only when it rests on something you actually check
   manifest/dependency list, a doc/CI file it already loads) that makes the context line redundant.
 - **Cross-file duplication** — one or more **other** context files stating the same thing; cite every location.
 - **Contradicted by code** — the `path:line` where the code does the opposite of what the context line claims.
+  This is a **defect** (**CF-N9**): report it, but flag that the orchestrator routes it to `/context-constitution`'s
+  findings log for triage — it is never a `remove`/`apply` target (deciding *implement vs. remove the doc* is a
+  human call). Note whether the code merely *lacks* the behavior (doc-lie) or *does something different* (drift).
 - **Should be just-in-time** — the content is narrow or rarely-needed (relevant only to one directory/task) yet is
   auto-loaded on every task; name the on-demand home it belongs in. It is *misplaced*, not redundant — do not
   confuse it with duplication (another context file) or restated (free-to-read source). Lower-confidence: when it
