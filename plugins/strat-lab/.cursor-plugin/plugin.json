@@ -1,7 +1,7 @@
 {
   "name": "strat-lab",
   "displayName": "Strat Lab",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A backtesting workbench for the xstockstrat MCP server: ensures data coverage (backfill), runs strategy backtests, survives the >token-limit diagnostics payload by saving-and-parsing, aggregates an independent-per-symbol basket, and verifies results against a pre-change oracle before trusting them.",
   "author": {
     "name": "David Castillo",

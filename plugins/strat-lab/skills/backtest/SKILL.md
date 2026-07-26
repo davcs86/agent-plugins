@@ -23,6 +23,7 @@ when its phase activates — not up front:
 - `reference/output-handling.md` — Phase 2, the moment the first `run_backtest` returns.
 - `reference/aggregation.md` — Phase 3, when combining symbols into a basket.
 - `reference/verification.md` — Phase 4, whenever an oracle or credibility gate is in play.
+- `reference/self-grill.md` — Phase 4.5, before you report — the adversarial pass over your own result.
 
 ---
 
@@ -71,6 +72,16 @@ digit** — trade counts, total return, max drawdown, and a couple of per-bar in
 `reference/verification.md` covers the credibility gate, what an exact match looks like, and the one
 benign source of drift (a rolling data window that advances with the calendar). Report matches and
 mismatches plainly; a mismatch is a finding, not a rounding error.
+
+## Phase 4.5 — Self-grill (adversarial pass)
+
+Before you report, **try to break your own conclusion.** Every headline this skill produces is one
+mutation, one aggregation choice, or one un-restored config away from being wrong — this session's
+findings each survived only because they were grilled. Load `reference/self-grill.md` and run its
+checklist against your draft result. It is not a formality: each check that you cannot answer with
+evidence already in hand is a backtest you must re-run before reporting. Resolve every doubt with a
+tool call, not a caveat. Only a result that survives the grill (or whose residual doubts are stated
+as explicit, bounded caveats) proceeds to Phase 5.
 
 ## Phase 5 — Report
 
