@@ -117,10 +117,13 @@ python3 scripts/validate_manifests.py
 It fails if a registered plugin has no matching `plugins/<name>/` directory,
 is missing the required manifest for that tool, or if any manifest is invalid
 JSON or non-semver, including a version mismatch between a plugin's own
-manifests. CI runs the same check on every push and pull request, so a green
-local run means a green pipeline.
+manifests. It also enforces **membership parity** (a plugin registered in one
+catalog must be registered in every catalog) and requires every registered
+plugin to be mentioned in the top-level `README.md` — so add your plugin to
+the README's plugin table as part of the same change. CI runs the same checks
+on every push and pull request, so a green local run means a green pipeline.
 
 ## 5. Commit
 
-Commit the new plugin directory and both updated catalogs together so the
-marketplace stays internally consistent.
+Commit the new plugin directory, both updated catalogs, and the README entry
+together so the marketplace stays internally consistent.

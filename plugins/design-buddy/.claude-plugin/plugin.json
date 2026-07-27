@@ -1,10 +1,10 @@
 {
   "name": "design-buddy",
   "displayName": "Design Buddy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A repo-agnostic design partner: adversarially debated designs (recon + mediated proposer-vs-adversary rounds, depth-scaled from bug fix to rearchitecture), evidence-grounded implementation plans, and a strict plan-review gate.",
   "author": {
-    "name": "davcs86",
+    "name": "David Castillo",
     "email": "davcs86@gmail.com"
   },
   "license": "MIT",

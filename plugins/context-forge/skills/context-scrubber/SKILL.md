@@ -1,6 +1,6 @@
 ---
 name: context-scrubber
-description: "Audit a repo's agent-context files (root + nested CLAUDE.md, AGENTS.md, the generated context-constitution.md / findings, .cursor/rules/*) and report every line that FAILS the litmus test — low-signal content that costs tokens on each load without shaping how the agent works. Usage: `context-scrubber [scan|apply] [path]`. Phase 0 (Audit) discovers the context files and spawns a read-only auditor that classifies each claim against the ACTUAL repo — stale citation, restated-free fact, cross-file duplication, contradicted-by-code, or bloat — every verdict evidence-cited. Phase 1 (Report) writes an evidence-cited context-scrubber-findings.md: category, why it fails, and a suggested action (remove/trim/move/keep-but-verify). Phase 2 (Apply, `apply` mode only) trims the approved lines in place, non-destructively and sentinel-safe. Default `scan` writes only the findings; nothing is trimmed without approval. It audits context files, never source code; it never invents a verdict and never trims inside context-constitution's sentinel blocks."
+description: "Audit a repo's agent-context files (root + nested CLAUDE.md, AGENTS.md, the generated context-constitution.md / findings, .cursor/rules/*, plus any opt-in `scrubberExtraTargets` docs such as README.md) and report every line that FAILS the litmus test — low-signal content that costs tokens on each load without shaping how the agent works. Usage: `context-scrubber [scan|apply] [path]`. Phase 0 (Audit) discovers the context files and spawns a read-only auditor that classifies each claim against the ACTUAL repo — stale citation, restated-free fact, cross-file duplication, contradicted-by-code, or bloat — every verdict evidence-cited. Phase 1 (Report) writes an evidence-cited context-scrubber-findings.md: category, why it fails, and a suggested action (remove/trim/move/keep-but-verify). Phase 2 (Apply, `apply` mode only) trims the approved lines in place, non-destructively and sentinel-safe. Default `scan` writes only the findings; nothing is trimmed without approval. It audits context files, never source code; it never invents a verdict and never trims inside context-constitution's sentinel blocks."
 argument-hint: "[scan|apply] [path]"
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *)
 disable-model-invocation: true
@@ -72,8 +72,9 @@ activates — do not read them up front:
 
 **B0 — Config.** Read `.agents/context-forge.json` at the repo root (the single config shared with
 `/context-constitution`). Present → note `constitutionPath` (so the generated `context-constitution.md` and its
-findings are added to the audit set) and `scrubberFindingsPath` (where the findings file is written; default
-`context-scrubber-findings.md` at the root). Absent → read `reference/config-protocol.md` and run its first-run
+findings are added to the audit set), `scrubberFindingsPath` (where the findings file is written; default
+`context-scrubber-findings.md` at the root), and `scrubberExtraTargets` (opt-in publish-facing docs added to
+the audit set — see `## What counts as a context target`). Absent → read `reference/config-protocol.md` and run its first-run
 interview, then continue. `scan` mode never writes config. `constitutionPath: null` = scratch mode: present the
 findings inline, write nothing.
 
@@ -102,10 +103,16 @@ Auto-discover, under the analysis root, the files a coding agent **auto-loads as
   `constitutionPath` (so a monorepo's per-module constitutions are all found).
 - `.cursor/rules/*` and a legacy `.cursorrules`.
 - by convention, `.github/copilot-instructions.md` and `.windsurfrules` when present.
+- every path listed in the config's `scrubberExtraTargets` — **opt-in publish-facing docs** (e.g. `README.md`)
+  whose claims must track the context files and code. These are read-on-demand for an agent but read-*first* by
+  humans, so the host repo can subject them to the same drift audit: same categories, same evidence-cited
+  verdicts, same CF-N9 routing for contradicted-by-code rows. A listed path that doesn't resolve on disk is
+  itself a finding (`keep-but-verify`: "config lists a target that doesn't exist"), never a silent skip.
 
 **Excluded:** application source, tests, and on-demand docs (READMEs, `docs/` prose the agent reads only when a
-task sends it there). The line is auto-loaded-as-context vs. read-on-demand — you scrub the former, and you treat
-source only as *evidence* against which a context claim is checked, never as a thing to trim.
+task sends it there) — *unless* a doc is explicitly opted in via `scrubberExtraTargets` above. The line is
+auto-loaded-as-context vs. read-on-demand — you scrub the former, and you treat source only as *evidence*
+against which a context claim is checked, never as a thing to trim.
 
 ## PHASE 0 — AUDIT (read-only classification → verdict digest)
 

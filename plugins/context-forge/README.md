@@ -107,8 +107,11 @@ because the scrubber's `apply` step *removes* lines, so the safe default must ne
 Both skills share `.agents/context-forge.json` at the repo root (committable, so a team shares one
 setting). Whichever skill runs first creates it via a short first-run interview; the other reads it.
 Keys: `constitutionPath` (where each `context-constitution.md` is written, or `null` for scratch mode),
-`citeIds` (whether the behavioral contract cites generated IDs), and the optional `scrubberFindingsPath`
-(where `context-scrubber` writes its report; default `context-scrubber-findings.md` at the root).
+`citeIds` (whether the behavioral contract cites generated IDs), the optional `scrubberFindingsPath`
+(where `context-scrubber` writes its report; default `context-scrubber-findings.md` at the root), and the
+optional `scrubberExtraTargets` (repo-relative publish-facing docs — e.g. `README.md` — opted in to the
+scrubber's audit set, so drift in the docs humans read first gets the same evidence-cited audit as the
+context files agents load).
 Everything is gated: nothing is written before you approve, and the report-only modes never write to
 your files at all.
 
