@@ -39,15 +39,12 @@ A three-stage pipeline you can enter at any stage.
 | **`impl-plan`** | You have a decided approach and want numbered, executable steps. Every step cites evidence found by grep or read; verification commands come from your repo's own harness, not an assumed one. |
 | **`plan-review`** | Before anyone executes the plan. A read-only reviewer checks each step's evidence still resolves, the design is honored, and no host hard rule is violated, then records a binding verdict in the plan. Blockers cannot be waived. |
 
-### [`strat-lab`](plugins/strat-lab/) — backtesting workbench
-
-| Skill | Use it when |
-|---|---|
-| **`backtest`** | You want to backtest, sweep a parameter, or reproduce a strategy report's numbers. Handles the three ways the naive path fails silently: oversized diagnostics, sequential-vs-independent basket aggregation, and a mutated strategy returning garbage. |
-
-> **Requires the xstockstrat MCP server.** Unlike the other two,
-> this plugin is not repo-agnostic — without that server connected it has nothing to
-> call. Skip it unless you already run xstockstrat.
+> **Looking for `strat-lab`?** The xstockstrat backtesting workbench moved to the
+> [xstockstrat](https://github.com/davcs86/xstockstrat) repository. Every plugin here is
+> repo-agnostic and works on any codebase; `strat-lab` only functions with the
+> xstockstrat MCP server connected, and its value is a record of that server's API
+> quirks — so it belongs beside the code that can change them, where a breaking change
+> and the skill update ship together.
 
 ## What you get, concretely
 
