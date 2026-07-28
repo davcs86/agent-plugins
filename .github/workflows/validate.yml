@@ -21,6 +21,11 @@ jobs:
           python3 scripts/validate_manifests.py --self-test
           python3 scripts/validate_manifests.py
 
+      - name: Check the edit hook is working-directory independent
+        # Run from a subdirectory on purpose: the hook is invoked by the agent
+        # harness, which makes no promise about the working directory.
+        run: cd plugins && python3 ../scripts/hooks/validate_on_edit.py --self-test
+
       - name: Run per-plugin validators
         run: |
           shopt -s nullglob
