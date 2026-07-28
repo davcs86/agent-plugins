@@ -62,6 +62,6 @@ Announce the chosen location in one line and continue the boot sequence.
 
 `artifactsDir: null` means **no files are written anywhere** — not even temp files. Each artifact
 (recon, design, plan) is emitted inline in the conversation as a complete fenced markdown block,
-so the user can save it wherever they want. The plan skill accepts a pasted design doc or
+so the user can save it wherever they want. The impl-plan skill accepts a pasted design doc or
 same-session context in place of a file. First-run interview labels a real directory as
 recommended precisely because scratch mode has no durable memory across sessions.

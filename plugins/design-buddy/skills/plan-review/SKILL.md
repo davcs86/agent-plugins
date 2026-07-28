@@ -1,12 +1,11 @@
 ---
-name: review
-description: "Review gate for a design-buddy implementation plan — stricter than advisory. Usage: `review <plan.md path | change slug>`. A read-only reviewer subagent checks every step against the review criteria (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any BLOCKER (floor-tied finding) fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived at a gate. Run after the **plan** skill, before executing the plan."
+name: plan-review
+description: "Gate an implementation plan before anyone starts executing it: a read-only reviewer checks that every step's cited evidence still resolves, that the plan honors the design it came from, that no step violates a host repo hard rule, and that the ordering actually works — then records a pass/fail verdict in the plan itself. Use when the user asks to review, check, vet, or sign off on a plan before starting work; asks 'is this plan ready to execute', 'did we miss anything', 'will this actually work'; or wants a second pass over a task breakdown. Reviews plans, not code or pull requests. Blockers cannot be waived. Usage: `plan-review <plan.md path | change slug>`."
 argument-hint: <plan.md path | change slug>
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *)
-disable-model-invocation: true
 ---
 
-You run the **review gate** of the design-buddy pair: after the **plan** skill, before anyone
+You run the **review gate** of the design-buddy pair: after the **impl-plan** skill, before anyone
 executes the plan. Unlike an advisory review, the verdict is **recorded in the plan** and gates
 it (**DN-6**): a plan with unresolved BLOCKER findings is `failed` and must not be executed;
 BLOCKERs cannot be waived.
@@ -17,6 +16,11 @@ advisory only — it assesses; you decide, edit, and record.
 **Interactive gates.** Every user gate below uses a structured multiple-choice prompt — the
 `AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor), ask
 the same question, with the same options, in plain chat and wait for the answer.
+
+**Implicit invocation.** This skill may be triggered by the model when a user asks whether a plan
+is ready, rather than by an explicit command. When that happens, name the plan file you resolved
+in step 2 and confirm it before spawning the reviewer — this skill writes a binding verdict into
+that file, so reviewing the wrong plan leaves a false `passed` header behind.
 
 **Progressive disclosure.** Load each `reference/` file only at the step that needs it:
 - `reference/principles.md` — at step 1.
@@ -35,7 +39,7 @@ reviewed plan (with its verdict header) is re-emitted inline instead of written.
 ### 2. Locate the inputs
 
 Resolve the argument: an explicit plan path, or a slug → glob `<artifactsDir>/*-<slug>/plan.md`.
-Not found → stop: "No plan found for `<arg>`. Run the **plan** skill first." Alongside the
+Not found → stop: "No plan found for `<arg>`. Run the **impl-plan** skill first." Alongside the
 plan, read the sibling `design.md` and `recon.md` when they exist — the reviewer needs them for
 design-fidelity and host-rule checks. If the plan header's `**Status**` shows execution has
 begun (any step not `pending`), warn: review is meant to run pre-execution; on user
@@ -76,7 +80,7 @@ Edit the plan (scratch mode: re-emit inline):
 ```
 Review verdict for <slug>: <verdict>.
 Blockers: <n found, n fixed | none>. Warnings: <n addressed, n waived | none>.
-<verdict = failed: "Do not execute this plan. Fix the blockers listed in ## Review Log and re-run design-buddy's review skill.">
+<verdict = failed: "Do not execute this plan. Fix the blockers listed in ## Review Log and re-run design-buddy's plan-review skill.">
 <verdict = passed*: "The plan is ready to execute step-by-step (statuses flip; bodies stay immutable — DN-5).">
 ```
 

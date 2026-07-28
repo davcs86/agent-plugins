@@ -35,7 +35,7 @@
       "name": "strat-lab",
       "displayName": "Strat Lab",
       "source": "./plugins/strat-lab",
-      "description": "A backtesting workbench for the xstockstrat MCP server: ensures data coverage (backfill), runs strategy backtests, survives the >token-limit diagnostics payload by saving-and-parsing, aggregates an independent-per-symbol basket, and verifies results against a pre-change oracle before trusting them.",
+      "description": "Requires the xstockstrat MCP server — without that connection this plugin has nothing to call. A backtesting workbench for it: ensures data coverage (backfill), runs strategy backtests, survives the >token-limit diagnostics payload by saving-and-parsing, aggregates an independent-per-symbol basket, and verifies results against a pre-change oracle before trusting them.",
       "author": {
         "name": "David Castillo",
         "email": "davcs86@gmail.com"

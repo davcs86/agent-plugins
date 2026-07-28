@@ -3,6 +3,12 @@
 A backtesting workbench for the **xstockstrat** MCP server, published for **Claude Code** and
 **Cursor** from one shared skill tree.
 
+> **Requires the xstockstrat MCP server.** Unlike the other plugins in this marketplace, this one
+> is not repo-agnostic — every phase calls `run_backtest`, `trigger_backfill` /
+> `get_backfill_status`, `manage_strategy`, or `set_strategy_live` on that server. Without it
+> connected, the skill has nothing to call and there is no fallback path. Install this only if you
+> already run xstockstrat.
+
 It exists because the obvious way to backtest fails in three predictable ways, each with a learned
 fix baked into the skill:
 

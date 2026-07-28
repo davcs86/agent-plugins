@@ -60,13 +60,33 @@ from a single component tree** — no per-tool copies. Write frontmatter as a
 *union* of both tools' keys; each tool reads the keys it knows and ignores the
 rest. `design-buddy` is the worked example:
 
-- Skills keep Claude's `argument-hint`/`allowed-tools` (Cursor ignores them) and
-  add `disable-model-invocation: true` (so Cursor treats them as manual `/skill`
-  commands, matching Claude's slash-command UX).
+- Skills keep Claude's `argument-hint`/`allowed-tools` (Cursor ignores them).
 - Agents keep `tools: …` for Claude and add `readonly: true` so Cursor enforces
   the same read-only contract.
-- Cursor invokes commands flat (`/design`), without Claude's `plugin:` namespace,
-  so keep skill names globally unique and phrase cross-references tool-neutrally.
+- Cursor invokes commands flat (`/design-debate`), without Claude's `plugin:`
+  namespace. Skill names must therefore be globally unique **and** must not shadow
+  a host tool's built-in commands — Claude Code ships its own `/review`, and `plan`
+  reads as plan mode, which is why design-buddy 2.0.0 renamed its three skills.
+  Phrase cross-references tool-neutrally.
+
+#### Deciding `disable-model-invocation`
+
+`disable-model-invocation: true` (a Cursor key) makes a skill reachable **only** by
+an explicit `/command`. That is the right default for a skill with side effects
+outside its own artifact directory, and the wrong default for everything else: a
+skill the model can never trigger is a skill nobody finds unless they already know
+its name. Set it per skill, on this line:
+
+- **Command-only** — the skill writes into files the user did not point it at, or
+  mutates external state. `context-constitution` prepends to the host's `CLAUDE.md`;
+  `backtest` mutates strategies on a live trading backend. Both keep the key.
+- **Model-invocable** — the skill's default mode only reads, or writes solely into
+  its own configured artifact directory, behind a gate. `design-debate`, `impl-plan`,
+  `plan-review` and `context-scrubber` drop the key.
+
+A model-invocable skill whose deeper modes *do* have side effects must state the
+restriction in its own body: when it was triggered implicitly rather than by an
+explicit command, it runs its read-only mode and asks before anything else.
 
 ## 2. Register it in both marketplace catalogs
 

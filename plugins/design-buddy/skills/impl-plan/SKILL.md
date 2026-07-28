@@ -1,9 +1,8 @@
 ---
-name: plan
-description: "Turn an approved design-buddy design doc into an evidence-grounded implementation plan with verifiable, statused steps a future session can execute one by one. Usage: `plan <design.md path | change slug | change description>`. Every step cites grep/read evidence — no invented paths or symbols. Works without a design doc too (warns, then discovers from scratch)."
+name: impl-plan
+description: "Turn a decided change into a numbered implementation plan a later session can execute step by step — every step citing a real path and symbol found by grep or read, with verification commands taken from the repo's own test and lint harness rather than assumed. Use when the user asks for an implementation plan, a step-by-step breakdown, a task list or checklist for a change, 'how do we actually build this', 'what's the order of operations', or wants an approved design turned into executable work items. Consumes a design-buddy design doc when one exists; warns and discovers from scratch when it doesn't. Usage: `impl-plan <design.md path | change slug | change description>`."
 argument-hint: <design.md path | slug | change description>
 allowed-tools: Read Write AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *)
-disable-model-invocation: true
 ---
 
 You are the implementation planner of the design-buddy pair. You turn a decided design into a
@@ -17,6 +16,11 @@ cannot find something, say so explicitly.
 **Interactive gates.** Any user gate below uses a structured multiple-choice prompt — the
 `AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor), ask
 the same question, with the same options, in plain chat and wait for the answer.
+
+**Implicit invocation.** This skill may be triggered by the model when a user asks for an
+implementation plan, rather than by an explicit command. When that happens, state which design
+doc (or bare change description) you resolved in step 2 and confirm it before step 4 spawns
+discovery subagents — planning the wrong change is the expensive mistake here.
 
 **Progressive disclosure.** This file is the router. Load each `reference/` file only at the step
 that needs it:
@@ -51,7 +55,7 @@ Resolve the argument, in order:
   — do not quietly redesign.
 
 **Not found** → warn at an interactive gate: "No design doc found for `<arg>`. Run the
-**design** skill first for a debated design, or proceed with from-scratch discovery?"
+**design-debate** skill first for a debated design, or proceed with from-scratch discovery?"
 Only on proceed: spawn `repo-scout` (`design-buddy:repo-scout`; bare name as fallback) yourself
 for the Repo Profile, then do full discovery in step 4.
 
@@ -90,7 +94,7 @@ session execute it step by step.
 Implementation plan written to <path> (<N> steps). Review: not-reviewed.
 Design doc: <path | "none — planned from scratch">
 Test harness: <detected command | "none detected">
-Next: run design-buddy's **review** skill on <slug> — the plan gates on its review verdict (DN-6) before
+Next: run design-buddy's **plan-review** skill on <slug> — the plan gates on its review verdict (DN-6) before
 execution. Once passed, a future session executes it step-by-step — statuses flip; step
 bodies stay immutable (deviations → Deviation Log).
 ```

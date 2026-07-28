@@ -16,7 +16,7 @@ Write the design doc using this exact structure, after the debate is user-approv
 ## Chosen Approach
 
 <The decided design. Each architectural claim cites recon.md path:line (DN-1). This is the
-WHAT/HOW at a design level — concrete enough for the plan skill to turn into numbered steps,
+WHAT/HOW at a design level — concrete enough for the impl-plan skill to turn into numbered steps,
 but not itself the step list.>
 
 ## Rejected Alternatives

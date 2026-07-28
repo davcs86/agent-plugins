@@ -56,6 +56,6 @@ pattern/helper/type to reuse.>
 
 ## Recommended Scope
 
-<Advisory proposed boundaries for the change — input to the debate and the plan skill;
+<Advisory proposed boundaries for the change — input to the debate and the impl-plan skill;
 not binding.>
 ```
