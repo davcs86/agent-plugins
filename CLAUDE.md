@@ -16,6 +16,9 @@ standard-library Python validator.
 # Validate every marketplace catalog + plugin manifest (the primary check)
 python3 scripts/validate_manifests.py
 
+# Run the marketplace validator's own fixture-based test suite
+python3 scripts/validate_manifests.py --self-test
+
 # Run a single plugin's own integrity validator
 python3 plugins/<plugin-name>/scripts/validate.py
 
@@ -23,7 +26,8 @@ python3 plugins/<plugin-name>/scripts/validate.py
 python3 plugins/<plugin-name>/scripts/validate.py --self-test
 ```
 
-CI (`.github/workflows/validate.yml`) runs `validate_manifests.py`, then for every
+CI (`.github/workflows/validate.yml`) runs `validate_manifests.py --self-test` then
+`validate_manifests.py`, then for every
 `plugins/*/scripts/validate.py` runs `--self-test` followed by the validator itself.
 A green local run of those same commands means a green pipeline. There is no build,
 lint, or package step; **all tooling is Python 3 stdlib only** (no `pip install`,
@@ -66,9 +70,13 @@ existence/semver/parity rules for the new tool automatically.
 `scripts/validate_manifests.py` is the source of truth for repo integrity. It checks
 each catalog is valid JSON with required fields, that every registered plugin resolves
 to a real `plugins/<name>/` directory containing that tool's manifest, that each
-`version` is valid `MAJOR.MINOR.PATCH` semver, and that versions match across a
-plugin's manifests. Remote (github/git) plugin sources are skipped — only local
-`./plugins/...` sources are checked against the on-disk tree.
+`version` is valid `MAJOR.MINOR.PATCH` semver, that versions match across a
+plugin's manifests, that every catalog registers the **same plugin set** (membership
+parity — a plugin added to one catalog but not the others fails the build), and that
+every registered plugin is mentioned in the top-level `README.md` (so a new plugin
+can't ship undocumented). Remote (github/git) plugin sources are skipped — only local
+`./plugins/...` sources are checked against the on-disk tree. The script carries its
+own `--self-test` fixture suite, same as the per-plugin validators.
 
 Two automation layers wrap it so mistakes surface early:
 - **PostToolUse hook** (`.claude/settings.json` → `scripts/hooks/validate_on_edit.py`):

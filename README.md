@@ -23,10 +23,11 @@ tools.
 | ------ | ----- | ----------- |
 | [`design-buddy`](plugins/design-buddy/) | Claude Code · Cursor | A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures. |
 | [`context-forge`](plugins/context-forge/) | Claude Code · Cursor | A context-engineering toolkit: `context-constitution` extracts a repo's hidden patterns, cross-module contracts, and git-history scars into an evidence-cited `context-constitution.md` and behavioral contract; `context-scrubber` audits the repo's context files and reports every line that fails the litmus test — stale citations, restated facts, duplication, contradictions, bloat — with an optional gated trim. |
+| [`strat-lab`](plugins/strat-lab/) | Claude Code · Cursor | A backtesting workbench for the xstockstrat MCP server: ensures data coverage (backfill), runs strategy backtests, survives over-token-limit diagnostics by saving-and-parsing, aggregates an independent-per-symbol basket, and self-grills results against a pre-change oracle before trusting them. |
 
-`design-buddy` ships one shared `skills/` + `agents/` tree with a manifest for
-each tool. Its subagents run through the same `Task` tool on both Claude Code
-and Cursor, so it is registered in both catalogs.
+Every plugin ships one shared `skills/` + `agents/` tree with a manifest for
+each tool. Subagents run through the same `Task` tool on both Claude Code
+and Cursor, so each plugin is registered in both catalogs.
 
 ## Add this marketplace to your agent
 
@@ -90,10 +91,13 @@ python3 scripts/validate_manifests.py
 
 It confirms each marketplace manifest is valid JSON, that every registered
 plugin resolves to a real `plugins/<name>/` directory with the required
-manifest, and that every plugin manifest's `version` is valid semver and
-identical across every tool the plugin targets. CI runs the same check on
-every push and pull request, and a `.claude/settings.json` hook reruns it
-automatically whenever a manifest is edited in a Claude Code session.
+manifest, that every plugin manifest's `version` is valid semver and
+identical across every tool the plugin targets, that every catalog registers
+the **same plugin set** (membership parity), and that every registered plugin
+is listed in this README. Run `python3 scripts/validate_manifests.py
+--self-test` to execute its built-in fixture tests. CI runs the same checks
+on every push and pull request, and a `.claude/settings.json` hook reruns
+them automatically whenever a manifest is edited in a Claude Code session.
 
 ## License
 

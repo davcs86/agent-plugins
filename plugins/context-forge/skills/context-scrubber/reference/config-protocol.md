@@ -16,6 +16,7 @@ reads it and never re-interviews. Whether to gitignore it is the host repo's cal
   "constitutionPath": "docs/context-constitution.md",
   "citeIds": true,
   "scrubberFindingsPath": "context-scrubber-findings.md",
+  "scrubberExtraTargets": ["README.md"],
   "created": "<ISO date>"
 }
 ```
@@ -33,6 +34,13 @@ reads it and never re-interviews. Whether to gitignore it is the host repo's cal
   `context-scrubber-findings.md` at the repo root. Absent → the scrubber falls back to that default and does
   **not** rewrite the config in `scan` mode; a config written by an older context-constitution run (with no
   such key) is fully valid. `null` follows `constitutionPath: null` into scratch mode (findings emitted inline).
+- `scrubberExtraTargets` — array of strings, **optional**, used only by `/context-scrubber`. Root-anchored
+  repo-relative paths of *publish-facing docs* (e.g. `README.md`) to add to the audit set. The scrubber's
+  default boundary deliberately excludes read-on-demand docs; opt a doc in when its claims must track the
+  context files and code — a public README restating the architecture is the canonical case, because drift
+  there is read by humans first and caught by agents never. Listed docs are audited with the same categories
+  and the same CF-N9 defect routing; a listed path that doesn't resolve is reported as a finding, never
+  silently skipped. Absent or `[]` → the default scope, unchanged.
 
 ### No stored baseline — `refresh` reads git
 
