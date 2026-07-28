@@ -1,9 +1,8 @@
 ---
 name: context-scrubber
-description: "Audit a repo's agent-context files (root + nested CLAUDE.md, AGENTS.md, the generated context-constitution.md / findings, .cursor/rules/*, plus any opt-in `scrubberExtraTargets` docs such as README.md) and report every line that FAILS the litmus test — low-signal content that costs tokens on each load without shaping how the agent works. Usage: `context-scrubber [scan|apply] [path]`. Phase 0 (Audit) discovers the context files and spawns a read-only auditor that classifies each claim against the ACTUAL repo — stale citation, restated-free fact, cross-file duplication, contradicted-by-code, or bloat — every verdict evidence-cited. Phase 1 (Report) writes an evidence-cited context-scrubber-findings.md: category, why it fails, and a suggested action (remove/trim/move/keep-but-verify). Phase 2 (Apply, `apply` mode only) trims the approved lines in place, non-destructively and sentinel-safe. Default `scan` writes only the findings; nothing is trimmed without approval. It audits context files, never source code; it never invents a verdict and never trims inside context-constitution's sentinel blocks."
+description: "Audit a repo's agent-context files (CLAUDE.md, AGENTS.md, .cursor/rules/*, and opt-in docs) and report every line that costs tokens on each load without changing how the agent behaves — citations that no longer resolve, facts the agent reads for free, the same rule repeated in two files, claims the code now contradicts, and filler. Use when the user says their CLAUDE.md or AGENTS.md has 'gotten huge / bloated / messy / out of hand'; asks to trim, slim down, clean up, prune, or audit their agent instructions; wonders whether their context files are still accurate or 'still true'; or wants to cut context, token, or per-message cost. Usage: `context-scrubber [scan|apply] [path]`. The default `scan` only writes a findings report — nothing is trimmed without explicit approval."
 argument-hint: "[scan|apply] [path]"
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *)
-disable-model-invocation: true
 ---
 
 You are the **inverse** of `/context-constitution`. That skill *adds* the high-signal knowledge an agent would
@@ -47,6 +46,12 @@ removable.
 **Interactive gates.** Every gate uses one structured multiple-choice prompt — the `AskUserQuestion` tool in
 Claude Code. Where that tool isn't available (e.g. under Cursor), ask the same question, with the same options, in
 plain chat and wait for the answer.
+
+**Implicit invocation.** Unlike `/context-constitution`, this skill *may* be triggered by the model when a user
+describes the problem it solves ("my CLAUDE.md is bloated") rather than typing the command — that is what makes it
+findable at all. The safety comes from the mode, not from the trigger: **a run the user did not explicitly command
+is always `scan`**, whatever the conversation seems to imply. Never infer `apply` from context. Say so at B3
+("running `scan` — nothing will be trimmed") and let the user ask for `apply` in their own words.
 
 **Progressive disclosure.** This file is the always-loaded router. Load each `reference/` file only when its step
 activates — do not read them up front:
@@ -212,6 +217,8 @@ invented or unlabeled token number (**CF-1**). Then one reminder:
   intact. It never rewrites a file wholesale.
 - **Approve before any trim (CF-5).** No file is edited before the Phase 2 gate. `scan` mode never trims,
   anywhere.
+- **An implicitly-triggered run is `scan`.** If the user did not explicitly invoke this skill, `apply` is not
+  available to it — no matter how the conversation reads. They must ask for it.
 - **Never trim inside a protected sentinel block (CF-N11).** The behavioral-contract and constitution-pointer
   blocks (`context-forge:*` markers, and legacy `constitution-forge:*`) are off-limits — the contract is
   deliberately generic (shapes how the agent *thinks*, not a fact — **CF-N2**) and the pointer block is

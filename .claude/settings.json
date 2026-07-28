@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 scripts/hooks/validate_on_edit.py"
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/hooks/validate_on_edit.py\""
           }
         ]
       }

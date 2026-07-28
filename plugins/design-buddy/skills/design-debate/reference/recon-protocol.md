@@ -1,6 +1,6 @@
 # design-buddy — Phase 0 recon protocol
 
-Load this at the start of **Phase 0**. Recon owns discovery for the design phase; the plan skill
+Load this at the start of **Phase 0**. Recon owns discovery for the design phase; the impl-plan skill
 later *consumes* the recon dossier instead of re-discovering from scratch. Recon runs in full at
 every depth — `quick` shortens the debate, never the grounding.
 

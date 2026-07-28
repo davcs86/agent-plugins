@@ -65,7 +65,7 @@ here with the step number, what changed, and why._
 Step statuses: `pending` → `in-progress` → `done` | `blocked`. A `blocked` step names what
 unblocks it.
 
-The `**Review**` field is owned by design-buddy's **review** skill (**DN-6**): it flips `not-reviewed` →
+The `**Review**` field is owned by design-buddy's **plan-review** skill (**DN-6**): it flips `not-reviewed` →
 `passed | passed-with-warnings | failed @ <date>`, and that skill appends a `## Review Log`
 section recording blockers, waivers, and any pre-execution amendments. A `failed` plan must not
 be executed.

@@ -1,103 +1,122 @@
 # agent-plugins
 
-A personal, multi-tool **agent plugin marketplace**. One repository that
-catalogs plugins for several AI coding agents, each described by its own
-marketplace manifest so the same plugin set can be published to multiple
-tools.
-
-## Supported tools
-
-| Tool            | Marketplace catalog                 | Status          |
-| --------------- | ----------------------------------- | --------------- |
-| **Claude Code** | `.claude-plugin/marketplace.json`   | Supported       |
-| **Cursor**      | `.cursor-plugin/marketplace.json`   | Supported       |
-| Codex, others   | —                                   | Planned         |
-
-> The structure is deliberately tool-agnostic. Adding a future agent (Codex,
-> etc.) means adding its `*-plugin/marketplace.json` catalog and a matching
-> entry in `scripts/validate_manifests.py` — no restructuring required.
-
-## Plugins
-
-| Plugin | Tools | Description |
-| ------ | ----- | ----------- |
-| [`design-buddy`](plugins/design-buddy/) | Claude Code · Cursor | A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures. |
-| [`context-forge`](plugins/context-forge/) | Claude Code · Cursor | A context-engineering toolkit: `context-constitution` extracts a repo's hidden patterns, cross-module contracts, and git-history scars into an evidence-cited `context-constitution.md` and behavioral contract; `context-scrubber` audits the repo's context files and reports every line that fails the litmus test — stale citations, restated facts, duplication, contradictions, bloat — with an optional gated trim. |
-| [`strat-lab`](plugins/strat-lab/) | Claude Code · Cursor | A backtesting workbench for the xstockstrat MCP server: ensures data coverage (backfill), runs strategy backtests, survives over-token-limit diagnostics by saving-and-parsing, aggregates an independent-per-symbol basket, and self-grills results against a pre-change oracle before trusting them. |
-
-Every plugin ships one shared `skills/` + `agents/` tree with a manifest for
-each tool. Subagents run through the same `Task` tool on both Claude Code
-and Cursor, so each plugin is registered in both catalogs.
-
-## Add this marketplace to your agent
-
-### Claude Code
+Plugins that make a coding agent **show its work**: debate a design before writing
+code, ground every plan step in a real `path:line`, and keep a repo's agent-context
+files honest. Published to **Claude Code** and **Cursor** from one shared source tree,
+with every manifest version-locked and parity-checked in CI.
 
 ```shell
+# Claude Code
 /plugin marketplace add davcs86/agent-plugins
-/plugin install <plugin-name>@davcs86-agent-plugins
+/plugin install context-forge@davcs86-agent-plugins
 ```
 
-You can also add it from a local checkout:
+Cursor: add this repo as a marketplace source (see
+[Cursor plugins docs](https://cursor.com/docs/plugins)), then install from it.
+
+## The plugins
+
+### [`context-forge`](plugins/context-forge/) — context engineering
+
+Two halves of the same job: put the knowledge an agent actually needs into your
+context files, and get everything else out.
+
+| Skill | Use it when |
+|---|---|
+| **`context-constitution`** | You're writing or bootstrapping a `CLAUDE.md`/`AGENTS.md`, onboarding an agent to an inherited codebase, or the agent keeps making the same mistake because a convention was never written down. Produces an evidence-cited `context-constitution.md` where every rule cites a `path:line` or a commit — nothing invented. |
+| **`context-scrubber`** | Your `CLAUDE.md` has grown past the point of usefulness. Reports every line that costs tokens on each load without changing how the agent behaves — citations that no longer resolve, facts the agent reads for free, rules duplicated across files, claims the code now contradicts. Read-only by default; trimming is separately gated. |
+
+**See the actual output** — both skills run against this very repository:
+[`examples/`](examples/).
+
+### [`design-buddy`](plugins/design-buddy/) — design before code
+
+A three-stage pipeline you can enter at any stage.
+
+| Skill | Use it when |
+|---|---|
+| **`design-debate`** | You know *what* to change but not *how*. Recons the repo, then runs a mediated proposer-vs-adversary debate — scaled from one round for a bug fix to a multi-angle panel for a rearchitecture — and writes a design doc recording the chosen approach **and the alternatives that lost**. |
+| **`impl-plan`** | You have a decided approach and want numbered, executable steps. Every step cites evidence found by grep or read; verification commands come from your repo's own harness, not an assumed one. |
+| **`plan-review`** | Before anyone executes the plan. A read-only reviewer checks each step's evidence still resolves, the design is honored, and no host hard rule is violated, then records a binding verdict in the plan. Blockers cannot be waived. |
+
+> **Looking for `strat-lab`?** The xstockstrat backtesting workbench now lives in
+> [`davcs86/xstockstrat`](https://github.com/davcs86/xstockstrat), which publishes it as its
+> own marketplace:
+>
+> ```shell
+> /plugin marketplace add davcs86/xstockstrat
+> /plugin install strat-lab@davcs86-xstockstrat
+> ```
+>
+> Every plugin here is repo-agnostic and works on any codebase. `strat-lab` only functions
+> with the xstockstrat MCP server connected, and its value is a record of that server's API
+> quirks — so it belongs beside the code that can change them, where a breaking change and
+> the skill update it forces ship in the same pull request.
+
+## What you get, concretely
+
+Both context-forge skills were run against this repository, and the results are
+committed as-is:
+
+| File | What it is |
+|---|---|
+| [`examples/context-constitution.md`](examples/context-constitution.md) | This repo's own forged constitution — its Floor/Rules/Norms, each cited to a `path:line` or a commit |
+| [`examples/context-constitution-findings.md`](examples/context-constitution-findings.md) | The defects the scan surfaced (two latent bugs and a doc-lie), routed out of the constitution for triage |
+| [`examples/context-scrubber-findings.md`](examples/context-scrubber-findings.md) | The scrub report on this repo's own `CLAUDE.md` and `README.md` |
+
+They are a dated snapshot, not generated output — see [`examples/README.md`](examples/README.md).
+
+## How this repo publishes to two tools
+
+The same plugin set ships to Claude Code and Cursor, and every tool's view of it stays
+in lockstep. Each tool gets its own catalog (`.claude-plugin/marketplace.json`,
+`.cursor-plugin/marketplace.json`) registering the same plugins, and each plugin ships
+one manifest per tool with a byte-identical `version`. The `skills/` + `agents/` tree
+is shared, not duplicated: frontmatter is a union of both tools' keys, and each tool
+reads the ones it knows.
+
+| Tool            | Marketplace catalog                 | Status    |
+| --------------- | ----------------------------------- | --------- |
+| **Claude Code** | `.claude-plugin/marketplace.json`   | Supported |
+| **Cursor**      | `.cursor-plugin/marketplace.json`   | Supported |
+| Codex, others   | —                                   | Planned   |
+
+Adding a future agent means adding its `*-plugin/marketplace.json` catalog and one
+entry in `scripts/validate_manifests.py` — no restructuring.
+
+`scripts/validate_manifests.py` (stdlib-only Python 3, no dependencies) enforces all of
+it: valid catalogs, every registered plugin resolving to a real directory with that
+tool's manifest, semver versions matching across a plugin's manifests, the same plugin
+set in every catalog, and every plugin documented in this README. CI runs it on every
+push and PR; a `.claude/settings.json` hook reruns it whenever a manifest is edited.
 
 ```shell
-/plugin marketplace add ./agent-plugins
+python3 scripts/validate_manifests.py             # the marketplace
+python3 scripts/validate_manifests.py --self-test # its own fixture suite
 ```
 
-### Cursor
-
-Point Cursor at this repository's Cursor catalog
-(`.cursor-plugin/marketplace.json`) as a marketplace source, then install
-individual plugins from it. See the
-[Cursor plugins documentation](https://cursor.com/docs/plugins) for the
-current add-a-marketplace flow.
+To add a plugin, see [docs/adding-a-plugin.md](docs/adding-a-plugin.md) — or run
+`/scaffold-plugin` in Claude Code.
 
 ## Repository structure
 
 ```
 agent-plugins/
-├── .claude-plugin/
-│   └── marketplace.json     # Claude Code marketplace catalog
-├── .cursor-plugin/
-│   └── marketplace.json     # Cursor marketplace catalog
-├── .claude/
-│   ├── settings.json         # PostToolUse hook: re-validate manifests on edit
-│   ├── agents/
-│   │   └── manifest-parity-reviewer.md  # read-only manifest/semver auditor
-│   └── skills/
-│       └── scaffold-plugin/  # scaffolds a new plugin + registers it
-├── .mcp.json                 # project-scoped GitHub MCP server
-├── plugins/                  # individual plugins live here, one dir each
-├── docs/
-│   └── adding-a-plugin.md    # how to add + register a new plugin
+├── .claude-plugin/marketplace.json   # Claude Code marketplace catalog
+├── .cursor-plugin/marketplace.json   # Cursor marketplace catalog
+├── .claude/                          # this repo's own Claude Code config
+│   ├── settings.json                 #   PostToolUse hook: re-validate on manifest edit
+│   ├── agents/manifest-parity-reviewer.md
+│   └── skills/scaffold-plugin/       #   scaffolds a new plugin + registers it
+├── .mcp.json                         # project-scoped GitHub MCP server
+├── plugins/                          # one directory per plugin
+├── examples/                         # context-forge output, run against this repo
+├── docs/adding-a-plugin.md
 ├── scripts/
-│   ├── validate_manifests.py # validates every marketplace manifest (CI)
-│   └── hooks/
-│       └── validate_on_edit.py  # the PostToolUse hook's implementation
-└── .github/workflows/
-    └── validate.yml          # runs the validator on push / PR
+│   ├── validate_manifests.py
+│   └── hooks/validate_on_edit.py
+└── .github/workflows/validate.yml
 ```
-
-To add another plugin, see [docs/adding-a-plugin.md](docs/adding-a-plugin.md)
-— or run `/scaffold-plugin` in Claude Code to have it scaffolded for you.
-
-## Validate locally
-
-The validator is standard-library Python 3 (no dependencies):
-
-```shell
-python3 scripts/validate_manifests.py
-```
-
-It confirms each marketplace manifest is valid JSON, that every registered
-plugin resolves to a real `plugins/<name>/` directory with the required
-manifest, that every plugin manifest's `version` is valid semver and
-identical across every tool the plugin targets, that every catalog registers
-the **same plugin set** (membership parity), and that every registered plugin
-is listed in this README. Run `python3 scripts/validate_manifests.py
---self-test` to execute its built-in fixture tests. CI runs the same checks
-on every push and pull request, and a `.claude/settings.json` hook reruns
-them automatically whenever a manifest is edited in a Claude Code session.
 
 ## License
 

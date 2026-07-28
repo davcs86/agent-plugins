@@ -1,9 +1,8 @@
 ---
-name: design
-description: "Design partner for any source-code change — bug fix through rearchitecture/migration. Usage: `design <change description or issue ref> [quick|full|deep]`. Phase 0 (Recon) discovers the host repo with read-only subagents and writes a grounded recon dossier; Phase 1 (Debate) runs a mediated proposer-vs-adversary debate scaled to the change (quick: 1 round; full: 2–5; deep: multi-angle proposer panel) and writes a design doc with the chosen approach, rejected alternatives, and open risks. The **plan** skill then consumes both artifacts."
+name: design-debate
+description: "Decide how to approach a code change before writing any code: recon the actual repo, then run a mediated proposer-vs-adversary debate and produce a design doc with the chosen approach, the alternatives that lost, and the open risks. Use when the user asks how to approach, architect, structure, or go about a change; wants options weighed or an idea pressure-tested; says 'what's the best way to…', 'should I do X or Y', 'poke holes in this', 'help me think through this refactor / migration / feature'; or hands over an issue to be solved rather than a specific edit to make. Scales from a one-round bug fix to a multi-angle rearchitecture. Usage: `design-debate <change description or issue ref> [quick|full|deep]`."
 argument-hint: <change description or issue ref> [quick|full|deep]
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *)
-disable-model-invocation: true
 ---
 
 You run the **design phase** for a requested code change in the host repository. It produces two
@@ -19,6 +18,12 @@ the state you synthesize and pass.
 **Interactive gates.** Every user gate below uses a single structured multiple-choice prompt —
 the `AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor),
 ask the same question, with the same options, in plain chat and wait for the answer.
+
+**Implicit invocation.** This skill may be triggered by the model when a user asks how to
+approach a change, rather than by an explicit command. When that happens, restate the change you
+inferred and confirm it at B3 alongside the depth — a debate run against a misread scope wastes
+several subagent rounds. Everything downstream is gated as normal; nothing changes but that one
+extra confirmation.
 
 **Progressive disclosure.** This file is the always-loaded router. Load each `reference/` file
 only when its step activates — do not read them up front:
@@ -100,7 +105,7 @@ Alternatives, Open Risks, Principles & Host Rules Touched, Waivers.
    ```
    Design approved for <slug> (<depth>, <N> rounds).
    Artifacts: <dir>/recon.md, <dir>/design.md
-   Next: run design-buddy's **plan** skill on <slug>
+   Next: run design-buddy's **impl-plan** skill on <slug>
    ```
 
 ## HARD CONSTRAINTS — never violate

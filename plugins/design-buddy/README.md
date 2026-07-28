@@ -27,14 +27,20 @@ the [Cursor plugins docs](https://cursor.com/docs/plugins). Cursor discovers the
 
 ## Skills
 
-Invoke each as a slash command: `/design-buddy:design` in Claude Code (plugin-namespaced), or
-`/design` in Cursor (flat, un-namespaced command names — so `/design`, `/plan`, `/review`).
+Invoke each as a slash command: `/design-buddy:design-debate` in Claude Code (plugin-namespaced),
+or `/design-debate` in Cursor (flat, un-namespaced command names — so `/design-debate`,
+`/impl-plan`, `/plan-review`).
 
 | Skill | What it does |
 |---|---|
-| `design <change description or issue ref> [quick\|full\|deep]` | Recon (repo scout + parallel area discovery → `recon.md`) then a depth-scaled adversarial debate → `design.md` with the chosen approach, rejected alternatives, and open risks. |
-| `plan <design.md path \| slug \| change description>` | Consumes the design doc (or warns and discovers from scratch) and writes `plan.md`: numbered steps, each with Files / Evidence / Instructions / Verification / Test, executable step-by-step by a later session. |
-| `review <plan.md path \| slug>` | Review gate for the plan — **stricter than advisory**. A reviewer subagent checks every step (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any floor-tied BLOCKER fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived, with everything logged in `## Review Log`. |
+| `design-debate <change description or issue ref> [quick\|full\|deep]` | Recon (repo scout + parallel area discovery → `recon.md`) then a depth-scaled adversarial debate → `design.md` with the chosen approach, rejected alternatives, and open risks. |
+| `impl-plan <design.md path \| slug \| change description>` | Consumes the design doc (or warns and discovers from scratch) and writes `plan.md`: numbered steps, each with Files / Evidence / Instructions / Verification / Test, executable step-by-step by a later session. |
+| `plan-review <plan.md path \| slug>` | Review gate for the plan — **stricter than advisory**. A reviewer subagent checks every step (evidence resolves, design fidelity, host hard rules, ordering); the verdict is recorded in the plan header. Any floor-tied BLOCKER fails the review and blocks execution readiness — BLOCKERs cannot be waived; warnings are addressed or explicitly waived, with everything logged in `## Review Log`. |
+
+> **Renamed in 2.0.0.** These skills were `design` / `plan` / `review` through 1.x. The old names
+> collided with built-in agent commands (Claude Code ships its own `/review`, and `plan` shadows
+> plan mode), which mattered most under Cursor, where commands are invoked flat with no
+> `plugin:` namespace to disambiguate. Update any saved command or script that used the old names.
 
 ### Debate depths
 

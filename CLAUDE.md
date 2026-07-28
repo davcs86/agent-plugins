@@ -54,11 +54,17 @@ enforce that:
 
 - **One component tree, two tools.** A plugin's `skills/` + `agents/` tree is shared,
   not duplicated per tool. Frontmatter is written as a *union* of both tools' keys
-  (e.g. skills keep Claude's `argument-hint`/`allowed-tools` and add Cursor's
-  `disable-model-invocation: true`; agents keep `tools:` and add `readonly: true`) —
-  each tool reads the keys it knows and ignores the rest. Cursor invokes commands
-  flat (`/design`) without Claude's `plugin:` namespace, so keep skill names globally
-  unique and phrase cross-references tool-neutrally.
+  (e.g. skills keep Claude's `argument-hint`/`allowed-tools`; agents keep `tools:` and
+  add Cursor's `readonly: true`) — each tool reads the keys it knows and ignores the
+  rest. Cursor's `disable-model-invocation: true` is set **per skill, not by default**:
+  it makes a skill reachable only by explicit command, so it is right for a skill with
+  side effects outside its own artifact dir (`context-constitution`, `backtest`) and
+  wrong for one the model should be able to trigger. See `docs/adding-a-plugin.md`.
+  Cursor invokes commands
+  flat (`/design-debate`) without Claude's `plugin:` namespace, so skill names must be
+  globally unique **and** must not collide with a host tool's built-in commands — that
+  is why design-buddy 2.0.0 renamed `design`/`plan`/`review` to
+  `design-debate`/`impl-plan`/`plan-review`. Phrase cross-references tool-neutrally.
 
 **Extending to a new agent tool** is intentionally a one-place change: append an entry
 to the `TOOLS` list in `scripts/validate_manifests.py` (its `marketplace` path and the

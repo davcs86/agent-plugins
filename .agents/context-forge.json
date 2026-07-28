@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "constitutionPath": "examples/context-constitution.md",
+  "citeIds": false,
+  "scrubberFindingsPath": "examples/context-scrubber-findings.md",
+  "scrubberExtraTargets": ["README.md"],
+  "created": "2026-07-28"
+}
