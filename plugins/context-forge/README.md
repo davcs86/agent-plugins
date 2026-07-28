@@ -43,6 +43,10 @@ Turns a repo's non-obvious knowledge into two durable artifacts:
 - **Never drops what it found.** Defects to *fix* rather than invariants to *respect* — **documentation
   that lies**, latent bugs, dead code — go into a sibling `context-constitution-findings.md` log, cited
   and with a suggested action, for triage; nothing grounded is silently discarded.
+- **Keeps that log live, not write-only.** `refresh` re-verifies every open finding against current
+  code and retires the ones no longer reproducing to a dated `## Resolved` section; each run's newly
+  surfaced findings get a one-time triage gate (keep open, or dismiss with a recorded reason) instead
+  of accumulating unread.
 - **Handles monorepos**: one constitution + contract **per module**, then a **repo-wide** pass at the
   root whose special focus is the cross-module contracts. Repo-wide rules live once at the root.
 
@@ -56,7 +60,8 @@ Turns a repo's non-obvious knowledge into two durable artifacts:
 
 `refresh` is the keep-it-current mode: it diffs each target from **git** — the last commit that wrote
 that target's `context-constitution.md`, so a manual edit is respected like any other commit —
-re-derives only the changed areas, flags rules whose citations went stale, and applies approved deltas.
+re-derives only the changed areas, flags rules (and open findings) whose citations went stale, and
+applies approved deltas, including retiring resolved findings and gating new ones for triage.
 `refresh … check` reports drift and writes nothing, so it is safe in CI.
 
 ### Optional: library-doc cross-referencing

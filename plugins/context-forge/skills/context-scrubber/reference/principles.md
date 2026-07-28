@@ -115,3 +115,13 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   **root `CLAUDE.md` only** — an identical copy in every module is exactly the duplication **CF-N3**/
   **CF-N4** fight. A per-module contract is justified *only* when `citeIds` makes it genuinely
   module-specific (it cites that module's constitution IDs); an identical generic copy never is.
+- **CF-N12 — The findings log is maintained, not write-only.** Writing a defect once is not the end of
+  its life. `refresh` re-verifies every open `context-constitution-findings.md` row against current
+  code — the same staleness re-check it runs on constitution rules — and retires rows the code no
+  longer supports to a dated `## Resolved` section; never leave a fixed defect sitting in the open
+  sections as a false positive. And a run's *newly*-surfaced findings are not merely appended and
+  forgotten: before the run ends they get one triage gate (keep open, or dismiss with a recorded reason
+  to `## Dismissed (won't fix)`). Neither move is a silent drop — **CF-N8** still holds, since resolved
+  and dismissed rows stay in the file, dated and reasoned; they just leave the *open* sections a human
+  is meant to action. A resolved/dismissed disposition requires an actual re-check or an actual human
+  answer, never a guess (**CF-1**).

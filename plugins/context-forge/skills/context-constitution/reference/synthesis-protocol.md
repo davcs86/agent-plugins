@@ -132,7 +132,9 @@ existing rule and ID verbatim (**CF-4**); only append.
 into `context-constitution-findings.md` beside the constitution (doc-lies, latent bugs, dead code, open
 questions), each cited with a suggested action. Skip the file only when a target has zero defects
 (don't manufacture an empty one); if it has even one, the log is a first-class output, not an
-afterthought. Merge non-destructively like the constitution.
+afterthought. Merge non-destructively like the constitution — but "merge" here means more than append:
+if a log already exists, re-verify its open rows first and retire resolved ones, and gate any newly-added
+rows for triage before the run ends (**CF-N12**, mechanics in `SKILL.md` Phase 2 steps 4–5).
 
 Then present everything at the Phase 1 gate (targets, rule counts by tier, candidate count, **findings
 count**, the contract block + prepend preview).
