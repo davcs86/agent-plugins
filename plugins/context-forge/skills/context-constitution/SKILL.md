@@ -27,7 +27,10 @@ Plus a conditional third output: a **`context-constitution-findings.md`** log wh
 things that are *defects to fix* rather than *invariants to respect* — documentation that lies
 (behavior/config the docs promise but the code lacks), latent bugs, dead code. A scan costs real
 tokens, so nothing grounded is discarded (**CF-N8**): a defect is recorded and cited for triage, never
-frozen into a governance rule (**CF-N9**).
+frozen into a governance rule (**CF-N9**). The log stays live, not write-only (**CF-N12**): `refresh`
+re-verifies every open row against current code and retires the ones no longer reproducing to
+`## Resolved`, and each run's newly-surfaced rows get one triage gate — keep open, or dismiss with a
+recorded reason — before the run ends, instead of just accumulating unread.
 
 Two things this is **not**: it is not a re-index of rules already stated in docs or enforced by CI
 (an agent finds those for free — they become one-line pointers, **CF-N6**), and it is not a place for
@@ -174,16 +177,27 @@ Only after Approve, and never in `scan` mode. Per target:
    constitution as a row there instead of a loose line, matching the host's style.
 4. **Findings log.** If Step 2b routed any defects here, write/merge them into `context-constitution-findings.md`
    beside the constitution (`templates/findings.md`), non-destructively. Skip the file only when the
-   target has zero defects — never manufacture an empty one.
-5. Stage nothing outside the written targets' `context-constitution.md` + `CLAUDE.md` + `context-constitution-findings.md`
+   target has zero defects — never manufacture an empty one. If a findings log already exists for this
+   target, first run the staleness re-check on its open rows (same method as `refresh-protocol.md`
+   Phase 0′ step 3: re-resolve each cited `path:line`/doc claim against current code) and move any that
+   no longer reproduce to `## Resolved`, dated, with how it was confirmed — don't just append on top of
+   stale rows.
+5. **Findings triage gate (CF-N12).** If this run added any *new* findings-log rows, run one triage
+   gate before ending: `AskUserQuestion` (options batched into groups of ≤4 — the tool's per-question
+   cap — one option per new finding, `multiSelect`), asking which to dismiss now; an unselected item
+   stays open. For each dismissed item, capture a one-line reason and write it straight to `## Dismissed
+   (won't fix)` with the date and reason instead of its open section. Skip this gate entirely when the
+   run added zero new findings — don't re-litigate old open ones every run.
+6. Stage nothing outside the written targets' `context-constitution.md` + `CLAUDE.md` + `context-constitution-findings.md`
    (plus `.agents/context-forge.json` on first-run config creation). **No baseline is recorded** —
    the commit that lands the write is itself the baseline `refresh` reads from git next time.
 
 ## COMPLETION
 
 Print, per target: its `context-constitution.md` path and rule counts, whether its `CLAUDE.md` contract was
-created / updated / unchanged, and — if any — its `context-constitution-findings.md` path and defect count
-(doc-lies / latent bugs / dead code) so the user can triage them. Then one reminder:
+created / updated / unchanged, and — if any — its `context-constitution-findings.md` path and open defect
+count (doc-lies / latent bugs / dead code), plus how many rows were resolved or dismissed this run — so
+the user sees the log moving, not just growing. Then one reminder:
 
 > Facts live in the constitution and `CLAUDE.md`; behaviors live in the contract. Before adding any
 > future line, apply the litmus test (**CF-N4**): *does it shape how the agent thinks, or restate a
@@ -198,6 +212,10 @@ created / updated / unchanged, and — if any — its `context-constitution-find
 - **Defects go to the findings log, not the constitution (CF-N9).** Documentation that lies, latent
   bugs, and dead code are recorded (cited, with a suggested action) for triage — never enshrined as
   governance rules.
+- **The findings log stays live, not write-only (CF-N12).** Every merge re-verifies existing open rows
+  and retires ones the code no longer supports to `## Resolved`; every run's new rows get a triage gate
+  (keep open, or dismiss with a recorded reason) before the run ends. A dismissal is never silent — it's
+  dated and reasoned, same spirit as CF-N8.
 - **Extend a host ID scheme only if it's the same *kind* of rule (CF-N5);** otherwise use a labeled
   sibling namespace (`PLAT-*`/`<MODULE>-*`) and cross-reference — never renumber a process
   constitution to hold codebase invariants.

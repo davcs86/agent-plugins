@@ -10,7 +10,10 @@
 Defects and drift surfaced by `/context-constitution` (context-forge) on <ISO date | "unknown"> while
 deriving the constitution — the things an agent trusting the docs or the surface would get **wrong**.
 These are for triage/fixing (feed them to your issue tracker), not governance: a defect is not a rule.
-Every entry cites the code. Refresh by re-running `/context-constitution`.
+Every entry cites the code. This log is maintained, not write-only (**CF-N12**): re-running
+`/context-constitution refresh` re-verifies every open row below against current code and retires the
+ones no longer reproducing to `## Resolved`; each run's newly-surfaced rows get a triage gate (keep
+open, or dismiss with a recorded reason to `## Dismissed (won't fix)`) instead of just piling up.
 
 > Lead with a **⚠ security** marker on any defect that affects an authz/authn/secret/tenant-isolation
 > boundary (e.g. documentation that claims a validation the code doesn't perform) — those are the most
@@ -42,8 +45,29 @@ rationale); a "yes that's a bug" answer stays here as a latent bug.
 
 - <observation + citation> — question: <the exact thing to ask> — status: **open**
 
+## Dismissed (won't fix)
+
+Findings a human triaged and chose not to action — kept for the record, never silently dropped
+(**CF-N8**). A dismissal is a disposition, not a rebuttal: if a later scan re-grounds the same defect
+from scratch, it is reported again rather than assumed still-dismissed.
+
+| What the docs say / issue | Evidence | Dismissed | Reason |
+|---|---|---|---|
+| <original finding> | `path:line` | <ISO date> | <the human's stated reason> |
+
+## Resolved
+
+Findings whose citation no longer reproduces the defect, verified by `refresh`'s staleness re-check —
+never assumed from an empty diff or a stale citation going unresolved.
+
+| What the docs say / issue | Evidence (was) | Resolved | How confirmed |
+|---|---|---|---|
+| <original finding> | `path:line` | <ISO date> | <e.g. "code now implements it" / "doc line removed"> |
+
 <!-- Write "_None._" under any section with no entries rather than leaving it blank. -->
 
 ---
-_Surfaced by [context-forge](https://github.com/davcs86/agent-plugins). These are defects to
-action, not rules to keep — nothing the scan found is discarded (CF-N8). Re-run `/context-constitution` to refresh._
+_Surfaced by [context-forge](https://github.com/davcs86/agent-plugins). Open items above are defects to
+action, not rules to keep — nothing the scan found is discarded (CF-N8); resolved and dismissed items
+stay on record rather than being deleted (CF-N12). Re-run `/context-constitution refresh` to catch
+newly-resolved rows and pick up new defects._

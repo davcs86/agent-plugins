@@ -47,6 +47,12 @@ For each in-scope target `T`, resolve `R` from git as above, then:
    A citation that no longer resolves flags the rule **stale**. A rule whose sites still resolve but
    whose count dropped below the induction bar (e.g. a 9/9 pattern is now 3/9) flags **weakening**.
    This runs even when the change set is empty, so drift is caught no matter where R landed.
+   **Same check extends to `context-constitution-findings.md`, if `T` has one (CF-N12):** for every open
+   row under Documentation-that-lies / Latent bugs / Dead-or-orphaned-code, re-resolve its citation and
+   re-check its claim against current code — a doc-lie row where the code now implements the promised
+   behavior (or the false doc line is gone), a latent bug whose site no longer reproduces it, or dead
+   code that's since been wired up all flag **findings-resolved**. A row stays open unless its citation
+   was actually re-checked and no longer holds — never resolve on an empty diff alone.
 4. **Git archaeology, bounded to the window.** Run the scar hunt (scan protocol step 3) over `R..HEAD`
    only — new reverts/hotfixes since the constitution was last written — not the whole history again.
 
@@ -64,6 +70,12 @@ Per changed target, produce a **delta report** rather than a whole new file:
 - **Weakening** — rules whose evidence thinned; proposed action: demote a tier, or keep with a note.
 - **Resolved candidates** — prior `## Candidate rules (unverified)` entries the new evidence now
   grounds (promote) or refutes (drop).
+- **New findings** — defects (documentation that lies, latent bugs, dead/orphaned code) the scoped
+  scout surfaced from changed/emergent code, routed the same as a full scan (**CF-N9**); proposed
+  action: append to `context-constitution-findings.md`'s matching open section.
+- **Findings resolved** — open findings-log rows whose citation no longer reproduces the defect
+  (**CF-N12**, confirmed by the staleness re-check above, never assumed); proposed action: move to
+  `## Resolved`, dated, with how it was confirmed.
 - **New targets** — modules discovered with no committed constitution; proposed action: full forge.
 
 Unchanged rules are **not** touched, re-emitted, or renumbered.
@@ -71,8 +83,9 @@ Unchanged rules are **not** touched, re-emitted, or renumbered.
 ## Gate
 
 Present the delta report as an itemized changelog (per target: added / stale / weakening / resolved /
-new-target), then `AskUserQuestion` (plain chat under Cursor): **Apply deltas** / **Adjust** (edit a
-proposed delta and re-synthesize) / **Report only** (write nothing).
+new-findings / findings-resolved / new-target), then `AskUserQuestion` (plain chat under Cursor):
+**Apply deltas** / **Adjust** (edit a proposed delta and re-synthesize) / **Report only** (write
+nothing).
 
 **Non-destructive still holds, with one refinement (CF-4).** Refresh may **retire or re-ground an
 existing rule only via an explicit, itemized delta the user approved at this gate** — never silently.
@@ -87,18 +100,27 @@ On **Apply deltas**, per target actually written:
 1. Merge the approved deltas into `context-constitution.md` (append additions; apply approved retire/re-ground
    edits; promote/drop resolved candidates). Refresh the `<!-- …:behavioral-contract… -->` block in
    place only if the behaviors or cited IDs changed.
-2. Stage only this target's `context-constitution.md` and its `CLAUDE.md`. **No baseline to record** — the
-   commit that lands this change *is* the new baseline (git derives it next time). This is why a
-   manual edit and a refresh are indistinguishable to the next run: both are just commits to the
-   constitution.
+2. **Merge findings (CF-N12).** Append approved new-findings rows to their matching open section in
+   `context-constitution-findings.md` (create it from `templates/findings.md` if this target had none
+   yet). Move approved findings-resolved rows to `## Resolved`, dated, with how the re-check confirmed
+   it. Then, if this apply added any *new* open rows, run one triage gate before the run ends:
+   `AskUserQuestion` (options batched into groups of ≤4 — the tool's per-question cap — one option per
+   new finding, `multiSelect`), asking which to dismiss now; leaving one unselected keeps it open. For
+   each dismissed item, capture a one-line reason and write it straight to `## Dismissed (won't fix)`
+   with the date and reason instead of its open section. Skip the gate entirely when zero new rows were
+   added — don't re-litigate old open ones every run.
+3. Stage this target's `context-constitution.md`, its `CLAUDE.md`, and — if this run touched it —
+   `context-constitution-findings.md`. **No baseline to record** — the commit that lands this change
+   *is* the new baseline (git derives it next time). This is why a manual edit and a refresh are
+   indistinguishable to the next run: both are just commits to the constitution.
 
 ## `check` sub-mode (CI / scheduled linter)
 
 `refresh <path?> check` runs Phase 0′ + Phase 1′ and **prints the delta report, then stops — no gate,
-no writes.** Use it to detect a constitution drifting from the code: a clean run reports "no drift"
-for every in-scope target; a run with additions/stale/weakening lists them. It is the safe form to
-wire into CI or a schedule, since it can never modify the repo — and since it needs no stored state,
-it works on any checkout.
+no writes.** Use it to detect a constitution (and findings log) drifting from the code: a clean run
+reports "no drift" for every in-scope target; a run with additions/stale/weakening/new-findings/
+findings-resolved lists them. It is the safe form to wire into CI or a schedule, since it can never
+modify the repo — and since it needs no stored state, it works on any checkout.
 
 ## Guardrails
 
@@ -108,5 +130,7 @@ it works on any checkout.
 - **Staleness is the correctness net, the diff is the optimization.** Always run the staleness check,
   even when the change set is empty.
 - **Never invent (CF-1).** A "stale" flag requires a citation that actually failed to resolve, not a
-  guess; a scar in the window cites its commit.
+  guess; a scar in the window cites its commit. Same for a **findings-resolved** flag (**CF-N12**) — it
+  requires the citation to have actually been re-checked against current code, never assumed from an
+  empty diff.
 - **`check` writes nothing, ever.**
