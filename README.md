@@ -18,6 +18,12 @@ with every manifest version-locked and parity-checked in CI.
 Cursor: add this repo as a marketplace source (see
 [Cursor plugins docs](https://cursor.com/docs/plugins)), then install from it.
 
+Or install the skills directly via [skills.sh](https://skills.sh/davcs86/agent-plugins):
+
+```shell
+npx skills add https://github.com/davcs86/agent-plugins
+```
+
 ## The plugins
 
 ### [`context-forge`](plugins/context-forge/) — context engineering
