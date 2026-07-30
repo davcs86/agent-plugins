@@ -1,6 +1,5 @@
 # agent-plugins
 
-[![skills.sh](https://skills.sh/b/davcs86/agent-plugins)](https://skills.sh/davcs86/agent-plugins)
 [![Validate manifests](https://github.com/davcs86/agent-plugins/actions/workflows/validate.yml/badge.svg)](https://github.com/davcs86/agent-plugins/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -18,7 +17,7 @@ with every manifest version-locked and parity-checked in CI.
 Cursor: add this repo as a marketplace source (see
 [Cursor plugins docs](https://cursor.com/docs/plugins)), then install from it.
 
-Or install the skills directly via [skills.sh](https://skills.sh/davcs86/agent-plugins):
+Or install the skills directly via [skills.sh](https://skills.sh):
 
 ```shell
 npx skills add https://github.com/davcs86/agent-plugins
