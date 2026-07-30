@@ -1,0 +1,31 @@
+{
+  "name": "davcs86-agent-plugins",
+  "interface": {
+    "displayName": "David Castillo's Agent Plugins",
+    "shortDescription": "Personal multi-agent plugin marketplace (Codex catalog)"
+  },
+  "plugins": [
+    {
+      "name": "design-buddy",
+      "source": "./plugins/design-buddy",
+      "description": "A repo-agnostic design partner: adversarially debated designs, evidence-grounded implementation plans, and a strict plan-review gate — from bug fixes to rearchitectures.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "keywords": ["design", "architecture", "planning", "debate", "adversarial", "sdd"]
+    },
+    {
+      "name": "context-forge",
+      "source": "./plugins/context-forge",
+      "description": "A context-engineering toolkit: context-constitution reverse-engineers a repo's non-obvious tribal knowledge into an evidence-cited context-constitution.md plus a behavioral contract in CLAUDE.md; context-scrubber audits the repo's context files and reports every line that fails the litmus test — stale citations, restated facts, duplication, contradictions, just-in-time, brittle instructions, bloat — plus a file-level context-budget signal, with an optional gated trim. Adds the high-signal context, removes the low-signal; invents nothing, every rule and verdict is grounded.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "keywords": ["context-engineering", "constitution", "claude-md", "governance", "conventions", "behavioral-contract", "token-budget", "context-hygiene", "monorepo", "codebase-analysis"]
+    }
+  ]
+}

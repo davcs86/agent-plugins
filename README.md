@@ -1,9 +1,12 @@
 # agent-plugins
 
+[![Validate manifests](https://github.com/davcs86/agent-plugins/actions/workflows/validate.yml/badge.svg)](https://github.com/davcs86/agent-plugins/actions/workflows/validate.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Plugins that make a coding agent **show its work**: debate a design before writing
 code, ground every plan step in a real `path:line`, and keep a repo's agent-context
-files honest. Published to **Claude Code** and **Cursor** from one shared source tree,
-with every manifest version-locked and parity-checked in CI.
+files honest. Published to **Claude Code**, **Cursor**, and **Codex** from one shared
+source tree, with every manifest version-locked and parity-checked in CI.
 
 ```shell
 # Claude Code
@@ -13,6 +16,19 @@ with every manifest version-locked and parity-checked in CI.
 
 Cursor: add this repo as a marketplace source (see
 [Cursor plugins docs](https://cursor.com/docs/plugins)), then install from it.
+
+Codex uses the same commands as Claude Code:
+
+```shell
+/plugin marketplace add davcs86/agent-plugins
+/plugin install context-forge@davcs86-agent-plugins
+```
+
+Or install the skills directly via [skills.sh](https://skills.sh):
+
+```shell
+npx skills add https://github.com/davcs86/agent-plugins
+```
 
 ## The plugins
 
@@ -66,23 +82,23 @@ committed as-is:
 
 They are a dated snapshot, not generated output — see [`examples/README.md`](examples/README.md).
 
-## How this repo publishes to two tools
+## How this repo publishes to three tools
 
-The same plugin set ships to Claude Code and Cursor, and every tool's view of it stays
-in lockstep. Each tool gets its own catalog (`.claude-plugin/marketplace.json`,
-`.cursor-plugin/marketplace.json`) registering the same plugins, and each plugin ships
-one manifest per tool with a byte-identical `version`. The `skills/` + `agents/` tree
-is shared, not duplicated: frontmatter is a union of both tools' keys, and each tool
-reads the ones it knows.
+The same plugin set ships to Claude Code, Cursor, and Codex, and every tool's view of
+it stays in lockstep. Each tool gets its own catalog registering the same plugins, and
+each plugin ships one manifest per tool with a byte-identical `version`. The
+`skills/` + `agents/` tree is shared, not duplicated: frontmatter is a union of every
+tool's keys, and each tool reads the ones it knows.
 
-| Tool            | Marketplace catalog                 | Status    |
-| --------------- | ----------------------------------- | --------- |
-| **Claude Code** | `.claude-plugin/marketplace.json`   | Supported |
-| **Cursor**      | `.cursor-plugin/marketplace.json`   | Supported |
-| Codex, others   | —                                   | Planned   |
+| Tool            | Marketplace catalog                    | Status    |
+| --------------- | --------------------------------------- | --------- |
+| **Claude Code** | `.claude-plugin/marketplace.json`       | Supported |
+| **Cursor**      | `.cursor-plugin/marketplace.json`       | Supported |
+| **Codex**       | `.agents/plugins/marketplace.json`      | Supported |
+| Others          | —                                        | Planned   |
 
-Adding a future agent means adding its `*-plugin/marketplace.json` catalog and one
-entry in `scripts/validate_manifests.py` — no restructuring.
+Adding a future agent means adding its marketplace catalog and one entry in
+`scripts/validate_manifests.py` — no restructuring.
 
 `scripts/validate_manifests.py` (stdlib-only Python 3, no dependencies) enforces all of
 it: valid catalogs, every registered plugin resolving to a real directory with that
@@ -104,6 +120,7 @@ To add a plugin, see [docs/adding-a-plugin.md](docs/adding-a-plugin.md) — or r
 agent-plugins/
 ├── .claude-plugin/marketplace.json   # Claude Code marketplace catalog
 ├── .cursor-plugin/marketplace.json   # Cursor marketplace catalog
+├── .agents/plugins/marketplace.json  # Codex marketplace catalog
 ├── .claude/                          # this repo's own Claude Code config
 │   ├── settings.json                 #   PostToolUse hook: re-validate on manifest edit
 │   ├── agents/manifest-parity-reviewer.md

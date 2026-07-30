@@ -135,9 +135,9 @@ protocol detail loads only when its phase runs. The two skills' shared `principl
 
 ## Compatibility
 
-Ships one shared `skills/` + `agents/` tree with a manifest for each tool, so it runs on **Claude Code**
-and **Cursor**. In Claude Code the gates use `AskUserQuestion`; under Cursor each skill asks the same
-questions in plain chat.
+Ships one shared `skills/` + `agents/` tree with a manifest for each tool, so it runs on **Claude Code**,
+**Cursor**, and **Codex**. In Claude Code the gates use `AskUserQuestion`; under Cursor and Codex each
+skill asks the same questions in plain chat.
 
 ## License
 

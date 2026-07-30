@@ -1,6 +1,6 @@
 ---
 name: manifest-parity-reviewer
-description: Read-only auditor for this plugin marketplace's manifest consistency — checks that every plugin's Claude Code and Cursor manifests exist, carry a valid and matching semver version, and are registered identically in both marketplace.json catalogs. Use before merging any change that touches a plugin.json or marketplace.json.
+description: Read-only auditor for this plugin marketplace's manifest consistency — checks that every plugin's Claude Code, Cursor, and Codex manifests exist, carry a valid and matching semver version, and are registered identically in every marketplace.json catalog. Use before merging any change that touches a plugin.json or marketplace.json.
 tools: Glob, Grep, Read
 model: inherit
 readonly: true
@@ -15,15 +15,17 @@ subagents).
 
 For every `plugins/<name>/` directory (`Glob plugins/*/`):
 
-1. **Manifest presence** — `.claude-plugin/plugin.json` and/or `.cursor-plugin/plugin.json`
-   exist for whichever tool(s) the plugin targets.
+1. **Manifest presence** — `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, and/or
+   `.codex-plugin/plugin.json` exist for whichever tool(s) the plugin targets.
 2. **Semver compliance** — each manifest's `version` field is present and matches
    `MAJOR.MINOR.PATCH`, optionally with a `-prerelease` and/or `+build` suffix.
-3. **Cross-tool version parity** — when a plugin ships both manifests, their `version` fields
-   are byte-identical. A mismatch means one tool's users never see the update.
-4. **Marketplace registration** — the plugin is listed in `.claude-plugin/marketplace.json` and
-   `.cursor-plugin/marketplace.json` (for whichever tools it targets), with a `source` that
-   resolves to `plugins/<name>/`.
+3. **Cross-tool version parity** — when a plugin ships more than one manifest, their `version`
+   fields are byte-identical. A mismatch means one tool's users never see the update.
+4. **Marketplace registration** — the plugin is listed in `.claude-plugin/marketplace.json`,
+   `.cursor-plugin/marketplace.json`, and/or `.agents/plugins/marketplace.json` (for whichever
+   tools it targets), with a `source` that resolves to `plugins/<name>/`. Codex's catalog uses
+   `interface.displayName` instead of `owner` at the top level, and a `policy`/`category` block
+   per plugin entry — don't flag those as inconsistent with the other two catalogs' shape.
 5. **Field consistency** — `name`, `description`, `author`, and `license` don't silently diverge
    between a plugin's own manifest and its marketplace catalog entry. The catalog entry is meant
    to summarize the manifest, not fork from it.

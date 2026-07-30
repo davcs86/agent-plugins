@@ -29,7 +29,11 @@ import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-RELEVANT_RE = re.compile(r"(^|/)\.(claude|cursor)-plugin/(marketplace|plugin)\.json$")
+RELEVANT_RE = re.compile(
+    r"(^|/)\.(claude|cursor)-plugin/(marketplace|plugin)\.json$"
+    r"|(^|/)\.codex-plugin/plugin\.json$"
+    r"|(^|/)\.agents/plugins/marketplace\.json$"
+)
 
 
 def repo_relative(file_path, root=REPO_ROOT):
@@ -150,6 +154,18 @@ def self_test():
         # 6. Plugin manifest edit, no validator => marketplace validator only.
         check("plugin without validator",
               [c[1:] for c in commands_for(Path(beta), root)],
+              [["scripts/validate_manifests.py"]])
+
+        # 6b. Codex plugin manifest and repo marketplace catalog are relevant too —
+        #     a different manifest filename/path shape than Claude's and Cursor's.
+        codex_plugin = "plugins/alpha/.codex-plugin/plugin.json"
+        codex_cat = ".agents/plugins/marketplace.json"
+        check("codex plugin manifest",
+              [c[1:] for c in commands_for(Path(codex_plugin), root)],
+              [["scripts/validate_manifests.py"],
+               [str(Path("plugins/alpha/scripts/validate.py"))]])
+        check("codex marketplace catalog",
+              [c[1:] for c in commands_for(Path(codex_cat), root)],
               [["scripts/validate_manifests.py"]])
 
         # 7. Non-manifest edits are out of scope (AP-13: editing a SKILL.md or the

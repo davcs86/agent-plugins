@@ -1,9 +1,9 @@
 # Design Buddy
 
-A repo-agnostic plugin — for both **Claude Code** and **Cursor** — that turns the agent into a
+A repo-agnostic plugin — for **Claude Code**, **Cursor**, and **Codex** — that turns the agent into a
 **design partner** for any source-code change — bug fix through large rearchitecture or
 migration — and then into an **implementation planner** whose every step is grounded in evidence
-from the target codebase. One shared `skills/` + `agents/` tree serves both tools.
+from the target codebase. One shared `skills/` + `agents/` tree serves all three tools.
 
 It is a portable export of a spec-driven-development methodology: a read-only recon pass builds a
 grounded dossier of the repo, a **mediated proposer-vs-adversary debate** pressure-tests one
@@ -25,10 +25,17 @@ Add this repository as a plugin marketplace source, then install **design-buddy*
 the [Cursor plugins docs](https://cursor.com/docs/plugins). Cursor discovers the plugin's
 `skills/` and `agents/` directly, and its subagents run through the same `Task` tool.
 
+**Codex**
+
+```
+/plugin marketplace add davcs86/agent-plugins
+/plugin install design-buddy@davcs86-agent-plugins
+```
+
 ## Skills
 
 Invoke each as a slash command: `/design-buddy:design-debate` in Claude Code (plugin-namespaced),
-or `/design-debate` in Cursor (flat, un-namespaced command names — so `/design-debate`,
+or `/design-debate` in Cursor and Codex (flat, un-namespaced command names — so `/design-debate`,
 `/impl-plan`, `/plan-review`).
 
 | Skill | What it does |
@@ -62,13 +69,14 @@ Five read-only agents do the heavy lifting so the orchestrating session stays le
 `proposer` (one cited design per round), `adversary` (attacks it, citing rules by ID), and
 `reviewer` (verdicts the finished plan against the review criteria). Proposer and adversary
 never see each other's raw output — the skill mediates every round. Each agent declares its
-read-only contract for both tools: `tools: Glob, Grep, Read` (Claude Code) and `readonly: true`
-(Cursor). Only the orchestrating skill ever writes.
+read-only contract for the tools that read it: `tools: Glob, Grep, Read` (Claude Code) and
+`readonly: true` (Cursor); Codex discovers the same `agents/*.md` files but has no matching
+frontmatter key yet. Only the orchestrating skill ever writes.
 
 ## First run & configuration
 
 On first use in a repo, the skill asks where to store artifacts and writes
-`.agents/design-buddy.json` (a tool-neutral location both Claude Code and Cursor recognize):
+`.agents/design-buddy.json` (a tool-neutral location Claude Code, Cursor, and Codex all recognize):
 
 ```json
 { "version": 1, "artifactsDir": "docs/design", "ledger": true, "created": "2026-07-13" }
