@@ -1,6 +1,8 @@
 # agent-plugins
 
 [![skills.sh](https://skills.sh/b/davcs86/agent-plugins)](https://skills.sh/davcs86/agent-plugins)
+[![Validate manifests](https://github.com/davcs86/agent-plugins/actions/workflows/validate.yml/badge.svg)](https://github.com/davcs86/agent-plugins/actions/workflows/validate.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Plugins that make a coding agent **show its work**: debate a design before writing
 code, ground every plan step in a real `path:line`, and keep a repo's agent-context
