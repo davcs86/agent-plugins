@@ -1,5 +1,7 @@
 # agent-plugins
 
+[![skills.sh](https://skills.sh/b/davcs86/agent-plugins)](https://skills.sh/davcs86/agent-plugins)
+
 Plugins that make a coding agent **show its work**: debate a design before writing
 code, ground every plan step in a real `path:line`, and keep a repo's agent-context
 files honest. Published to **Claude Code** and **Cursor** from one shared source tree,
