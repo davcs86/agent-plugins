@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Integrity validator for the context-forge plugin.
 
-context-forge is a dual-tool plugin (Claude Code + Cursor): one shared skills/agents tree with a
-manifest for each tool, and TWO skills (context-constitution, context-scrubber) that share a single
-governance set and config. Python 3 stdlib only (no dependencies, so it runs in CI as-is). Checks:
-  1. both plugin manifests (.claude-plugin/plugin.json, .cursor-plugin/plugin.json) and any repo
-     marketplace.json parse and carry required fields;
+context-forge is a multi-tool plugin (Claude Code + Cursor + Codex): one shared skills/agents tree
+with a manifest for each tool, and TWO skills (context-constitution, context-scrubber) that share a
+single governance set and config. Python 3 stdlib only (no dependencies, so it runs in CI as-is). Checks:
+  1. every tool's plugin manifest (.claude-plugin/plugin.json, .cursor-plugin/plugin.json,
+     .codex-plugin/plugin.json) and any repo marketplace.json parse and carry required fields;
   2. every skill SKILL.md and agent .md has YAML frontmatter with the required keys (agents carry
      `readonly` so Cursor enforces the read-only contract that Claude expresses via `tools`), and
      no frontmatter value has an unquoted ': ' that makes YAML silently drop the whole block;
@@ -138,6 +138,7 @@ def validate(plugin_root):
     findings = []
     check_manifest(plugin_root / ".claude-plugin" / "plugin.json", ("name", "description", "version"), findings)
     check_manifest(plugin_root / ".cursor-plugin" / "plugin.json", ("name", "description", "version"), findings)
+    check_manifest(plugin_root / ".codex-plugin" / "plugin.json", ("name", "description", "version"), findings)
 
     skills_dir = plugin_root / "skills"
     skill_dirs = sorted(d for d in skills_dir.glob("*") if d.is_dir()) if skills_dir.is_dir() else []
@@ -161,13 +162,18 @@ def validate(plugin_root):
     check_shared_copies(plugin_root, findings)
 
     # Marketplace entries (only when the plugin sits inside a marketplace repo) — one catalog per
-    # tool, both pointing at this same plugin tree.
+    # tool, all pointing at this same plugin tree. Each tool's catalog has its own required
+    # top-level fields (Codex uses `interface`, not the Claude/Cursor `owner`) and its own path.
     repo_root = plugin_root.parent.parent
-    for catalog_dir in (".claude-plugin", ".cursor-plugin"):
-        marketplace = repo_root / catalog_dir / "marketplace.json"
+    marketplace_specs = [
+        (repo_root / ".claude-plugin" / "marketplace.json", ("name", "owner", "plugins")),
+        (repo_root / ".cursor-plugin" / "marketplace.json", ("name", "owner", "plugins")),
+        (repo_root / ".agents" / "plugins" / "marketplace.json", ("name", "interface", "plugins")),
+    ]
+    for marketplace, required in marketplace_specs:
         if not marketplace.is_file():
             continue
-        data = check_manifest(marketplace, ("name", "owner", "plugins"), findings)
+        data = check_manifest(marketplace, required, findings)
         if data and isinstance(data.get("plugins"), list):
             for entry in data["plugins"]:
                 source = entry.get("source", "")

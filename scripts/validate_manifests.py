@@ -4,7 +4,7 @@
 This script is dependency-free (standard library only) so it runs anywhere
 without a `pip install` step, including in CI.
 
-It checks, for each supported agent tool (Claude Code and Cursor):
+It checks, for each supported agent tool (Claude Code, Cursor, and Codex):
 
 1. The tool's top-level ``marketplace.json`` exists and is valid JSON.
 2. The marketplace has the required top-level fields (``name``, ``plugins``).
@@ -60,6 +60,11 @@ TOOLS = [
         "label": "Cursor",
         "marketplace": Path(".cursor-plugin") / "marketplace.json",
         "plugin_manifest": Path(".cursor-plugin") / "plugin.json",
+    },
+    {
+        "label": "Codex",
+        "marketplace": Path(".agents") / "plugins" / "marketplace.json",
+        "plugin_manifest": Path(".codex-plugin") / "plugin.json",
     },
 ]
 
@@ -311,21 +316,23 @@ def self_test():
 
     claude_cat = Path(".claude-plugin/marketplace.json")
     cursor_cat = Path(".cursor-plugin/marketplace.json")
+    codex_cat = Path(".agents/plugins/marketplace.json")
 
-    def manifest_paths(name, version="1.0.0", tools=("claude", "cursor")):
+    def manifest_paths(name, version="1.0.0", tools=("claude", "cursor", "codex")):
         out = {}
         for tool in tools:
             rel = Path("plugins") / name / f".{tool}-plugin" / "plugin.json"
             out[rel] = {"name": name, "version": version}
         return out
 
-    # 1. Clean fixture: two catalogs, one plugin, matching versions, README
+    # 1. Clean fixture: three catalogs, one plugin, matching versions, README
     #    mention — every check must pass (the positive case).
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         _write_fixture(root,
                        catalogs={claude_cat: _catalog(["alpha"]),
-                                 cursor_cat: _catalog(["alpha"])},
+                                 cursor_cat: _catalog(["alpha"]),
+                                 codex_cat: _catalog(["alpha"])},
                        manifests=manifest_paths("alpha"),
                        readme="# fixture\n\n- alpha: does things\n")
         errors, _ = validate_repo(root)

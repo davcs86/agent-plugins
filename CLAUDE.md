@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this repo is
 
 A **multi-tool agent plugin marketplace**: one repository that catalogs plugins for
-several AI coding agents (Claude Code and Cursor today; Codex and others planned).
+several AI coding agents (Claude Code, Cursor, and Codex today; others planned).
 There is no application to build or run — the deliverable is a set of JSON manifests
 plus the plugin component trees they point at, kept internally consistent by a
 standard-library Python validator.
@@ -40,27 +40,33 @@ to multiple tools, and every tool's view of it must stay in lockstep.** Three th
 enforce that:
 
 - **Parallel catalogs.** Each tool has its own top-level marketplace catalog
-  (`.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json`). They are
+  (`.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json`,
+  `.agents/plugins/marketplace.json` for Codex). Claude Code's and Cursor's are
   deliberately kept structurally identical — same `plugins` entries, same explicit
-  `./plugins/<name>` source paths — so the two read the same. Adding/removing a
-  plugin means editing **both** catalogs together.
+  `./plugins/<name>` source paths. Codex's catalog lives at a different path and uses
+  a different top-level shape (`interface.displayName` instead of `owner`, plus a
+  `policy` block per plugin entry), but registers the same plugins with the same
+  `./plugins/<name>` sources. Adding/removing a plugin means editing **every** catalog
+  together.
 
 - **Per-tool plugin manifests with locked versions.** Each plugin lives in
   `plugins/<name>/` and ships one manifest per tool it targets
-  (`.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`). When a plugin ships
-  more than one, their `version` fields must be **byte-identical** semver — a
-  mismatch means one tool's users never see the update, and the validator fails the
-  build on it. Bump the version in every manifest at once.
+  (`.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`,
+  `.codex-plugin/plugin.json`). When a plugin ships more than one, their `version`
+  fields must be **byte-identical** semver — a mismatch means one tool's users never
+  see the update, and the validator fails the build on it. Bump the version in every
+  manifest at once.
 
-- **One component tree, two tools.** A plugin's `skills/` + `agents/` tree is shared,
-  not duplicated per tool. Frontmatter is written as a *union* of both tools' keys
+- **One component tree, every tool.** A plugin's `skills/` + `agents/` tree is shared,
+  not duplicated per tool. Frontmatter is written as a *union* of every tool's keys
   (e.g. skills keep Claude's `argument-hint`/`allowed-tools`; agents keep `tools:` and
   add Cursor's `readonly: true`) — each tool reads the keys it knows and ignores the
-  rest. Cursor's `disable-model-invocation: true` is set **per skill, not by default**:
-  it makes a skill reachable only by explicit command, so it is right for a skill with
-  side effects outside its own artifact dir (`context-constitution`, `backtest`) and
-  wrong for one the model should be able to trigger. See `docs/adding-a-plugin.md`.
-  Cursor invokes commands
+  rest. Codex's SKILL.md support only reads `name`/`description` from frontmatter, so
+  it needs no extra keys of its own. Cursor's `disable-model-invocation: true` is set
+  **per skill, not by default**: it makes a skill reachable only by explicit command,
+  so it is right for a skill with side effects outside its own artifact dir
+  (`context-constitution`, `backtest`) and wrong for one the model should be able to
+  trigger. See `docs/adding-a-plugin.md`. Cursor invokes commands
   flat (`/design-debate`) without Claude's `plugin:` namespace, so skill names must be
   globally unique **and** must not collide with a host tool's built-in commands — that
   is why design-buddy 2.0.0 renamed `design`/`plan`/`review` to
@@ -86,7 +92,8 @@ own `--self-test` fixture suite, same as the per-plugin validators.
 
 Two automation layers wrap it so mistakes surface early:
 - **PostToolUse hook** (`.claude/settings.json` → `scripts/hooks/validate_on_edit.py`):
-  after any `Edit`/`Write` to a `*-plugin/(marketplace|plugin).json` file, it reruns
+  after any `Edit`/`Write` to a `*-plugin/(marketplace|plugin).json` file or to Codex's
+  `.agents/plugins/marketplace.json` / `.codex-plugin/plugin.json`, it reruns
   `validate_manifests.py` and, for edits inside a plugin dir, that plugin's own
   `scripts/validate.py`. It exits non-zero to block on failure — fix before committing.
 - **CI** runs the same checks on every push and PR.
@@ -101,12 +108,12 @@ the marketplace validator and run separately in CI.
 being published): the PostToolUse validation hook, a read-only `manifest-parity-reviewer`
 agent (audits manifest/semver/catalog consistency before merging), and a
 `scaffold-plugin` skill (`/scaffold-plugin`) that scaffolds a new plugin and registers
-it in both catalogs. `.mcp.json` wires up a project-scoped GitHub MCP server.
+it in every catalog. `.mcp.json` wires up a project-scoped GitHub MCP server.
 
 ## Adding or changing a plugin
 
 Follow `docs/adding-a-plugin.md`. In short: create `plugins/<name>/` with a manifest
-per tool, register an identical entry in **both** marketplace catalogs, keep versions
+per tool, register an identical entry in **every** marketplace catalog, keep versions
 semver and identical across a plugin's manifests, and run `validate_manifests.py`
-before committing. Commit the plugin directory and both catalog edits together so the
+before committing. Commit the plugin directory and all catalog edits together so the
 marketplace is never left inconsistent. `/scaffold-plugin` automates the scaffolding.
