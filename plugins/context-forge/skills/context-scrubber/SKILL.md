@@ -174,11 +174,19 @@ in scratch mode):
    number as an explicit `≈ chars ÷ 4` approximation — never a bare count that looks authoritative. The
    "removable total" excludes `keep-but-verify` rows (unproven → no savings claim).
 
-**GATE** via `AskUserQuestion`, showing: the target list, failing counts by category, the measured savings
-(lines/characters), the `keep-but-verify` count, the two file-level advisory counts (oversized files; silent
-skills), and where the findings file will be written. Options: **Approve & write findings** / **Adjust** (fold a
-correction and re-synthesize) / **Present inline** (scratch — write nothing). In `apply` mode the gate adds a
-fourth option, **Approve findings & proceed to Apply**. In `scan` mode there is no trim gate at all.
+**Lead with the silent-skill callout when any fired — don't let it be a table row the eye skips.** Because the
+findings file is a pull (someone has to open it) and a silent skill is a *push*-worthy problem (a skill that
+can't be reached at all), when the audit flags **≥1** silent skill, **open the gate summary and the completion
+print with a named headline**, above the category tables — e.g.
+`⚠ 2 repo skills can't be reached: bar, baz — their description has no trigger surface (advisory; strengthen it).`
+Name the skills, don't just count them. When **zero** fired, say nothing about it — never cry wolf.
+
+**GATE** via `AskUserQuestion`, showing (with the silent-skill headline first if any fired): the target list,
+failing counts by category, the measured savings (lines/characters), the `keep-but-verify` count, the two
+file-level advisories (oversized files; the named silent skills), and where the findings file will be written.
+Options: **Approve & write findings** / **Adjust** (fold a correction and re-synthesize) / **Present inline**
+(scratch — write nothing). In `apply` mode the gate adds a fourth option, **Approve findings & proceed to
+Apply**. In `scan` mode there is no trim gate at all.
 
 ## PHASE 2 — APPLY (gated; `apply` mode only; non-destructive, sentinel-safe)
 
@@ -200,8 +208,10 @@ apply targets (**CF-N9**; see HARD CONSTRAINTS). Then, per approved line:
 
 ## COMPLETION
 
-Print the findings file path, the failing counts by category, the two file-level advisories (oversized files;
-silent skills — with skills scanned / excluded-as-symlinked-out), and the **measured** savings — lines and
+Lead with the **silent-skill headline** if any fired (the named `⚠ N repo skills can't be reached: …` line from
+Phase 1) — it is the one finding a human most needs pushed at them, so it goes above everything else. Then print
+the findings file path, the failing counts by category, the file-level advisories (oversized files; the named
+silent skills, with skills scanned / excluded-as-symlinked-out), and the **measured** savings — lines and
 characters flagged (and, in `apply` mode, actually trimmed vs. deferred, per file). Tokens only if a real
 tokenizer ran; otherwise lines/characters, or an explicitly-labeled `≈ chars ÷ 4` approximation. Never present an
 invented or unlabeled token number (**CF-1**). Then one reminder:

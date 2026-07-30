@@ -164,6 +164,12 @@ scanned / excluded-as-symlinked-out counts from Step 1b. This is advisory: the f
 so a silent-skill row is **never** a `remove`/`trim` row and **never** an `apply` candidate — exactly like the
 file-level budget, and consistent with `apply` only ever subtracting.
 
+**Push it, don't just file it.** A skill that can't be reached is the finding a human is least likely to go
+looking for and most needs told — and the findings file is a pull, not a push. So when **≥1** skill is flagged,
+surface it **by name** as a headline at the Phase 1 gate and at completion (SKILL.md wires this in), above the
+category tables — not as a row buried mid-report. State the count *and* the skill names, e.g. `⚠ 2 repo skills
+can't be reached: bar, baz`. When **zero** are flagged, stay silent about it — no headline, no cry-wolf.
+
 Then present the Phase 1 gate (target list, failing counts by category, `keep-but-verify` count, the two
 file-level advisory counts, findings destination) and route by the user's choice — write the findings file on
 approval, or present it inline in scratch mode. In `apply` mode, on **Approve findings & proceed to Apply**,
