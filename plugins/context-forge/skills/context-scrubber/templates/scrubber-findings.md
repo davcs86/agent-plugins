@@ -121,6 +121,20 @@ first; soft budget ~2,000 characters per auto-loaded file (adjust to taste).
 |---|---|---|---|
 | `path/CLAUDE.md` | <lines> | <chars> | yes / no |
 
+## Silent skills (weak trigger surface)
+
+Repo skills whose `description` frontmatter — the *only* always-loaded part of a skill (the body loads on
+invocation) — has no **trigger surface**, so the skill can never be reached: no *when-to-use* clause, no
+user-facing symptom or phrasing, no named artifact / command / synonym it acts on — just an abstract restatement
+of the name. Advisory: the fix is to *add* trigger surface, so this is **never** an `apply` target (like the
+context-budget section). Skills whose real path resolves **outside** the repo are excluded (not ours to fix).
+Scanned: `<n>` · excluded as symlinked-out: `<n>`.
+
+| Skill (`SKILL.md:line`) | Invocation | What the description is missing | Suggested action |
+|---|---|---|---|
+| `plugins/foo/skills/bar/SKILL.md:3` — "<description>" | model-invocable | no when-to-use clause, no user-facing symptom or trigger phrasing — nothing a request matches | strengthen trigger surface (advisory; never `apply`-trimmed) |
+| `.claude/skills/baz/SKILL.md:3` — "<description>" | command-only | bare name-restatement — a human gets no cue for *when* to run it | strengthen trigger surface (advisory; never `apply`-trimmed) |
+
 ## Keep-but-verify (unconfirmed — CF-1)
 
 Suspected low-signal, but not grounded by evidence in this pass. Confirm before treating as removable — never

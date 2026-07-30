@@ -2,7 +2,7 @@
 name: context-scrubber
 description: "Audit a repo's agent-context files (CLAUDE.md, AGENTS.md, .cursor/rules/*, and opt-in docs) and report every line that costs tokens on each load without changing how the agent behaves — citations that no longer resolve, facts the agent reads for free, the same rule repeated in two files, claims the code now contradicts, and filler. Use when the user says their CLAUDE.md or AGENTS.md has 'gotten huge / bloated / messy / out of hand'; asks to trim, slim down, clean up, prune, or audit their agent instructions; wonders whether their context files are still accurate or 'still true'; or wants to cut context, token, or per-message cost. Usage: `context-scrubber [scan|apply] [path]`. The default `scan` only writes a findings report — nothing is trimmed without explicit approval."
 argument-hint: "[scan|apply] [path]"
-allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *)
+allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(realpath *) Bash(readlink *) Bash(git log *) Bash(git show *) Bash(git rev-parse *)
 ---
 
 You are the **inverse** of `/context-constitution`. That skill *adds* the high-signal knowledge an agent would
@@ -119,6 +119,15 @@ task sends it there) — *unless* a doc is explicitly opted in via `scrubberExtr
 auto-loaded-as-context vs. read-on-demand — you scrub the former, and you treat source only as *evidence*
 against which a context claim is checked, never as a thing to trim.
 
+**Repo skills — an advisory-only surface (not a trim target).** Beyond the auto-loaded context files above, the
+audit also scans the repo's own skills for the **silent-skill** advisory: a `SKILL.md` whose `description`
+frontmatter — the *only* always-loaded part of a skill (the body loads on invocation) — has no **trigger
+surface**, so the skill can never be reached. Skills are enumerated read-only and judged on their description
+alone; the fix (strengthen the trigger surface) is an *addition*, so a skill is **never** a trim / `apply`
+target — it is reported like the file-level context-budget advisory. Skills whose real path resolves **outside**
+the repo (symlinked to a shared/global library) are excluded — not the repo's to fix. See
+`reference/audit-protocol.md` (Step 1b + Step 4).
+
 ## PHASE 0 — AUDIT (read-only classification → verdict digest)
 
 Read **`reference/audit-protocol.md`** and follow it. In short: hand the discovered target list to a
@@ -148,9 +157,11 @@ in scratch mode):
    — `remove` / `trim` / `move-to-<doc>` (just-in-time) / `trim to a heuristic` (brittle) / `keep-but-verify`.
    A *just-in-time* row's action leaves a pointer behind (it relocates, it doesn't delete); a *brittle* row keeps
    the intent as a heuristic (it doesn't drop the behavior).
-3. **Include the file-level budget section.** Beyond the per-line rows, list any audited file over the soft size
-   budget in `## Context budget (file-level)` with its **measured** lines/characters — a context-rot advisory,
-   biggest first, never an automatic removal.
+3. **Include the two file-level advisory sections.** Beyond the per-line rows: (a) list any audited file over the
+   soft size budget in `## Context budget (file-level)` with its **measured** lines/characters — a context-rot
+   advisory, biggest first; and (b) list any repo skill with no trigger surface in `## Silent skills (weak
+   trigger surface)`, carrying the count scanned / excluded-as-symlinked-out. Both are advisory — reported, never
+   an automatic removal and never an `apply` target.
 4. **Never propose trimming a protected block.** The sentinel-wrapped behavioral-contract and constitution-pointer
    blocks that `/context-constitution` installs are excluded by construction (see HARD CONSTRAINTS). A pointer
    whose citation looks stale is reported `keep-but-verify` with "re-run `/context-constitution`", never
@@ -163,10 +174,19 @@ in scratch mode):
    number as an explicit `≈ chars ÷ 4` approximation — never a bare count that looks authoritative. The
    "removable total" excludes `keep-but-verify` rows (unproven → no savings claim).
 
-**GATE** via `AskUserQuestion`, showing: the target list, failing counts by category, the measured savings
-(lines/characters), the `keep-but-verify` count, and where the findings file will be written. Options: **Approve & write findings** / **Adjust** (fold a
-correction and re-synthesize) / **Present inline** (scratch — write nothing). In `apply` mode the gate adds a
-fourth option, **Approve findings & proceed to Apply**. In `scan` mode there is no trim gate at all.
+**Lead with the silent-skill callout when any fired — don't let it be a table row the eye skips.** Because the
+findings file is a pull (someone has to open it) and a silent skill is a *push*-worthy problem (a skill that
+can't be reached at all), when the audit flags **≥1** silent skill, **open the gate summary and the completion
+print with a named headline**, above the category tables — e.g.
+`⚠ 2 repo skills can't be reached: bar, baz — their description has no trigger surface (advisory; strengthen it).`
+Name the skills, don't just count them. When **zero** fired, say nothing about it — never cry wolf.
+
+**GATE** via `AskUserQuestion`, showing (with the silent-skill headline first if any fired): the target list,
+failing counts by category, the measured savings (lines/characters), the `keep-but-verify` count, the two
+file-level advisories (oversized files; the named silent skills), and where the findings file will be written.
+Options: **Approve & write findings** / **Adjust** (fold a correction and re-synthesize) / **Present inline**
+(scratch — write nothing). In `apply` mode the gate adds a fourth option, **Approve findings & proceed to
+Apply**. In `scan` mode there is no trim gate at all.
 
 ## PHASE 2 — APPLY (gated; `apply` mode only; non-destructive, sentinel-safe)
 
@@ -188,7 +208,10 @@ apply targets (**CF-N9**; see HARD CONSTRAINTS). Then, per approved line:
 
 ## COMPLETION
 
-Print the findings file path, the failing counts by category, and the **measured** savings — lines and
+Lead with the **silent-skill headline** if any fired (the named `⚠ N repo skills can't be reached: …` line from
+Phase 1) — it is the one finding a human most needs pushed at them, so it goes above everything else. Then print
+the findings file path, the failing counts by category, the file-level advisories (oversized files; the named
+silent skills, with skills scanned / excluded-as-symlinked-out), and the **measured** savings — lines and
 characters flagged (and, in `apply` mode, actually trimmed vs. deferred, per file). Tokens only if a real
 tokenizer ran; otherwise lines/characters, or an explicitly-labeled `≈ chars ÷ 4` approximation. Never present an
 invented or unlabeled token number (**CF-1**). Then one reminder:
@@ -219,6 +242,9 @@ invented or unlabeled token number (**CF-1**). Then one reminder:
   anywhere.
 - **An implicitly-triggered run is `scan`.** If the user did not explicitly invoke this skill, `apply` is not
   available to it — no matter how the conversation reads. They must ask for it.
+- **The silent-skill check is advisory-only.** Repo skills whose `description` has no trigger surface are
+  *reported* (like the context-budget advisory), never trimmed — the remedy is to *add* trigger surface. Skills
+  whose real path resolves outside the repo are excluded; `apply` never touches a skill.
 - **Never trim inside a protected sentinel block (CF-N11).** The behavioral-contract and constitution-pointer
   blocks (`context-forge:*` markers, and legacy `constitution-forge:*`) are off-limits — the contract is
   deliberately generic (shapes how the agent *thinks*, not a fact — **CF-N2**) and the pointer block is

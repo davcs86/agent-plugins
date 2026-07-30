@@ -37,10 +37,18 @@ deferred to `/context-constitution`** (its findings log owns the fix-vs-remove c
 The only line-level correction the scrubber suggests here is a pure *re-ground* (a drifted `path:line`), and even
 that is a `/context-constitution` refresh job, not a scrubber trim.
 
-Plus one **file-level** signal (not a per-line row): **context budget / rot risk** — a whole context file whose
-**measured** size is large enough to strain attention (context rot) even when no single line fails. Report the
-biggest files with their measured lines/characters against a soft budget; it is advisory (points at what to
-review), never an automatic removal.
+Plus two **file-level** signals (not per-line rows), both advisory — each points at what to review, never an
+automatic removal:
+
+- **Context budget / rot risk** — a whole context file whose **measured** size is large enough to strain
+  attention (context rot) even when no single line fails. Report the biggest files with their measured
+  lines/characters against a soft budget.
+- **Silent skills (weak trigger surface)** — a repo skill whose `description` frontmatter gives the model (or a
+  human) no way to reach it. A skill's `description` is the *only* always-loaded part of it — the body loads on
+  invocation — so a description with no **trigger surface** costs registry tokens every session and never fires:
+  it is the inverse-litmus case at the skill layer (loaded on every session, changes no behavior). The remedy —
+  *strengthen the trigger surface* — is an **addition**, so this is advisory only and **never an `apply` target**
+  (see Step 4). Skills whose real path resolves **outside** the repo are excluded — not the repo's to fix.
 
 ## Step 1 — Discover the context targets
 
@@ -54,6 +62,23 @@ Under the analysis root (arg `path` or repo root), enumerate the auto-loaded ins
 **Exclude** application source, tests, and read-on-demand docs. If discovery finds nothing, say so and stop —
 there is nothing to scrub. Report the target list; cap a very large fan-out and name anything you deferred
 (**CF-1** honesty — never silently audit a subset).
+
+## Step 1b — Discover the repo's own skills (for the silent-skill advisory)
+
+Also enumerate every skill defined **in this repo**, for the file-level silent-skill advisory (Step 4). A skill
+is a `SKILL.md` carrying YAML frontmatter (`name`, `description`); they live under skill dirs such as
+`plugins/*/skills/*/`, `.claude/skills/*/`, `.cursor/…`, or any `**/SKILL.md` under the analysis root.
+
+- Enumerate with `find -L <root> -name SKILL.md` — the `-L` follows symlinked skill dirs so an externally-linked
+  skill still surfaces (only to be excluded below, never silently missed).
+- **Exclude any skill that isn't the repo's to fix.** Resolve each hit's real path (`realpath`, or
+  `readlink -f`) and keep only those under the repo root (`git rev-parse --show-toplevel`). A `SKILL.md` that is
+  itself a symlink — or sits under a symlinked directory — resolving **outside** the repo is skipped; one that
+  resolves **inside** the repo stays in scope. Count how many skills you scanned and how many you excluded as
+  symlinked-out, and report both (**CF-1** honesty — never silently drop a subset).
+
+This is a read-only enumeration; only each skill's frontmatter `description` is judged (Step 4), never its body.
+The skill descriptions are not per-line trim targets — they feed a file-level advisory only.
 
 ## Step 2 — Run the auditor (read-only, advisory)
 
@@ -118,9 +143,37 @@ single auto-loaded context file, adjustable — as a context-rot risk in the rep
 removal, and the number is measured, never invented (**CF-1**). It catches the case where every individual line
 looks defensible but the file as a whole is too big to keep sharp attention on.
 
-Then present the Phase 1 gate (target list, failing counts by category, `keep-but-verify` count, findings
-destination) and route by the user's choice — write the findings file on approval, or present it inline in scratch
-mode. In `apply` mode, on **Approve findings & proceed to Apply**, continue to `apply-protocol.md`.
+**Judge the silent-skill advisory too (advisory, never `apply`).** For each in-scope skill from Step 1b, read
+its `description` frontmatter and decide whether it carries a usable **trigger surface** — anything a user
+request could match against. A description is **not** silent if it has at least one of: an explicit *when-to-use*
+clause naming concrete situations (`Use when… / Trigger when…`), user-facing symptoms or the verbatim phrasings a
+user would actually type, or named artifacts / file types / commands / synonyms it acts on. Flag it as **silent**
+only when the description does **none** of these — it merely restates the skill's name or purpose in the
+abstract, leaving nothing to match. Ground the verdict in the description text itself: quote the gap, and cite
+`SKILL.md:<line>` of the `description` (**CF-1** — the description *is* the evidence; don't invent a reason it
+won't fire). Note the invocation mode per row:
+
+- a **model-invocable** skill with no trigger surface will effectively never auto-fire — the model has nothing
+  to discover it by;
+- a **command-only** skill (`disable-model-invocation: true`) never auto-fires *by design*, so judge only its
+  human cue: flag it only when the description gives a human no sense of *when* to reach for the command (a bare
+  name-restatement), and mark the row `command-only` so it isn't misread as a model-trigger defect.
+
+Record the result in `## Silent skills (weak trigger surface)`, one row per flagged skill, carrying the
+scanned / excluded-as-symlinked-out counts from Step 1b. This is advisory: the fix is to *add* trigger surface,
+so a silent-skill row is **never** a `remove`/`trim` row and **never** an `apply` candidate — exactly like the
+file-level budget, and consistent with `apply` only ever subtracting.
+
+**Push it, don't just file it.** A skill that can't be reached is the finding a human is least likely to go
+looking for and most needs told — and the findings file is a pull, not a push. So when **≥1** skill is flagged,
+surface it **by name** as a headline at the Phase 1 gate and at completion (SKILL.md wires this in), above the
+category tables — not as a row buried mid-report. State the count *and* the skill names, e.g. `⚠ 2 repo skills
+can't be reached: bar, baz`. When **zero** are flagged, stay silent about it — no headline, no cry-wolf.
+
+Then present the Phase 1 gate (target list, failing counts by category, `keep-but-verify` count, the two
+file-level advisory counts, findings destination) and route by the user's choice — write the findings file on
+approval, or present it inline in scratch mode. In `apply` mode, on **Approve findings & proceed to Apply**,
+continue to `apply-protocol.md`.
 
 ## Guardrails
 
@@ -131,3 +184,6 @@ mode. In `apply` mode, on **Approve findings & proceed to Apply**, continue to `
 - **Grounded beats plausible.** A "stale"/"restated"/"contradicted" verdict requires the confirming evidence in
   hand; a hunch is `keep-but-verify`, phrased as a question.
 - **Never audit or trim a protected sentinel block.** It is `/context-constitution`'s territory.
+- **The silent-skill signal is advisory-only.** It flags repo skills whose `description` has no trigger surface
+  and excludes any skill whose real path is outside the repo; its remedy is *adding* trigger surface, so it is
+  never a `remove`/`trim` row and never an `apply` target.
