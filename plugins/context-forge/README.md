@@ -87,8 +87,11 @@ what an agent would find for free and is therefore dead weight in an auto-loaded
   resolves), **restated facts** (a line an agent reads for free), **cross-file duplication** (the same
   rule in two context files), **contradicted by code** (a claim the code disproves), **should be
   just-in-time** (accurate but pre-loaded content that belongs behind a pointer), **brittle /
-  over-specified** (an if-else block that should be a heuristic), and **bloat** — plus a file-level
-  **context-budget** signal that flags whole files large enough to strain attention (context rot).
+  over-specified** (an if-else block that should be a heuristic), and **bloat** — plus two file-level
+  advisories: a **context-budget** signal that flags whole files large enough to strain attention (context
+  rot), and a **silent-skill** audit that flags the repo's own skills whose `description` has no trigger
+  surface, so they can never be reached (excluding skills symlinked outside the repo). Both are report-only —
+  their fix is *adding*, so `apply` never touches them.
 - **Primary output** is an evidence-cited `context-scrubber-findings.md` — one row per failing line,
   cited on both sides, with the category, why it fails, and a suggested action
   (remove / trim / move / keep-but-verify). Anything unproven is a `keep-but-verify` question, never
