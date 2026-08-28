@@ -7,8 +7,9 @@
 -->
 # <Target name> — Constitution Findings
 
-Defects and drift surfaced by `/context-constitution` (context-forge) on <ISO date | "unknown"> while
-deriving the constitution — the things an agent trusting the docs or the surface would get **wrong**.
+Defects and drift surfaced by `/context-constitution` (context-forge) on <ISO date | "unknown"> from
+branch `<branch | "detached HEAD">` at commit `<short-sha | "unknown">` while deriving the
+constitution — the things an agent trusting the docs or the surface would get **wrong**.
 These are for triage/fixing (feed them to your issue tracker), not governance: a defect is not a rule.
 Every entry cites the code. This log is maintained, not write-only (**CF-N12**): re-running
 `/context-constitution refresh` re-verifies every open row below against current code and retires the

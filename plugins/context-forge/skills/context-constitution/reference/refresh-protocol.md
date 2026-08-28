@@ -99,7 +99,10 @@ On **Apply deltas**, per target actually written:
 
 1. Merge the approved deltas into `context-constitution.md` (append additions; apply approved retire/re-ground
    edits; promote/drop resolved candidates). Refresh the `<!-- …:behavioral-contract… -->` block in
-   place only if the behaviors or cited IDs changed.
+   place only if the behaviors or cited IDs changed. Update the header's provenance line to this run's
+   ref — the date plus branch `git rev-parse --abbrev-ref HEAD` and commit `git rev-parse --short HEAD`
+   — so the file records the commit this refresh reran against (metadata, not a rule, so refreshing it
+   is not a CF-4 overwrite). Do the same for `context-constitution-findings.md` when this run writes it.
 2. **Merge findings (CF-N12).** Append approved new-findings rows to their matching open section in
    `context-constitution-findings.md` (create it from `templates/findings.md` if this target had none
    yet). Move approved findings-resolved rows to `## Resolved`, dated, with how the re-check confirmed

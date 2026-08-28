@@ -49,6 +49,9 @@ Turns a repo's non-obvious knowledge into two durable artifacts:
   of accumulating unread.
 - **Handles monorepos**: one constitution + contract **per module**, then a **repo-wide** pass at the
   root whose special focus is the cross-module contracts. Repo-wide rules live once at the root.
+- **Pins the analyzed commit**: each `context-constitution.md` (and its findings log) header records the
+  date plus the **branch and commit hash** the analysis ran against, so a reader knows exactly which
+  repo state the rules reflect and `refresh` reruns from a known point.
 
 ```shell
 /context-constitution              # full flow: scan → synthesize → (gated) write
@@ -94,8 +97,9 @@ what an agent would find for free and is therefore dead weight in an auto-loaded
   their fix is *adding*, so `apply` never touches them.
 - **Primary output** is an evidence-cited `context-scrubber-findings.md` — one row per failing line,
   cited on both sides, with the category, why it fails, and a suggested action
-  (remove / trim / move / keep-but-verify). Anything unproven is a `keep-but-verify` question, never
-  asserted (**CF-1**); nothing grounded is dropped (**CF-N8**).
+  (remove / trim / move / keep-but-verify). Its header records the date plus the **branch and commit
+  hash** the audit ran against, so the report is pinned to a known repo state. Anything unproven is a
+  `keep-but-verify` question, never asserted (**CF-1**); nothing grounded is dropped (**CF-N8**).
 - **Optional gated trim** (`apply` mode): after you approve the findings *and* a second edit-set gate,
   it trims the approved lines **in place** — non-destructive and sentinel-safe. It never trims inside
   `context-constitution`'s behavioral-contract or constitution-pointer blocks, and never deletes on its
