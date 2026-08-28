@@ -2,7 +2,7 @@
 name: context-constitution
 description: "Capture the undocumented rules of a codebase — conventions nobody wrote down, the one file that breaks the pattern, and the scars behind them — into an evidence-cited context-constitution.md, plus a behavioral contract prepended to CLAUDE.md. Use when the user wants to write, generate, bootstrap, or improve a CLAUDE.md / AGENTS.md / agent instructions file; document a repo's conventions, house style, or tribal knowledge; onboard an agent to an unfamiliar or inherited codebase; or fix an agent that 'keeps making the same mistake', 'doesn't know how we do things here', or 'has to be told the same thing every session'. Also for 'our CLAUDE.md is out of date / has drifted' — that's `refresh`. Usage: `context-constitution [scan|write|refresh] [path]`; `scan` writes nothing. Every rule cites path:line; nothing is invented."
 argument-hint: "[scan|write] [path]"
-allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *) mcp__Context7__resolve-library-id mcp__Context7__query-docs
+allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *) Bash(git merge-base *) mcp__Context7__resolve-library-id mcp__Context7__query-docs
 disable-model-invocation: true
 ---
 
