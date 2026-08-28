@@ -57,7 +57,14 @@ finding earns a durable home.
 4. **Detect merge targets.** For each target dir, note whether a `CLAUDE.md` and `context-constitution.md`
    already exist (the scout reports these) — inputs to synthesis, not overwrite targets.
 
-5. **Do not synthesize yet.** Phase 0 only gathers. Clustering, the inclusion cut, tiering, and the
+5. **Capture the provenance ref (once, repo-wide).** Record the git state this scan reflects so the
+   written artifacts pin the exact commit analysed — branch `git rev-parse --abbrev-ref HEAD` and
+   commit `git rev-parse --short HEAD` (both covered by the allowed `Bash(git rev-parse *)`). A
+   detached HEAD reports `detached HEAD` for the branch; if it isn't a git repo (both queries fail),
+   record `unknown`. Capture it **once** — the same branch/commit stamps every target's header in a
+   monorepo. This is the point a later `refresh` moves forward from.
+
+6. **Do not synthesize yet.** Phase 0 only gathers. Clustering, the inclusion cut, tiering, and the
    human-Q&A gate happen in Phase 1, once the whole evidence set is in hand.
 
 ## Guardrails

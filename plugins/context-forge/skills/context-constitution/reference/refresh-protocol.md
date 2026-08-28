@@ -5,25 +5,50 @@ as the code evolves, **incrementally** — it re-derives only what changed since
 constitution was last written, reports drift, and applies only the deltas. It is the mode you'd run
 periodically or in CI; `refresh … check` is the write-nothing linter form.
 
-## The baseline is git, not stored state
+## The baseline is git — the header SHA sharpens it
 
-Refresh keeps **no persisted baseline**. Each target's "last forged" point is simply the last commit
-that wrote its `context-constitution.md`:
+Refresh keeps **no separate persisted baseline file**. Each target's diff floor is derived from git,
+from two signals combined so the result is never less safe than the older one alone:
+
+- **`R_write`** — the last commit that wrote its `context-constitution.md`:
+  ```
+  R_write = git log -1 --format=%H -- <target dir>/<constitutionPath>
+  ```
+- **`R_head`** — the commit hash recorded in that constitution's own **header provenance line**
+  (`… at commit <short-sha>`), i.e. the exact repo state the last analysis actually ran against.
+
+Resolve `R_head` to a full commit and confirm it exists in this checkout (`git rev-parse --verify
+--quiet <short-sha>^{commit}`), then take the floor as the **older (common ancestor) of the two**:
 
 ```
-R = git log -1 --format=%H -- <target dir>/<constitutionPath>
+R = git merge-base R_head R_write     # the older of the analyzed point and the last write
 ```
 
-This is per-target for free (each file has its own history), survives **manual edits** (a hand-edit +
-commit to the constitution advances R naturally — no config to keep in sync), and works in CI /
-detached HEAD. If that git query is empty — the constitution was never committed (or doesn't exist) —
-there is no baseline: treat the target as a fresh forge (full scan via the normal scan protocol) and
-say so. If *nothing* in scope has a committed constitution, tell the user to run `write` first.
+and scan `R..HEAD`. Taking the older is the safety property: a purely cosmetic edit to the
+constitution advances `R_write` past real code changes, but `R_head` still points at the last commit
+*actually analyzed*, so the merge-base floor never lets those changes slip the new-pattern hunt.
+Normally `R_head == R_write` (the write commits the file it just analyzed), so the merge-base is just
+that commit and the diff is as tight as possible.
+
+**Fallbacks (backward-compatible — a constitution forged before the header carried a SHA simply has
+no `R_head`):**
+- `R_head` missing / `unknown` / not resolvable in this checkout (shallow clone, or the commit was
+  rebased or GC'd away, or a force-push rewrote it) → fall back to `R = R_write` (the prior behavior,
+  unchanged).
+- `R_write` empty — the constitution was never committed (or doesn't exist) → no baseline: treat the
+  target as a **fresh forge** (full scan via the normal scan protocol) and say so.
+- Nothing in scope has a committed constitution → tell the user to run `write` first.
+
+This stays per-target for free (each file has its own history + its own header), works in CI /
+detached HEAD, and still survives **manual edits**: a hand-edit + commit advances `R_write`; if it
+didn't also touch the header, `R_head` holds the last tool-analyzed point, so the merge-base simply
+scans from there — wider than the manual edit alone, but always safe. The next refresh write restamps
+the header to the new HEAD.
 
 > Correctness does **not** depend on R being perfectly placed. The staleness check below validates the
 > existing rules against the current code regardless of the diff window; R only *scopes the hunt for
-> new patterns*. A purely cosmetic edit to a constitution can advance R past some code changes, so the
-> new-pattern hunt might skip them — but any rule those changes broke is still caught as stale.
+> new patterns*. The header SHA makes R **tighter and more honest** — the real analyzed point, not a
+> point a cosmetic edit shoved forward — never less safe.
 
 ## Scope
 
@@ -99,7 +124,10 @@ On **Apply deltas**, per target actually written:
 
 1. Merge the approved deltas into `context-constitution.md` (append additions; apply approved retire/re-ground
    edits; promote/drop resolved candidates). Refresh the `<!-- …:behavioral-contract… -->` block in
-   place only if the behaviors or cited IDs changed.
+   place only if the behaviors or cited IDs changed. Update the header's provenance line to this run's
+   ref — the date plus branch `git rev-parse --abbrev-ref HEAD` and commit `git rev-parse --short HEAD`
+   — so the file records the commit this refresh reran against (metadata, not a rule, so refreshing it
+   is not a CF-4 overwrite). Do the same for `context-constitution-findings.md` when this run writes it.
 2. **Merge findings (CF-N12).** Append approved new-findings rows to their matching open section in
    `context-constitution-findings.md` (create it from `templates/findings.md` if this target had none
    yet). Move approved findings-resolved rows to `## Resolved`, dated, with how the re-check confirmed
@@ -124,9 +152,13 @@ modify the repo — and since it needs no stored state, it works on any checkout
 
 ## Guardrails
 
-- **Git is the baseline — persist nothing.** Never reintroduce a stored last-forged ref; derive it
-  from `git log` on the constitution file each run. This is what makes manual edits and refreshes
-  interchangeable and keeps the plugin from duplicating state git already holds.
+- **Git is the baseline — no side-channel state file.** Never reintroduce a separate stored
+  last-forged ref. Derive the floor each run from git: the last commit that wrote the constitution
+  (`git log`), taken as the older (`git merge-base`) of it and the analyzed commit recorded in the
+  constitution's own header — provenance that lives *in the artifact*, not a duplicated state file,
+  and only ever an augmenting floor, never the sole source of truth. When the header SHA is absent or
+  unresolvable, fall back to the git-log point alone. This keeps manual edits and refreshes
+  interchangeable and never trusts a ref git can't confirm.
 - **Staleness is the correctness net, the diff is the optimization.** Always run the staleness check,
   even when the change set is empty.
 - **Never invent (CF-1).** A "stale" flag requires a citation that actually failed to resolve, not a

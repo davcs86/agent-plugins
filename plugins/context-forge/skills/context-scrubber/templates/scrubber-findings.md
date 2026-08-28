@@ -8,7 +8,9 @@
 -->
 # Context Scrub — Findings
 
-Low-signal context surfaced by `/context-scrubber` on <ISO date | "unknown">. Each row is a line in an
+Low-signal context surfaced by `/context-scrubber` on <ISO date | "unknown"> from branch
+`<branch | "detached HEAD">` at commit `<short-sha | "unknown">` — the repo state this audit reflects.
+Each row is a line in an
 **auto-loaded** context file (CLAUDE.md, AGENTS.md, context-constitution.md, `.cursor/rules/*`, …) that an agent
 would find for free, that no longer resolves, that is duplicated, or that the code now contradicts — dead weight
 paid for on every load. This is a report for triage; trimming is **gated** (`/context-scrubber apply`), never

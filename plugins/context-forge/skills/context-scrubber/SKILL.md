@@ -146,7 +146,8 @@ Continue to Phase 1.
 ## PHASE 1 — REPORT (verdicts → findings file)
 
 Synthesize one findings file from `templates/scrubber-findings.md` (written to `scrubberFindingsPath`, or inline
-in scratch mode):
+in scratch mode). Its header records the audit date plus the branch + commit this audit reflects (captured via
+`git rev-parse` — see `reference/audit-protocol.md` Step 4):
 
 1. **No silent drops (CF-N8).** Every confirmed verdict lands under its category section; confidence ranks a
    finding *within* the report (higher-token / higher-certainty first), it never deletes one. An ungrounded

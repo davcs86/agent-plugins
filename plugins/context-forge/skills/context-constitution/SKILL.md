@@ -2,7 +2,7 @@
 name: context-constitution
 description: "Capture the undocumented rules of a codebase — conventions nobody wrote down, the one file that breaks the pattern, and the scars behind them — into an evidence-cited context-constitution.md, plus a behavioral contract prepended to CLAUDE.md. Use when the user wants to write, generate, bootstrap, or improve a CLAUDE.md / AGENTS.md / agent instructions file; document a repo's conventions, house style, or tribal knowledge; onboard an agent to an unfamiliar or inherited codebase; or fix an agent that 'keeps making the same mistake', 'doesn't know how we do things here', or 'has to be told the same thing every session'. Also for 'our CLAUDE.md is out of date / has drifted' — that's `refresh`. Usage: `context-constitution [scan|write|refresh] [path]`; `scan` writes nothing. Every rule cites path:line; nothing is invented."
 argument-hint: "[scan|write] [path]"
-allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *) mcp__Context7__resolve-library-id mcp__Context7__query-docs
+allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *) Bash(git merge-base *) mcp__Context7__resolve-library-id mcp__Context7__query-docs
 disable-model-invocation: true
 ---
 
@@ -162,7 +162,11 @@ Only after Approve, and never in `scan` mode. Per target:
 
 1. **Constitution.** If none exists at `constitutionPath`, write it from the synthesized content. If
    one exists, **merge** (**CF-4**): keep every existing rule and ID, append newly-found rules under
-   their tier, and show the user the added lines — never rewrite or renumber existing rules.
+   their tier, and show the user the added lines — never rewrite or renumber existing rules. Either
+   way, stamp the header's provenance line with the date **and** the branch + commit captured in
+   Phase 0 (scan-protocol step 5) — the repo state this analysis reflects. On a merge, refresh that
+   one line in place to the current ref (it is metadata, not a governance rule, so this is not a CF-4
+   overwrite); never touch the existing rules.
 2. **Behavioral contract — root `CLAUDE.md` only (CF-N11).** Prepend the contract to the **root**
    target's `CLAUDE.md`, wrapped in `<!-- context-forge:behavioral-contract:start -->` … `:end`.
    If the markers are present, **replace the block in place** (never stack a copy); if the root has no
@@ -176,7 +180,8 @@ Only after Approve, and never in `scan` mode. Per target:
    auto-loaded. If the host has a `CLAUDE.md` index/table of what-to-read (a "Context Guide"), add the
    constitution as a row there instead of a loose line, matching the host's style.
 4. **Findings log.** If Step 2b routed any defects here, write/merge them into `context-constitution-findings.md`
-   beside the constitution (`templates/findings.md`), non-destructively. Skip the file only when the
+   beside the constitution (`templates/findings.md`), non-destructively — its header carries the same
+   date + branch + commit provenance ref as the constitution. Skip the file only when the
    target has zero defects — never manufacture an empty one. If a findings log already exists for this
    target, first run the staleness re-check on its open rows (same method as `refresh-protocol.md`
    Phase 0′ step 3: re-resolve each cited `path:line`/doc claim against current code) and move any that

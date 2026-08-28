@@ -6,7 +6,9 @@
 -->
 # <Target name> — Constitution
 
-Derived by `/context-constitution` (context-forge) on <ISO date | "unknown">. This file captures the
+Derived by `/context-constitution` (context-forge) on <ISO date | "unknown"> from branch
+`<branch | "detached HEAD">` at commit `<short-sha | "unknown">` — the repo state this analysis
+reflects; a later `refresh` reruns against a newer commit. This file captures the
 **non-obvious** — patterns this <repo|module> follows but never wrote down, the places that break
 those patterns, the contracts between modules, and the scars behind them — the things an agent would
 otherwise miss and get wrong. It does **not** restate what the docs already say or CI already

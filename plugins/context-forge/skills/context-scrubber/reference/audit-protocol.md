@@ -119,8 +119,11 @@ A verdict that fails confirmation is dropped from the "fails" set and, if still 
 
 ## Step 4 — Route into the findings file (Phase 1; no drops — CF-N8)
 
-Fill `templates/scrubber-findings.md`. Every confirmed verdict lands in exactly one category section; each
-`keep-but-verify` lands in that section. Nothing grounded is discarded — the report is the durable home for
+Fill `templates/scrubber-findings.md`. Stamp its header's provenance line with the audit date **and**
+the git state this audit reflects — branch `git rev-parse --abbrev-ref HEAD` and commit
+`git rev-parse --short HEAD` (both covered by the allowed `Bash(git rev-parse *)`; a detached HEAD
+reports `detached HEAD`, a non-git tree reports `unknown`). Every confirmed verdict lands in exactly
+one category section; each `keep-but-verify` lands in that section. Nothing grounded is discarded — the report is the durable home for
 everything the audit paid to find. One row per failing context line, cited on **both** sides (the context
 `file:line` and the evidence it fails), with the category, a one-line why, and a suggested action
 (`remove` / `trim` / `move-to-<file>` / `keep-but-verify`).
