@@ -25,7 +25,14 @@ Apply to each numbered step:
 | Schema/migration rollback | A step adds to a schema/migration chain that has rollback counterparts (down files) in the repo, but lists none | WARNING |
 | Contract identifiers stated | A step changes a public contract (API route, message schema, exported surface) without stating the identifiers that must not be reused or broken | WARNING |
 | Symmetry | A step implements one variant of an enumerated set found in the repo (one of several providers, states, platforms, order/kind values) without stating coverage of the others or explicitly scoping them out | WARNING |
+| Right-sized (YAGNI) | A step introduces an abstraction, extension point, or configuration knob the design doc / requirement does not call for | WARNING (`DN-7`) |
+| Single responsibility (SOLID) | A step's new unit takes on unrelated responsibilities, or one concern is split across many units when the change does not need it | WARNING (`DN-8`) |
 | Step size | `**Files**` lists more than ~5 files — consider splitting | NOTE |
+
+Design-quality findings (`DN-2`/`DN-7`/`DN-8`) are `WARNING` at most, never a `BLOCKER` (**DN-9** —
+they are subordinate to scalability, maintainability, and performance). Raise one only where a staff
+engineer optimizing the system's long-term health would change the step; a design that consciously
+trades a heuristic for a higher quality, with the trade-off recorded, is compliant — do not flag it.
 
 ## B. Design fidelity (when a design doc exists)
 

@@ -47,6 +47,16 @@ Use the Repo Profile's **Test & quality harness** finding:
 If the Repo Profile found a lint or format command, append it to the `**Verification**` of every
 step that edits code in its scope. If none was found, do not invent one.
 
+## Right-sized steps (DN-7 / DN-8 / DN-9)
+
+A step implements what its design decision needs — no speculative abstraction, configuration knob,
+or extension point the design doc / requirement did not call for (**DN-7**), and each new unit it
+adds carries one clear responsibility at the seam it touches (**DN-8**). These are heuristics
+subordinate to the system's scalability, maintainability, and performance (**DN-9**): where honoring
+one would cost the system, note the trade-off in the step rather than gold-plating. Do not smuggle
+"while we're here" generality into a step the design did not decide — that is scope the design gate
+never approved, and it belongs back in a design round, not a plan step.
+
 ## Step granularity and ordering
 
 - One step = one reviewable unit of change (a commit's worth). Split a step whose Files list

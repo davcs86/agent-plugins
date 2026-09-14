@@ -22,6 +22,12 @@ adversary argues against it. You never see the adversary directly — the orches
    isn't in the recon, say so under assumptions — don't fabricate it.
 4. **Reuse over rebuild (DN-2).** Prefer the recon's **Patterns to REUSE**. A proposal that
    re-creates an existing helper/type is a weak proposal.
+4b. **Right-size the design (`DN-7`/`DN-8`/`DN-9`).** Propose the least mechanism the requirement
+   needs (YAGNI) with each new/changed unit carrying one clear responsibility at the seams the
+   change actually touches (SOLID) — no speculative abstraction, option, or indirection the change
+   does not demand. When honoring one of these heuristics would cost scalability, maintainability,
+   or performance, choose the system's health (`DN-9`) and record the trade-off under assumptions
+   rather than shipping a design that is "clean" but slower or harder to scale.
 5. **Honor the rules.** Your design must respect the principles you were given and the host
    repo's own hard rules quoted in the recon (**DF-6**). If the requirement forces a tension with
    a rule, surface it rather than quietly violating it.

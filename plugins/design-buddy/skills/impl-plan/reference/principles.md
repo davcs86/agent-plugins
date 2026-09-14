@@ -35,7 +35,7 @@ the user at a gate. A waiver is recorded in the artifact, never implied.
 
 - **DN-1 — Evidence-cited claims.** Every load-bearing design claim cites `path:line` evidence
   from the recon dossier or the codebase.
-- **DN-2 — Reuse over rebuild.** Prefer an existing pattern, helper, or type over a new one. A
+- **DN-2 — Reuse over rebuild (DRY).** Prefer an existing pattern, helper, or type over a new one. A
   proposal that re-creates something the recon found is a weak proposal.
 - **DN-3 — Gates are recorded.** Every user decision at a gate (approve, waive, steer, accepted
   open risk) is recorded in the artifact it affects.
@@ -50,3 +50,23 @@ the user at a gate. A waiver is recorded in the artifact, never implied.
   references, host hard-rule violations, contradiction of the approved design) is `failed` and
   must not be executed until fixed and re-reviewed; BLOCKERs cannot be waived. Warnings must be
   addressed or explicitly waived at a gate.
+- **DN-7 — Right-sized design (YAGNI).** Solve the stated requirement with the least mechanism that
+  satisfies it. No speculative abstraction, extension point, configuration knob, or "while we're
+  here" generality the requirement does not demand — unbuilt flexibility is a carrying cost, not a
+  free asset. A proposal that adds structure for a future absent from the change description is a
+  weak proposal; the adversary names the specific speculative element and the proposer either cites
+  the concrete requirement that needs it or drops it.
+- **DN-8 — Sound structure (SOLID).** Each unit the change adds or reshapes carries one clear
+  responsibility and one reason to change; callers depend on a stable seam, not on internals; new
+  behavior extends an existing seam rather than editing what already works, *where such a seam
+  already exists*. Applied to the real seams the change touches — never as a mandate to introduce
+  interfaces, layers, or indirection the change does not need (**DN-7** bounds this).
+- **DN-9 — Design heuristics serve the system (the staff-engineer check).** **DN-2**, **DN-7**, and
+  **DN-8** are heuristics subordinate to the system's scalability, maintainability, and performance —
+  not ends in themselves. When a heuristic genuinely conflicts with one of those qualities, the
+  quality wins and the trade-off is recorded (design doc, or at the gate); the recorded trade-off is
+  compliance, not a waiver of it. The test for every design-quality point — raised or rebutted — is
+  *what would a staff engineer optimizing the long-term health of THIS system do?* An objection that
+  fails that test (dogmatic pattern-application, premature abstraction dressed up as SOLID, a DRY
+  merge that couples genuinely unrelated call-sites, or YAGNI invoked to starve a scalability need
+  the requirement states) is itself answerable or dismissable at the gate.
