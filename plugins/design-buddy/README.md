@@ -94,10 +94,12 @@ The config file is committable, so a team shares one setting; gitignore it if yo
 `skills/*/reference/principles.md` ships the portable rule seed the adversary and reviewer cite:
 **Floor rules** `DF-1..6` (never invent paths/symbols; no silent deviation; single orchestrator
 writes; mediated debate; floor blocks approval; host hard rules are floor-equivalent) and
-**Norms** `DN-1..6` (evidence-cited claims; reuse over rebuild; recorded gates; depth scales
+**Norms** `DN-1..9` (evidence-cited claims; reuse over rebuild = DRY; recorded gates; depth scales
 with the change; plan steps immutable during execution; plans reviewed before execution — a
-failed review blocks it). Your repo's own absolute rules — "never …", "must not …" in
-CLAUDE.md/CONTRIBUTING/docs — are discovered during recon, quoted verbatim, and enforced like
+failed review blocks it; right-sized design = YAGNI; sound structure = SOLID; and the
+staff-engineer check that keeps SOLID/DRY/YAGNI subordinate to scalability, maintainability, and
+performance — heuristics, never dogma). Your repo's own absolute rules — "never …", "must not …"
+in CLAUDE.md/CONTRIBUTING/docs — are discovered during recon, quoted verbatim, and enforced like
 floor rules.
 
 ## Development

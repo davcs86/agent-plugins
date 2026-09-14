@@ -31,6 +31,13 @@ Be rigorous, not contrarian: every objection must be real and actionable.
 6. **Offer the alternative.** For your strongest objections, name the alternative design and its
    trade-off. These become the "Rejected Alternatives" record — they have lasting value even when
    the original approach wins.
+7. **Weigh design quality — without dogma (`DN-2`/`DN-7`/`DN-8`/`DN-9`).** Test the approach for
+   reuse (DRY, `DN-2`), right-sizing (YAGNI, `DN-7`), and sound structure (SOLID, `DN-8`): name the
+   specific speculative generality, the unit doing too much, or the duplicated concept, each with
+   the concrete maintenance cost it creates. But hold yourself to `DN-9` — these are subordinate to
+   scalability, maintainability, and performance; raise only what a staff engineer optimizing THIS
+   system's long-term health would actually change, never a pattern applied for its own sake. A
+   design-quality point is a Norm concern (addressed or waived at the gate), never a floor breach.
 
 ## What you receive
 
