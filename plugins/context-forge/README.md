@@ -16,7 +16,7 @@ Both run on the same premise and the same litmus test: *the value of a context l
 proportional to how easily an agent would find it alone.* `context-constitution` keeps only what an
 agent would **miss**; `context-scrubber` flags what an agent would **find for free**. Both are single
 orchestrators that own every write and every gate, spawn only read-only advisory subagents, and never
-invent — every rule and every verdict is grounded in `path:line` evidence. They share one config file
+invent — every rule and every verdict is grounded in content-anchored `path#anchor` evidence. They share one config file
 (`.agents/context-forge.json`) and one governance set (`CF-*` Floor rules, `CF-N*` Norms).
 
 ## `/context-constitution` — forge the high-signal context
@@ -35,7 +35,7 @@ Turns a repo's non-obvious knowledge into two durable artifacts:
 - **Scans** the repo with a read-only subagent (`convention-scout`) that hunts the non-obvious:
   emergent multi-site patterns (each with the *wrong default* it prevents), asymmetries, implicit
   cross-module contracts, and "looks-wrong-but-intentional" flags — every finding grounded in
-  `path:line` evidence.
+  content-anchored `path#anchor` evidence.
 - **Mines git history** for scars — reverts, hotfixes, "fix: … because …" — to recover the *why*
   the code alone can't show, cited to commits/PRs.
 - **Asks you** about anything that looks wrong but appears intentional, and records your answer as
@@ -89,7 +89,7 @@ what an agent would find for free and is therefore dead weight in an auto-loaded
 - **Audits** the repo's auto-loaded instruction files — root + nested `CLAUDE.md`, `AGENTS.md`, the
   generated `context-constitution.md` / findings, `.cursor/rules/*` — with a read-only subagent
   (`context-auditor`), classifying each line against the actual repo.
-- **Seven failure categories**, every verdict cited: **stale citations** (a `path:line` that no longer
+- **Seven failure categories**, every verdict cited: **stale citations** (a citation whose content anchor no longer
   resolves), **restated facts** (a line an agent reads for free), **cross-file duplication** (the same
   rule in two context files), **contradicted by code** (a claim the code disproves), **should be
   just-in-time** (accurate but pre-loaded content that belongs behind a pointer), **brittle /
@@ -139,6 +139,21 @@ Each skill is a single orchestrator that owns every write and every gate; its su
 — the first of which is **never invent**. Progressive disclosure keeps each router `SKILL.md` small;
 protocol detail loads only when its phase runs. The two skills' shared `principles.md` and
 `config-protocol.md` are byte-identical copies.
+
+### Content-anchored citations (`CF-N13`)
+
+Every code citation an artifact emits is keyed on a **stable content anchor**, not a line number:
+`path#anchor` — where `anchor` is a grep-resolvable symbol, migration id, or doc heading (or a short
+unique quoted snippet when no symbol fits), and the path is repo-root-relative and module-qualified. A
+line number is only ever an approximate, regenerable hint appended as `(~Lnn)`, never the citation's
+identity. This is what keeps the toolkit sound in **large, multi-tenant repos**: raw `path:line`
+citations rot the instant any edit lands above them, and the same relative path shape recurs under many
+tenants/modules, so line-keyed citations both churn constantly and read ambiguously. With anchors, a
+citation is **stale only when its anchor no longer resolves** (a renamed or deleted symbol) — a merely
+drifted line never triggers a false "stale" flag on `refresh` or in a scrub, and an anchor that resolves
+under more than one tenant is disambiguated by its module-qualified path or deduped up the tree
+(`CF-N3`). Legacy `path:line` citations remain valid input and are re-grounded to `path#anchor` the next
+time a `refresh` or re-audit touches the row.
 
 ## Compatibility
 

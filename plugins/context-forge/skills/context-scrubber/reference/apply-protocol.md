@@ -17,7 +17,8 @@ triage (**CF-N9**), not lines this skill deletes.
 
 From the approved rows, assemble a per-file edit set: for each target file, the exact lines to remove or shorten,
 located by **content** (quote the current line), not by a bare line number — line numbers drift as edits land, and
-content-anchored edits stay correct. Group by file so each file is opened once. Exclude, up front:
+content-anchored edits stay correct (the same **CF-N13** principle the citations follow). Group by file so each
+file is opened once. Exclude, up front:
 
 - any line inside a `context-forge:*` / `constitution-forge:*` sentinel span (**CF-N11** — off-limits);
 - **every contradicted-by-code row** (a defect deferred to `/context-constitution`'s findings log, **CF-N9** —

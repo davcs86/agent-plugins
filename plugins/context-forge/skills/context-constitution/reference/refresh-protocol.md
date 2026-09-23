@@ -68,12 +68,17 @@ For each in-scope target `T`, resolve `R` from git as above, then:
    touching the changed files. It may still report a pattern spanning changed + unchanged sites —
    changes often *reveal* an existing invariant.
 3. **Staleness check (always — this is the correctness net).** For every rule already in `T`'s
-   `context-constitution.md`, verify each cited `path:line` still resolves to the referenced code (Read/Grep).
-   A citation that no longer resolves flags the rule **stale**. A rule whose sites still resolve but
+   `context-constitution.md`, verify each cited **anchor still resolves** by grepping the symbol/heading
+   (or quoted snippet) — **CF-N13**, never by checking the `~L` line hint. A citation whose anchor no
+   longer resolves (renamed/deleted, grep zero hits) flags the rule **stale**; a citation whose anchor
+   still resolves but whose `~L` hint drifted is **current** — silently re-stamp the hint in place
+   (metadata, not a CF-4 rule change) and do **not** flag it. A legacy line-only `path:line` (forged
+   before this contract) whose file still exists but whose line drifted is **re-grounded to `path#anchor`**
+   from the code it still describes, never retired. A rule whose sites still resolve but
    whose count dropped below the induction bar (e.g. a 9/9 pattern is now 3/9) flags **weakening**.
    This runs even when the change set is empty, so drift is caught no matter where R landed.
    **Same check extends to `context-constitution-findings.md`, if `T` has one (CF-N12):** for every open
-   row under Documentation-that-lies / Latent bugs / Dead-or-orphaned-code, re-resolve its citation and
+   row under Documentation-that-lies / Latent bugs / Dead-or-orphaned-code, re-resolve its **anchor** and
    re-check its claim against current code — a doc-lie row where the code now implements the promised
    behavior (or the false doc line is gone), a latent bug whose site no longer reproduces it, or dead
    code that's since been wired up all flag **findings-resolved**. A row stays open unless its citation
@@ -90,8 +95,9 @@ Per changed target, produce a **delta report** rather than a whole new file:
 
 - **Added** — new grounded rules from changed/emergent patterns (assign the *next* free IDs in the
   target's existing scheme; never renumber existing rules — **CF-4, CF-N5**).
-- **Stale** — existing rules whose citations no longer resolve. Proposed action: retire, or re-ground
-  to the moved code if the scout found it.
+- **Stale** — existing rules whose **anchor** no longer resolves (**CF-N13**; a drifted `~L` hint is not
+  stale — it is re-stamped, not reported). Proposed action: retire, or re-ground the anchor to the moved
+  code if the scout found it.
 - **Weakening** — rules whose evidence thinned; proposed action: demote a tier, or keep with a note.
 - **Resolved candidates** — prior `## Candidate rules (unverified)` entries the new evidence now
   grounds (promote) or refutes (drop).
@@ -161,8 +167,8 @@ modify the repo — and since it needs no stored state, it works on any checkout
   interchangeable and never trusts a ref git can't confirm.
 - **Staleness is the correctness net, the diff is the optimization.** Always run the staleness check,
   even when the change set is empty.
-- **Never invent (CF-1).** A "stale" flag requires a citation that actually failed to resolve, not a
-  guess; a scar in the window cites its commit. Same for a **findings-resolved** flag (**CF-N12**) — it
+- **Never invent (CF-1).** A "stale" flag requires an **anchor** that actually failed to resolve
+  (**CF-N13**), not a guess and not a merely drifted `~L` hint; a scar in the window cites its commit. Same for a **findings-resolved** flag (**CF-N12**) — it
   requires the citation to have actually been re-checked against current code, never assumed from an
   empty diff.
 - **`check` writes nothing, ever.**

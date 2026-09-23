@@ -13,10 +13,10 @@ grounded in real evidence (**CF-1**):
 
 | Category | What it is | Grounded by |
 |---|---|---|
-| **Stale citation** | a `path:line` the context file cites that no longer resolves | the citation fails to resolve (Read/Grep/ls found nothing there) |
-| **Restated (fails CF-N4)** | a fact plain in the one file an agent would edit, a manifest, or a doc/CI file it already loads | the free-to-read `path:line` that makes it redundant |
+| **Stale citation** | a citation whose **content anchor** no longer resolves (**CF-N13**) — symbol/heading renamed or deleted, file moved/gone. A merely drifted `~L` line hint is **not** stale | grepping the anchor finds nothing (Read/Grep/ls) — never a line-number mismatch |
+| **Restated (fails CF-N4)** | a fact plain in the one file an agent would edit, a manifest, or a doc/CI file it already loads | the free-to-read `path#anchor` that makes it redundant |
 | **Cross-file duplication (CF-N3)** | the same rule/fact in ≥2 context files | every duplicate location + which copy is highest in the tree |
-| **Contradicted by code** | a context claim the code now disproves | the contradicting `path:line` |
+| **Contradicted by code** | a context claim the code now disproves | the contradicting `path#anchor` |
 | **Should be just-in-time** | accurate but *pre-loaded* content that belongs behind a pointer to an on-demand doc — task-specific/rarely-needed detail that costs tokens on every load | the content is narrow/rarely-needed and an on-demand home exists or should; **not** a duplicate (that's cross-file) — it's *misplaced*, not redundant |
 | **Brittle / over-specified (anti-altitude)** | a long if-else / step-by-step instruction block that should be a heuristic — it shapes behavior but too rigidly, and rots as the code moves | the block enumerates cases/steps a strong one-line heuristic would cover; **not** filler (that's bloat) — it *does* steer the agent, just brittly |
 | **Bloat / low-value prose** | verbose filler that shapes no agent action | — (judgment; mark lower-confidence, never assert removal without a clear reason) |
@@ -34,8 +34,9 @@ get to make silently: a dead config key or an unimplemented event may be an inte
 limit, an approval flow), and deleting the row buries the spec. So a contradicted verdict is **reported and
 deferred to `/context-constitution`** (its findings log owns the fix-vs-remove call), carried as
 `keep-but-verify` in this report — it is **excluded from the removable total and is never an `apply` candidate**.
-The only line-level correction the scrubber suggests here is a pure *re-ground* (a drifted `path:line`), and even
-that is a `/context-constitution` refresh job, not a scrubber trim.
+The only line-level correction the scrubber suggests here is a pure *re-ground* (an anchor whose code moved, or a
+legacy `path:line` to re-anchor — **CF-N13**), and even that is a `/context-constitution` refresh job, not a
+scrubber trim.
 
 Plus two **file-level** signals (not per-line rows), both advisory — each points at what to review, never an
 automatic removal:
@@ -99,9 +100,11 @@ blocks it found (so the report can note them) but never classifies a line inside
 The auditor is advisory; **you** are the only writer, and no verdict enters the findings file on the auditor's
 word alone. For each returned verdict, do the cheap confirmation:
 
-- **Stale citation** — try to resolve the cited `path:line` yourself (Read the file at that line, or Grep for the
-  referenced symbol). Confirmed only if it genuinely doesn't resolve. If the code merely *moved*, note the new
-  location so the suggested action can be "re-ground to `path:line`" rather than "remove."
+- **Stale citation** — try to resolve the cited **anchor** yourself by grepping its symbol/heading (or quoted
+  snippet) across the tree — **CF-N13**, never by reading a line number. Confirmed stale only if the anchor
+  genuinely resolves nowhere. If the anchor still resolves but its `~L` hint drifted, it is **not** stale — drop
+  it from the failing set (at most a silent hint re-stamp, owned by `/context-constitution`). If the code merely
+  *moved* (anchor now elsewhere), note the new location so the action is "re-ground to `path#anchor`" not "remove."
 - **Restated** — open the free-to-read source the auditor named and confirm it truly makes the context line
   redundant for an agent editing that file.
 - **Duplication** — read both sites and confirm they state the same thing; pick the keeper (highest in the tree —
@@ -125,7 +128,7 @@ the git state this audit reflects — branch `git rev-parse --abbrev-ref HEAD` a
 reports `detached HEAD`, a non-git tree reports `unknown`). Every confirmed verdict lands in exactly
 one category section; each `keep-but-verify` lands in that section. Nothing grounded is discarded — the report is the durable home for
 everything the audit paid to find. One row per failing context line, cited on **both** sides (the context
-`file:line` and the evidence it fails), with the category, a one-line why, and a suggested action
+`file#anchor` and the evidence it fails), with the category, a one-line why, and a suggested action
 (`remove` / `trim` / `move-to-<file>` / `keep-but-verify`).
 
 **Protected blocks** get their own transparency section (`## Protected blocks (reported, never trimmed)`) listing
@@ -182,7 +185,7 @@ continue to `apply-protocol.md`.
 
 - **Read-only until the gate.** Phase 0 spawns read-only auditors and does read/inspect confirmation only; nothing
   is written before the Phase 1 gate, nothing trimmed before the Phase 2 gate.
-- **Distill, don't dump.** Digests and rows are `file:line` + a one-line reason + a citation, never pasted file
+- **Distill, don't dump.** Digests and rows are `file#anchor` + a one-line reason + a citation, never pasted file
   bodies.
 - **Grounded beats plausible.** A "stale"/"restated"/"contradicted" verdict requires the confirming evidence in
   hand; a hunch is `keep-but-verify`, phrased as a question.

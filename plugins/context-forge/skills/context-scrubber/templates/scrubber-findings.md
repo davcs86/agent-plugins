@@ -2,9 +2,11 @@
   Template for the context-scrubber findings file — the durable report of every context line that FAILS the
   litmus test (CF-N4). Written to `scrubberFindingsPath` (default `context-scrubber-findings.md` at the repo
   root), or emitted inline in scratch mode. Rows are per context line, cited on BOTH sides: the context
-  `file:line`, and the evidence that it fails. Nothing grounded is dropped (CF-N8); anything unproven is a
-  `keep-but-verify` question, never asserted (CF-1). Order each section most-costly / most-certain first.
-  Do not copy this comment into the output.
+  `file#anchor` (its nearest heading + the quoted line), and the evidence that it fails (`path#anchor`).
+  Citations are content-anchored, not line-keyed — a citation is stale only when its anchor no longer
+  resolves, never when a `~L` line hint drifts (CF-N13). Nothing grounded is dropped (CF-N8); anything
+  unproven is a `keep-but-verify` question, never asserted (CF-1). Order each section most-costly /
+  most-certain first. Do not copy this comment into the output.
 -->
 # Context Scrub — Findings
 
@@ -51,12 +53,13 @@ available this run; otherwise this table shows lines/characters, and any token n
 
 ## Stale citations
 
-Citations in a context file that no longer resolve. Action `remove` only if the referenced knowledge is gone;
-`re-ground to path:line` if the code merely moved.
+Citations whose **content anchor** no longer resolves (**CF-N13**) — the symbol/heading was renamed or deleted, or
+the file is gone. A citation whose anchor still resolves but whose `~L` hint merely drifted is **not** listed here.
+Action `remove` only if the referenced knowledge is gone; `re-ground to path#anchor` if the code merely moved.
 
 | Context line | Citation it makes | Reality | Suggested action |
 |---|---|---|---|
-| `path/CLAUDE.md:NN` — "<line>" | `src/foo.go:120` | file/line no longer exists (grep: zero hits) | remove / re-ground to `src/bar.go:88` |
+| `path/CLAUDE.md#<section>` — "<line>" | `src/foo.go#fooHandler` | anchor no longer exists (grep: zero hits) | remove / re-ground to `src/bar.go#fooHandler` |
 
 ## Restated facts (agent reads for free) — fails CF-N4
 
@@ -65,7 +68,7 @@ loads.
 
 | Context line | What restates it (free to read) | Why it fails | Suggested action |
 |---|---|---|---|
-| `CLAUDE.md:NN` — "<line>" | `package.json:12` (the dependency list) | an agent editing here already loads it | remove |
+| `CLAUDE.md#<section>` — "<line>" | `package.json#dependencies` (the dependency list) | an agent editing here already loads it | remove |
 
 ## Cross-file duplication — CF-N3
 
@@ -74,7 +77,7 @@ or go.
 
 | Context line | Duplicate location(s) | Which copy to keep | Suggested action |
 |---|---|---|---|
-| `apps/web/CLAUDE.md:NN` — "<line>" | `CLAUDE.md:MM` (root) | root | remove from module / move-to-root |
+| `apps/web/CLAUDE.md#<section>` — "<line>" | `CLAUDE.md#<section>` (root) | root | remove from module / move-to-root |
 
 ## Contradicted by code
 
@@ -85,7 +88,7 @@ from the removable total and **`apply` never deletes it**. ⚠-mark and order se
 
 | Context line | What the code does | Evidence | Suggested action |
 |---|---|---|---|
-| ⚠ `CLAUDE.md:NN` — "<claimed check>" | no such validation runs | `src/auth.go:40` | route to findings log — implement the check, or remove the claim (via `/context-constitution`); never `apply`-deleted |
+| ⚠ `CLAUDE.md#<section>` — "<claimed check>" | no such validation runs | `src/auth.go#authMiddleware` | route to findings log — implement the check, or remove the claim (via `/context-constitution`); never `apply`-deleted |
 
 ## Should be just-in-time (pre-loaded → pointer)
 
@@ -94,7 +97,7 @@ rarely-needed detail that costs tokens every load. Misplaced, not redundant: rel
 
 | Context line(s) | Why it's mis-placed (narrow / rarely-needed) | On-demand home | Suggested action |
 |---|---|---|---|
-| `CLAUDE.md:NN–MM` — "<passage>" | only relevant when touching `payments/`; loaded on every task | `payments/README.md` | move-to-`payments/README.md` + pointer |
+| `CLAUDE.md#<section>` — "<passage>" | only relevant when touching `payments/`; loaded on every task | `payments/README.md` | move-to-`payments/README.md` + pointer |
 
 ## Brittle / over-specified (anti-altitude)
 
@@ -103,7 +106,7 @@ heuristic would cover, and that rots as the code moves. Keep the intent as a heu
 
 | Context line(s) | Why it's brittle | Heuristic it should become | Suggested action |
 |---|---|---|---|
-| `CLAUDE.md:NN–MM` — "<if X do A; if Y do B; if Z…>" | enumerates cases a principle covers | "<one-line heuristic>" | trim to a heuristic |
+| `CLAUDE.md#<section>` — "<if X do A; if Y do B; if Z…>" | enumerates cases a principle covers | "<one-line heuristic>" | trim to a heuristic |
 
 ## Bloat / low-value prose
 
@@ -111,7 +114,7 @@ Verbose filler that shapes no agent action and just spends the context budget.
 
 | Context line(s) | Why it is filler | Suggested action |
 |---|---|---|
-| `CLAUDE.md:NN–MM` — "<passage>" | narrative with no directive an agent acts on | trim |
+| `CLAUDE.md#<section>` — "<passage>" | narrative with no directive an agent acts on | trim |
 
 ## Context budget (file-level)
 
@@ -134,16 +137,16 @@ Scanned: `<n>` · excluded as symlinked-out: `<n>`.
 
 | Skill (`SKILL.md:line`) | Invocation | What the description is missing | Suggested action |
 |---|---|---|---|
-| `plugins/foo/skills/bar/SKILL.md:3` — "<description>" | model-invocable | no when-to-use clause, no user-facing symptom or trigger phrasing — nothing a request matches | strengthen trigger surface (advisory; never `apply`-trimmed) |
-| `.claude/skills/baz/SKILL.md:3` — "<description>" | command-only | bare name-restatement — a human gets no cue for *when* to run it | strengthen trigger surface (advisory; never `apply`-trimmed) |
+| `plugins/foo/skills/bar/SKILL.md#description` — "<description>" | model-invocable | no when-to-use clause, no user-facing symptom or trigger phrasing — nothing a request matches | strengthen trigger surface (advisory; never `apply`-trimmed) |
+| `.claude/skills/baz/SKILL.md#description` — "<description>" | command-only | bare name-restatement — a human gets no cue for *when* to run it | strengthen trigger surface (advisory; never `apply`-trimmed) |
 
 ## Keep-but-verify (unconfirmed — CF-1)
 
 Suspected low-signal, but not grounded by evidence in this pass. Confirm before treating as removable — never
 trimmed by `apply`.
 
-- `path/CLAUDE.md:NN` — "<line>" — suspected <category>; what would confirm it: <the site/check that would ground
-  or clear it> — status: **unverified**
+- `path/CLAUDE.md#<section>` — "<line>" — suspected <category>; what would confirm it: <the site/check that would
+  ground or clear it> — status: **unverified**
 
 ## Protected blocks (reported, never trimmed)
 
@@ -153,8 +156,8 @@ Sentinel-wrapped blocks owned by `/context-constitution` — listed for transpar
 
 | Block | Location | Marker |
 |---|---|---|
-| behavioral contract | `CLAUDE.md:NN–MM` | `context-forge:behavioral-contract` |
-| constitution pointer | `path/CLAUDE.md:NN–MM` | `context-forge:constitution-pointer` |
+| behavioral contract | `CLAUDE.md` (by marker) | `context-forge:behavioral-contract` |
+| constitution pointer | `path/CLAUDE.md` (by marker) | `context-forge:constitution-pointer` |
 
 <!-- Write "_None._" under any section with no entries rather than leaving it blank. -->
 

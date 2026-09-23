@@ -9,7 +9,7 @@ is where judgment lives. You (the orchestrator) do all of it; no subagent writes
 Before writing anything, clear the scout's `## Ask the human` list — this is where Tier-3 tribal
 knowledge actually enters the file. For each flagged observation, ask the user (one
 `AskUserQuestion` batching related items; plain chat under Cursor): "*Found `<observation>` at
-`<path:line>` — it looks like `<anti-pattern>` but appears intentional (`<N sites>`). Is it, and
+`<path#anchor>` — it looks like `<anti-pattern>` but appears intentional (`<N sites>`). Is it, and
 why?*" Record the answer as the rule's **rationale**. If the user doesn't know or says "it's a bug,"
 it becomes a candidate or a noted cleanup — never a rule dressed up as intentional (**CF-1, CF-2**).
 
@@ -72,16 +72,18 @@ the repo's own framing if it has one (**CF-N5**):
   a scar proves: "never edit an applied migration — PR #412 outage").
 - **Rules** — binding patterns an agent must follow to fit in (the undocumented conventions,
   cross-module contracts).
-- **Norms** — defaults/preferences and asymmetry guidance ("follow the `path:line` shape, not the
-  `path:line` outlier").
+- **Norms** — defaults/preferences and asymmetry guidance ("follow the `path#anchor` shape, not the
+  `path#anchor` outlier").
 
 Every rule carries: the intent, its **evidence** (multi-site citations, an authoritative site, or a
-commit/PR for a scar), and — when known — a one-line **why**. The *why* is what makes it stick;
+commit/PR for a scar), and — when known — a one-line **why**. Every code citation is **content-anchored**
+per **CF-N13**: `path#anchor` (a symbol/heading grep resolves), module-qualified from the repo root, with
+the line only an optional `(~Lnn)` hint — carry the anchors the scout returned, never a bare line number. The *why* is what makes it stick;
 include it whenever git or the human supplied it.
 
 **Designate a canonical example where one exists (few-shot by pointer).** For a Rule or Norm with one
 site that best demonstrates the pattern — the cleanest "copy this" instance — record it as the rule's
-**Example**: a `path:line` **pointer**, not inlined code (a pointer stays cheap and just-in-time — the
+**Example**: a `path#anchor` **pointer**, not inlined code (a pointer stays cheap and just-in-time — the
 agent opens it only when following the rule). Optional per rule: fill it only when a single site clearly
 shows the shape, and never fabricate one (**CF-1**). Floor rules are prohibitions ("never do X"), so an
 example is usually pointless — skip it there. The Example is a *pointer among* the evidence, not extra

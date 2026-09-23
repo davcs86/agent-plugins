@@ -40,9 +40,10 @@ skill to *resolve* it, or stop.
 
 A departure from a Norm must be answered (a fix, or a recorded, user-waived trade-off).
 
-- **CF-N1 — Evidence-cited rules.** Every binding rule cites the `path:line` where the repo already
-  states or enforces it (a doc line, a CI step, a lint config, a branch/migration convention). A
-  rule with no home in the repo is a candidate, not a rule (see **CF-1**).
+- **CF-N1 — Evidence-cited rules.** Every binding rule cites the **content anchor** (see **CF-N13**)
+  where the repo already states or enforces it (a doc line, a CI step, a lint config, a
+  branch/migration convention). A rule with no home in the repo is a candidate, not a rule
+  (see **CF-1**).
 - **CF-N2 — Behavior vs. fact separation.** The behavioral contract holds only the four repo-agnostic
   *behaviors* — how the agent should act. Repo-specific *facts* (build commands, ports, naming
   schemes, hard rules) stay in the constitution and the body of `CLAUDE.md`. Never fatten the
@@ -88,8 +89,8 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   alignment contract) is a constitution rule or gotcha. A **defect** — a latent bug, dead/orphaned
   code, an unused config key, or **documentation that describes behavior the code does not have** — is
   NOT a rule (you don't govern "the audit route has an auth gap"); it goes to the **findings log**
-  (`context-constitution-findings.md`, sibling to the constitution) with its `path:line`/commit citation and a
-  suggested action, so it is actioned rather than frozen into governance. Both are durable outputs;
+  (`context-constitution-findings.md`, sibling to the constitution) with its **content-anchored** citation
+  (**CF-N13**) or commit and a suggested action, so it is actioned rather than frozen into governance. Both are durable outputs;
   neither is dropped. **The scrubber honors this in reverse:** a *contradicted-by-code* line that is such a
   defect (documented behavior the code lacks — a dead config key, a fictional dependency, an unimplemented
   event, a promised safety/risk control) is **routed** to the findings log and deferred to
@@ -125,3 +126,25 @@ A departure from a Norm must be answered (a fix, or a recorded, user-waived trad
   and dismissed rows stay in the file, dated and reasoned; they just leave the *open* sections a human
   is meant to action. A resolved/dismissed disposition requires an actual re-check or an actual human
   answer, never a guess (**CF-1**).
+- **CF-N13 — Citations are content-anchored, not line-keyed.** A raw `path:line` rots the instant any
+  edit lands above it, and in a large multi-tenant repo the *same* relative path shape recurs under many
+  tenants/modules, so a bare path + line is both fragile and ambiguous — the churn (and false-positive
+  "stale" flags) this toolkit exists to prevent. So every code citation an artifact emits names a **stable
+  content anchor**: a symbol grep can resolve (a function, type, const, migration id) or a doc heading, or
+  — only when no symbol fits — a **short unique quoted snippet**. Write it `path#anchor`, with `path`
+  **repo-root-relative and module-qualified** (never a tenant-ambiguous relative shape). A line number is
+  only ever an **approximate, regenerable hint**, appended as `(~L<line>)` — never the citation's identity.
+  Consequences that bind both skills:
+  - **Staleness is anchor-resolution, not line-match.** A citation is **stale only when its anchor no
+    longer resolves** (renamed/deleted symbol, grep zero hits), never when the `~L` hint merely drifted.
+    A drifted hint is re-stamped in place as metadata (like the header provenance line) — not a rule
+    change (**CF-4**) and not a scrubber finding. This is the single change that stops constant re-flagging
+    in a churning repo.
+  - **Ambiguity is disambiguated or deduped, never guessed.** When an anchor resolves at **multiple**
+    sites, the citation carries the module-qualified path that singles one out (or the rule is deduped up
+    the tree, **CF-N3**). An unqualified anchor that resolves in more than one tenant is itself a citation
+    defect to fix, not valid grounding (**CF-1**).
+  - **Legacy citations stay valid input.** A pre-existing `path:line` is read as before; a `refresh` /
+    re-audit **re-grounds** it to `path#anchor` when it next touches that row, and treats a legacy
+    line-only citation whose file still exists but whose line drifted as **re-ground the anchor**, never
+    **retire**. Multi-site (`×N`) evidence anchors each of the N sites the same way.

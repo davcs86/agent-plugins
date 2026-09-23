@@ -10,8 +10,11 @@ miss on a normal read; you *find and report* the low-signal content already sitt
 the lines that **fail the litmus test** (**CF-N4**) and cost tokens on every load without changing how the agent
 works. You audit seven kinds of failing content:
 
-- **Stale citations** — a `path:line` the context file cites that no longer resolves (file moved/deleted, or the
-  line drifted off the cited code).
+- **Stale citations** — a citation whose **content anchor** no longer resolves (the symbol/heading was renamed or
+  deleted, or the file moved/is gone — grep finds nothing). A citation whose anchor still resolves but whose
+  `~L` line hint merely drifted is **not** stale (**CF-N13**): the hint is regenerable metadata, so a bare
+  line-number drift is never a finding — that is the false-positive this toolkit must not manufacture in a
+  churning multi-tenant repo.
 - **Restated facts an agent reads for free** — a line that just repeats what's plain in the single file an agent
   would edit, a manifest/dependency list, or a doc/CI file it already loads.
 - **Cross-file duplication** — the same rule/fact stated in more than one context file (violates dedup-up-the-tree,
@@ -39,9 +42,9 @@ first, and any in-place trim happens only behind an explicit gate.
 confirm its verdicts yourself and produce the findings file.
 
 **Never invent (CF-1).** Every "fails the litmus test" verdict cites the evidence that makes it fail — the
-free-to-read `path:line`, the contradicting site, a duplicate location, or a citation that provably no longer
-resolves. A line you merely *suspect* is low-value, with no such basis, is `keep-but-verify` — never asserted as
-removable.
+free-to-read `path#anchor`, the contradicting site, a duplicate location, or a citation whose **anchor** provably
+no longer resolves (not a merely drifted `~L` hint — **CF-N13**). A line you merely *suspect* is low-value, with
+no such basis, is `keep-but-verify` — never asserted as removable.
 
 **Interactive gates.** Every gate uses one structured multiple-choice prompt — the `AskUserQuestion` tool in
 Claude Code. Where that tool isn't available (e.g. under Cursor), ask the same question, with the same options, in
@@ -133,11 +136,12 @@ the repo (symlinked to a shared/global library) are excluded — not the repo's 
 Read **`reference/audit-protocol.md`** and follow it. In short: hand the discovered target list to a
 `context-auditor` subagent (Agent tool). For a large repo or a monorepo with many context files, spawn one
 auditor **per file cluster in parallel** (one message, multiple Task calls), each returning a scoped digest. Each
-verdict ties a context line (`file:line`) to exactly one of the five categories, plus the **evidence it fails**
+verdict ties a context line (`file#anchor`) to exactly one of the five categories, plus the **evidence it fails**
 and a suggested action.
 
 Then **you confirm every verdict yourself** before it can enter the findings file (**CF-1, CF-3**): resolve a
-claimed-stale `path:line` against the tree, open the contradicting site, confirm a duplicate actually matches —
+claimed-stale citation by grepping its **anchor** across the tree (never by checking a line number — **CF-N13**),
+open the contradicting site, confirm a duplicate actually matches —
 no verdict is auditor's-word-only. The auditor is read-only and never writes; you are the only writer.
 
 Present a 4–8 line summary: files audited, count of failing lines by category, and the `keep-but-verify` count.
@@ -152,8 +156,8 @@ in scratch mode). Its header records the audit date plus the branch + commit thi
 1. **No silent drops (CF-N8).** Every confirmed verdict lands under its category section; confidence ranks a
    finding *within* the report (higher-token / higher-certainty first), it never deletes one. An ungrounded
    suspicion lands under `## Keep-but-verify`, phrased as a question — never asserted as removable (**CF-1**).
-2. **One row per failing context line**, cited on both sides: the context `file:line`, the evidence it fails
-   (the free-to-read `path:line`, the contradicting site, the duplicate location, or — for *just-in-time* and
+2. **One row per failing context line**, cited on both sides: the context `file#anchor`, the evidence it fails
+   (the free-to-read `path#anchor`, the contradicting site, the duplicate location, or — for *just-in-time* and
    *brittle* — the reason it's mis-placed or over-specified), the category, why it fails, and a suggested action
    — `remove` / `trim` / `move-to-<doc>` (just-in-time) / `trim to a heuristic` (brittle) / `keep-but-verify`.
    A *just-in-time* row's action leaves a pointer behind (it relocates, it doesn't delete); a *brittle* row keeps
