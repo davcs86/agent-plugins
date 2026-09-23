@@ -3,6 +3,10 @@
   empty section. Keep it dense. Every rule is grounded (multi-site citations, one authoritative
   site, or a commit/PR) and — where known — carries a one-line *why*. Do NOT restate rules the repo
   already documents or CI enforces; those are pointers at most. Do not copy this comment into output.
+  Every code citation is content-anchored — `path#anchor` (a grep-resolvable symbol/heading,
+  module-qualified from the repo root), with the line only an optional `(~Lnn)` hint, never the
+  identity (CF-N13). A citation stays valid as lines drift; it goes stale only when its anchor is
+  renamed or removed.
 -->
 # <Target name> — Constitution
 
@@ -22,7 +26,7 @@ enforces (see `## Pointers`). Refresh by re-running `/context-constitution`.
 
 | ID | Rule | Why | Evidence |
 |---|---|---|---|
-| **<PREFIX>-01** | <the invariant> | <one line — often a scar> | `path:line`×N / commit / PR |
+| **<PREFIX>-01** | <the invariant> | <one line — often a scar> | `path#anchor`×N / commit / PR |
 
 ## Rules (`<PREFIX>-*`) — binding, easy-to-miss conventions
 
@@ -30,15 +34,15 @@ The **Example** column is a *pointer* to the one site that best demonstrates the
 copy when following it (few-shot by reference, not inlined code). Fill it only when a single site clearly shows
 the shape; leave it `—` otherwise. Never invent one (**CF-1**).
 
-| ID | Rule | Why | Evidence | Example (canonical `path:line`) |
+| ID | Rule | Why | Evidence | Example (canonical `path#anchor`) |
 |---|---|---|---|---|
-| **<PREFIX>-NN** | <the undocumented convention or cross-module contract> | <why it holds> | `path:line`, `path:line`, … | `path:line` (copy this) / — |
+| **<PREFIX>-NN** | <the undocumented convention or cross-module contract> | <why it holds> | `path#anchor`, `path#anchor`, … | `path#anchor` (copy this) / — |
 
 ## Norms (`<PREFIX>-*`) — defaults & asymmetry guidance
 
-| ID | Norm | Why | Evidence | Example (canonical `path:line`) |
+| ID | Norm | Why | Evidence | Example (canonical `path#anchor`) |
 |---|---|---|---|---|
-| **<PREFIX>-NN** | <the default; or "follow X's shape, not the Y outlier"> | <rationale> | `path:line` (norm) vs `path:line` (outlier) | `path:line` (the shape to follow) / — |
+| **<PREFIX>-NN** | <the default; or "follow X's shape, not the Y outlier"> | <rationale> | `path#anchor` (norm) vs `path#anchor` (outlier) | `path#anchor` (the shape to follow) / — |
 
 ## Gotchas & scars
 
@@ -46,7 +50,7 @@ Tier-3 knowledge that isn't a rule so much as a landmine map — *why* a thing t
 intentional, and what broke when someone "fixed" it. Each cites the code and the commit/PR/human
 answer it came from.
 
-- **<gotcha>** — <the trap, and the wrong move it prevents>. Evidence: `path:line` + <commit/PR>.
+- **<gotcha>** — <the trap, and the wrong move it prevents>. Evidence: `path#anchor` + <commit/PR>.
 - (or "_None recovered._")
 
 ## Candidate rules (unverified)
@@ -61,7 +65,7 @@ Plausible but not yet grounded — confirm or drop before treating as binding.
 
 | What | Where |
 |---|---|
-| <stated rule or CI gate> | `path:line` |
+| <stated rule or CI gate> | `path#anchor` |
 
 <!-- Write "_None._" under any section with no entries rather than leaving it blank. -->
 

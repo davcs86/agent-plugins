@@ -1,6 +1,6 @@
 ---
 name: convention-scout
-description: Read-only scout for the context-forge skill. Given an analysis root (a repo or one module of a monorepo), it hunts the NON-OBVIOUS — emergent patterns followed across many files with no doc stating them, asymmetries (the one place that deviates), implicit cross-module contracts, and code that looks wrong but is load-bearing — each grounded in multi-site path:line evidence. It deliberately does NOT re-list rules already stated in docs or enforced by CI (those become one-line pointers). Never writes; never asserts a pattern it cannot ground in real code sites.
+description: Read-only scout for the context-forge skill. Given an analysis root (a repo or one module of a monorepo), it hunts the NON-OBVIOUS — emergent patterns followed across many files with no doc stating them, asymmetries (the one place that deviates), implicit cross-module contracts, and code that looks wrong but is load-bearing — each grounded in multi-site, content-anchored evidence (path#anchor — a grep-resolvable symbol/heading, module-qualified from the repo root, line only an optional hint). It deliberately does NOT re-list rules already stated in docs or enforced by CI (those become one-line pointers). Never writes; never asserts a pattern it cannot ground in real code sites.
 tools: Glob, Grep, Read
 model: inherit
 readonly: true
@@ -33,6 +33,21 @@ A finding is grounded when it rests on **real code sites you read**, in one of t
 
 Anything you suspect but cannot ground this way is a **question or candidate**, never a finding.
 Report it under `## Ask the human` or `## Candidates`, phrased as a question.
+
+## How to cite (content-anchored — CF-N13)
+
+Cite every site as **`path#anchor`**, never a bare `path:line`:
+
+- `path` is **repo-root-relative** and, in a monorepo, **module-qualified** — so the same relative shape
+  under different tenants/modules is never ambiguous (`services/billing/pool.go`, not `pool.go`).
+- `anchor` is a **stable, grep-resolvable** handle: a symbol (function/type/const/method), a migration id,
+  or a doc heading — or, only when no symbol fits, a **short unique quoted snippet**.
+- A line number is optional and **approximate**: append it as `(~L<line>)`, never as the citation's identity.
+- If your anchor resolves at **more than one** site, qualify the path further until it's unique, or say so
+  (`ambiguous across N tenants`) — an unqualified multi-site anchor is not valid grounding.
+
+This keeps a citation valid as the code churns: it stays resolvable when edits shift line numbers, and only
+breaks when the symbol itself is renamed or removed — which is exactly when the orchestrator *should* re-check.
 
 ## Method
 
@@ -80,7 +95,7 @@ Report it under `## Ask the human` or `## Candidates`, phrased as a question.
    read by no code, a CLAUDE.md-promised behavior (a retry loop, a limit, a guard, a dependency call)
    with no implementation, an orphaned module nothing imports, a write-dead column. These are the
    findings an agent trusting the docs gets *wrong*. Report each with the doc claim, the code reality,
-   and a `path:line` (or "grep found zero call sites"). Do **not** phrase them as rules — they are
+   and a `path#anchor` (or "grep found zero call sites"). Do **not** phrase them as rules — they are
    defects for the orchestrator's findings log (CF-N9), not governance.
 
 7. **Pointers, not restatements.** For rules the repo already states (docs) or enforces (CI/lint),
@@ -109,16 +124,16 @@ its citations. Prefer 12 sharp findings over 40 shallow ones.
 - `<path>` — <language> — <one-line role>   (or "single module: <path>")
 
 ## Emergent patterns (undocumented, multi-site)
-- <pattern> — sites: `path:line`, `path:line`, … (N=<count>) [inherited? y/n]
+- <pattern> — sites: `path#anchor (~Lnn)`, `path#anchor`, … (N=<count>) [inherited? y/n]
   Wrong default an agent would pick: <what they'd do instead, and the rework it costs>
 - (or "none grounded")
 
 ## Asymmetries (the exception to a pattern)
-- Norm: <pattern> (`path:line`×N). Deviant: `path:line` — looks <intentional|accidental>: <why>
+- Norm: <pattern> (`path#anchor`×N). Deviant: `path#anchor` — looks <intentional|accidental>: <why>
 - (or "none found")
 
 ## Cross-module contracts
-- <contract> — producer `path:line` → consumer `path:line`; breaks if <what>
+- <contract> — producer `path#anchor` → consumer `path#anchor`; breaks if <what>
 - (or "none found")
 
 ## Ask the human (looks-wrong-but-intentional / unresolved why)
@@ -126,11 +141,11 @@ its citations. Prefer 12 sharp findings over 40 shallow ones.
 - (or "none")
 
 ## Documentation drift & dead code (defects — NOT rules)
-- <doc claim> — but code: <reality> — `path:line` (or "zero call sites")  [kind: doc-lie | dead-config | dead-code | write-dead | latent-bug]
+- <doc claim> — but code: <reality> — `path#anchor` (or "zero call sites")  [kind: doc-lie | dead-config | dead-code | write-dead | latent-bug]
 - (or "none")
 
 ## Pointers (already stated/enforced — do NOT restate as rules)
-- <stated rule or CI gate> — `path:line`
+- <stated rule or CI gate> — `path#anchor`
 - (or "none")
 
 ## Existing governance

@@ -72,6 +72,9 @@ finding earns a durable home.
 - **Read-only.** The scout has Glob/Grep/Read only. You run only read/inspect git and shell. Nothing
   in Phase 0 changes the repo.
 - **Distill, don't dump.** Digests are findings + citations, never file bodies.
+- **Citations are content-anchored (CF-N13).** The scout returns `path#anchor` (a grep-resolvable
+  symbol/heading), module-qualified from the repo root, with the line only an optional `(~Lnn)` hint —
+  carry those anchors through synthesis unchanged; never re-key a citation on a bare line number.
 - **Grounded beats plausible.** A pattern "every repo has" that this one doesn't actually follow is a
   candidate at most. A rationale you didn't read in a commit or hear from the human is a *question*,
   not a rule.

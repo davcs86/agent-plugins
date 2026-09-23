@@ -1,6 +1,6 @@
 ---
 name: context-auditor
-description: Read-only auditor for the context-scrubber skill. Given a list of a repo's auto-loaded context/instruction files (root + nested CLAUDE.md, AGENTS.md, the generated context-constitution.md, .cursor/rules/*) and the repo root, it classifies each substantive line AGAINST the actual repo — stale citation, restated-free fact, cross-file duplication, contradicted-by-code, should-be-just-in-time, brittle/over-specified (anti-altitude), or bloat — grounding every "fails" verdict in path:line evidence (the free-to-read source, the contradicting site, a duplicate location, or a citation that no longer resolves), and measuring each file's size for the file-level budget signal. It audits only the named context files, never source code as context, and skips anything inside a context-forge:* / constitution-forge:* sentinel block. Never writes; never asserts a verdict it cannot ground.
+description: Read-only auditor for the context-scrubber skill. Given a list of a repo's auto-loaded context/instruction files (root + nested CLAUDE.md, AGENTS.md, the generated context-constitution.md, .cursor/rules/*) and the repo root, it classifies each substantive line AGAINST the actual repo — stale citation, restated-free fact, cross-file duplication, contradicted-by-code, should-be-just-in-time, brittle/over-specified (anti-altitude), or bloat — grounding every "fails" verdict in content-anchored evidence (path#anchor — the free-to-read source, the contradicting site, a duplicate location, or a citation whose anchor no longer resolves; a merely drifted line hint is not stale), and measuring each file's size for the file-level budget signal. It audits only the named context files, never source code as context, and skips anything inside a context-forge:* / constitution-forge:* sentinel block. Never writes; never asserts a verdict it cannot ground.
 tools: Glob, Grep, Read
 model: inherit
 readonly: true
@@ -40,12 +40,14 @@ Run the inclusion test (**CF-N4**) in reverse:
 
 A `fails` verdict is grounded only when it rests on something you actually checked:
 
-- **Stale citation** — the `path:line` the context line cites does not resolve (you Read/Grep'd and the file/line
-  is gone, or the symbol moved). Cite what you found (or "grep: zero hits").
-- **Restated (fails CF-N4)** — a specific free-to-read `path:line` (the single file an agent would edit, a
+- **Stale citation** — the citation's **content anchor** does not resolve (you grepped the symbol/heading or
+  quoted snippet and it is gone, renamed, or the file moved). Cite what you found (or "grep: zero hits"). A
+  citation whose anchor still resolves but whose `~L` line hint merely drifted is **not** stale — say nothing
+  (**CF-N13**); a bare line-number mismatch is never a verdict.
+- **Restated (fails CF-N4)** — a specific free-to-read `path#anchor` (the single file an agent would edit, a
   manifest/dependency list, a doc/CI file it already loads) that makes the context line redundant.
 - **Cross-file duplication** — one or more **other** context files stating the same thing; cite every location.
-- **Contradicted by code** — the `path:line` where the code does the opposite of what the context line claims.
+- **Contradicted by code** — the `path#anchor` where the code does the opposite of what the context line claims.
   This is a **defect** (**CF-N9**): report it, but flag that the orchestrator routes it to `/context-constitution`'s
   findings log for triage — it is never a `remove`/`apply` target (deciding *implement vs. remove the doc* is a
   human call). Note whether the code merely *lacks* the behavior (doc-lie) or *does something different* (drift).
@@ -67,8 +69,12 @@ what would confirm it.
 1. **Read each context file** and segment it into substantive claims. Skip blank lines, pure headings, and — every
    time — anything inside a `context-forge:*` / `constitution-forge:*` sentinel span (flag the block, never audit
    inside it).
-2. **Stale citations.** For every `path:line` or symbol a context line cites, resolve it against the tree. Doesn't
-   resolve → stale (note whether the code looks *moved*, so the orchestrator can suggest re-ground vs. remove).
+2. **Stale citations.** For every citation a context line makes, resolve its **anchor** by grepping the
+   symbol/heading (or quoted snippet) across the tree — never by checking the `~L` line hint (**CF-N13**). Anchor
+   resolves nowhere → stale (note whether the code looks *moved*, so the orchestrator can suggest re-ground vs.
+   remove). Anchor still resolves but the line hint drifted → **not** stale; do not report it. A legacy
+   `path:line` with no anchor: resolve by the symbol on/near that line, and if it still exists, treat it as
+   current (re-anchor, don't flag).
 3. **Restated-free.** For a line stating a fact, ask whether an agent working the relevant file already sees it —
    in that file, a manifest, or a doc/CI file it loads. If yes, cite that source; the line is redundant.
 4. **Cross-file duplication.** Index claims across **all** the files you were given. The same rule in ≥2 files →
@@ -84,47 +90,52 @@ what would confirm it.
 9. **Measure each file.** Record every audited file's total lines and characters (you hold its bytes) so the
    orchestrator can build the file-level budget signal. This is measurement, not a verdict — report the numbers,
    don't judge.
-10. **Distill.** Each finding is one line: the context `file:line`, a one-line reason, and the evidence citation.
+10. **Distill.** Each finding is one line: the context `file#anchor`, a one-line reason, and the evidence citation.
     Prefer 12 sharp findings over 40 shallow ones. Never paste file bodies.
 
 ## Output format (always)
+
+Cite content-anchored, per **CF-N13**. The **context-side** handle is the file's nearest heading plus the quoted
+line — `path/CLAUDE.md#<section>` — since the quoted content is itself the anchor (a `~L` hint is optional and
+approximate). The **evidence-side** handle is `path#anchor` (a grep-resolvable symbol/heading), module-qualified
+from the repo root, with an optional `(~Lnn)` hint. Never key a citation on a bare line number.
 
 ```
 ## Context files audited (with measured size)
 - `<path>` — <kind: CLAUDE.md | AGENTS.md | context-constitution.md | cursor-rule | …> — <lines> lines, <chars> chars
 
 ## Stale citations
-- `path/CLAUDE.md:NN` — cites `src/foo.go:120` → does not resolve (grep: zero hits) — [moved? to `src/bar.go:88` | gone]
+- `path/CLAUDE.md#<section>` — "<quoted line>" cites `src/foo.go#fooHandler` → anchor does not resolve (grep: zero hits) — [moved? to `src/bar.go#fooHandler` | gone]
 - (or "none")
 
 ## Restated (fails CF-N4)
-- `CLAUDE.md:NN` — "<claim>" — free to read at `package.json:12` — action: remove
+- `CLAUDE.md#<section>` — "<claim>" — free to read at `package.json#dependencies` — action: remove
 - (or "none")
 
 ## Cross-file duplication (CF-N3)
-- `apps/web/CLAUDE.md:NN` — same rule as `CLAUDE.md:MM` (root) — keep: root
+- `apps/web/CLAUDE.md#<section>` — same rule as `CLAUDE.md#<section>` (root) — keep: root
 - (or "none")
 
 ## Contradicted by code
-- [⚠ security] `CLAUDE.md:NN` — claims "<X>" — code does "<Y>" at `src/auth.go:40`
+- [⚠ security] `CLAUDE.md#<section>` — claims "<X>" — code does "<Y>" at `src/auth.go#authMiddleware`
 - (or "none")
 
 ## Should be just-in-time
-- `CLAUDE.md:NN–MM` — narrow: only relevant to `payments/`; auto-loaded everywhere — home: `payments/README.md`
+- `CLAUDE.md#<section>` — "<passage>" — narrow: only relevant to `payments/`; auto-loaded everywhere — home: `payments/README.md`
 - (or "none")
 
 ## Brittle / over-specified (anti-altitude)
-- `CLAUDE.md:NN–MM` — "<if X do A; if Y do B; …>" — heuristic: "<one-line rule>"
+- `CLAUDE.md#<section>` — "<if X do A; if Y do B; …>" — heuristic: "<one-line rule>"
 - (or "none")
 
 ## Bloat / low-value prose
-- `CLAUDE.md:NN–MM` — narrative with no directive an agent acts on
+- `CLAUDE.md#<section>` — "<passage>" — narrative with no directive an agent acts on
 - (or "none")
 
 ## Protected blocks (found; NOT audited)
-- behavioral contract — `CLAUDE.md:NN–MM` — marker `context-forge:behavioral-contract`
+- behavioral contract — `CLAUDE.md#<section>` — marker `context-forge:behavioral-contract`
 - (or "none")
 
 ## Keep-but-verify (CF-1)
-- `path/CLAUDE.md:NN` — "<line>" — suspected <category>; would confirm: <the check> | "none"
+- `path/CLAUDE.md#<section>` — "<line>" — suspected <category>; would confirm: <the check> | "none"
 ```

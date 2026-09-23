@@ -1,6 +1,6 @@
 ---
 name: context-constitution
-description: "Capture the undocumented rules of a codebase — conventions nobody wrote down, the one file that breaks the pattern, and the scars behind them — into an evidence-cited context-constitution.md, plus a behavioral contract prepended to CLAUDE.md. Use when the user wants to write, generate, bootstrap, or improve a CLAUDE.md / AGENTS.md / agent instructions file; document a repo's conventions, house style, or tribal knowledge; onboard an agent to an unfamiliar or inherited codebase; or fix an agent that 'keeps making the same mistake', 'doesn't know how we do things here', or 'has to be told the same thing every session'. Also for 'our CLAUDE.md is out of date / has drifted' — that's `refresh`. Usage: `context-constitution [scan|write|refresh] [path]`; `scan` writes nothing. Every rule cites path:line; nothing is invented."
+description: "Capture the undocumented rules of a codebase — conventions nobody wrote down, the one file that breaks the pattern, and the scars behind them — into an evidence-cited context-constitution.md, plus a behavioral contract prepended to CLAUDE.md. Use when the user wants to write, generate, bootstrap, or improve a CLAUDE.md / AGENTS.md / agent instructions file; document a repo's conventions, house style, or tribal knowledge; onboard an agent to an unfamiliar or inherited codebase; or fix an agent that 'keeps making the same mistake', 'doesn't know how we do things here', or 'has to be told the same thing every session'. Also for 'our CLAUDE.md is out of date / has drifted' — that's `refresh`. Usage: `context-constitution [scan|write|refresh] [path]`; `scan` writes nothing. Every rule cites a stable content anchor (path#anchor, line an optional hint); nothing is invented."
 argument-hint: "[scan|write] [path]"
 allowed-tools: Read Write Edit AskUserQuestion Task Bash(ls *) Bash(find *) Bash(grep *) Bash(cat *) Bash(git log *) Bash(git show *) Bash(git rev-parse *) Bash(git merge-base *) mcp__Context7__resolve-library-id mcp__Context7__query-docs
 disable-model-invocation: true
@@ -143,8 +143,9 @@ Read **`reference/synthesis-protocol.md`** and follow it. Per target (each modul
 3. **Dedup up the tree (CF-N3).** A rule that holds repo-wide belongs in the **root** constitution;
    a module constitution states only what is specific to that module and *points to* the root for
    inherited rules — never restates them. Cross-module contracts and repo-wide defects live at the root.
-4. **Evidence or candidate (CF-1).** Every emitted rule cites `path:line` (or a commit). Anything
-   plausible but unverified goes under `## Candidate rules (unverified)`, never asserted.
+4. **Evidence or candidate (CF-1).** Every emitted rule cites a **content anchor** — `path#anchor`, a
+   stable symbol/heading grep resolves, with the line only an optional `(~Lnn)` hint (**CF-N13**) — or a
+   commit. Anything plausible but unverified goes under `## Candidate rules (unverified)`, never asserted.
 5. **Build the behavioral contract** from `templates/behavioral-contract.md` (the canonical block —
    single source); `reference/synthesis-protocol.md` Step 6 covers the `citeIds` variant. If `citeIds`
    is on and this target produced a constitution, each behavior cites the IDs that enforce it;
@@ -184,7 +185,8 @@ Only after Approve, and never in `scan` mode. Per target:
    date + branch + commit provenance ref as the constitution. Skip the file only when the
    target has zero defects — never manufacture an empty one. If a findings log already exists for this
    target, first run the staleness re-check on its open rows (same method as `refresh-protocol.md`
-   Phase 0′ step 3: re-resolve each cited `path:line`/doc claim against current code) and move any that
+   Phase 0′ step 3: re-resolve each cited **anchor**/doc claim against current code — the anchor, not a
+   line number (**CF-N13**)) and move any that
    no longer reproduce to `## Resolved`, dated, with how it was confirmed — don't just append on top of
    stale rows.
 5. **Findings triage gate (CF-N12).** If this run added any *new* findings-log rows, run one triage

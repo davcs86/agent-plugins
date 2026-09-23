@@ -3,6 +3,8 @@
   fix, not an invariant to respect (CF-N9). Written as <constitutionPath dir>/context-constitution-findings.md,
   sibling to the constitution, per target (root + each module). Nothing the scout grounded is dropped
   (CF-N8): if it isn't a rule/pointer/gotcha/candidate, it lands here. Scratch mode emits it inline.
+  Every citation is content-anchored — `path#anchor` (a grep-resolvable symbol/heading, module-qualified
+  from the repo root), the line only an optional `(~Lnn)` hint, never the identity (CF-N13).
   Do not copy this comment into the output.
 -->
 # <Target name> — Constitution Findings
@@ -24,19 +26,19 @@ open, or dismiss with a recorded reason to `## Dismissed (won't fix)`) instead o
 
 | What the docs say | What the code does | Evidence | Suggested action |
 |---|---|---|---|
-| <documented behavior / config key / dependency> | <not implemented / read by no code / never called> | `path:line` or "zero call sites" | fix the code, or correct the doc |
+| <documented behavior / config key / dependency> | <not implemented / read by no code / never called> | `path#anchor` or "zero call sites" | fix the code, or correct the doc |
 
 ## Latent bugs (looks broken, not merely non-obvious)
 
 | Issue | Impact | Evidence |
 |---|---|---|
-| <the bug> | <what breaks, for whom> | `path:line` (+ commit if a regression) |
+| <the bug> | <what breaks, for whom> | `path#anchor` (+ commit if a regression) |
 
 ## Dead / orphaned code
 
 | What | Why it looks dead | Evidence |
 |---|---|---|
-| <module / column / config key / handler> | <nothing imports/reads/writes it> | `path:line` (+ "grep: zero call sites") |
+| <module / column / config key / handler> | <nothing imports/reads/writes it> | `path#anchor` (+ "grep: zero call sites") |
 
 ## Open questions (unresolved *why* — needs a maintainer)
 
@@ -54,7 +56,7 @@ from scratch, it is reported again rather than assumed still-dismissed.
 
 | What the docs say / issue | Evidence | Dismissed | Reason |
 |---|---|---|---|
-| <original finding> | `path:line` | <ISO date> | <the human's stated reason> |
+| <original finding> | `path#anchor` | <ISO date> | <the human's stated reason> |
 
 ## Resolved
 
@@ -63,7 +65,7 @@ never assumed from an empty diff or a stale citation going unresolved.
 
 | What the docs say / issue | Evidence (was) | Resolved | How confirmed |
 |---|---|---|---|
-| <original finding> | `path:line` | <ISO date> | <e.g. "code now implements it" / "doc line removed"> |
+| <original finding> | `path#anchor` | <ISO date> | <e.g. "code now implements it" / "doc line removed"> |
 
 <!-- Write "_None._" under any section with no entries rather than leaving it blank. -->
 
