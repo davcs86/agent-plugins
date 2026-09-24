@@ -69,6 +69,24 @@ A three-stage pipeline you can enter at any stage.
 > quirks — so it belongs beside the code that can change them, where a breaking change and
 > the skill update it forces ship in the same pull request.
 
+### [`repo-surveyor`](plugins/repo-surveyor/) — survey the codebase, cite everything
+
+Three staff-level lenses that scout a repo and emit evidence-cited findings reports — read-only
+by default, and never a vague "you should refactor": always a `path:line`, a severity, and a
+labeled estimate.
+
+| Skill | Use it when |
+|---|---|
+| **`debt-radar`** | You want the real technical debt found and *triaged* — code smells, dead code, swallowed/silenced errors, brittle patterns — each confirmed with a `path:line`, a severity, a benefit, a T-shirt LOE, and an explicit **do-vs-not-do** trade-off. A `verify` mode re-checks whether a past finding (or a pasted issue) is now resolved against current code — repo-local, no tracker required. |
+| **`feature-gap`** | You want the **user-facing surface** — UI routes, MCP tool schemas, CLI commands, public/exported API — mapped for feature gaps, cross-surface inconsistencies, low-discoverability features, additive feature ideas, and the **product metrics** worth tracking. Static and recommendation-only: it reads the surface, it doesn't measure live traffic. |
+| **`signal-map`** | You want **surgical** observability guidance — the minimum logs/metrics/traces at the maximum-leverage points (error branches, hot paths, feature boundaries) so failures are visible and feature performance is measurable. Each gap cites the `path:line`, the signal type, and the question it answers. |
+
+The two metric-touching lenses split by audience: `feature-gap` recommends *product* metrics (what
+to measure and why), `signal-map` recommends *instrumentation placement* (where in code) — they
+cross-reference rather than overlap. Severity uses the repo's own priority system when one is
+detected, else an Eisenhower → P0–P3 fallback. Ships a runnable [`plugin eval`](plugins/repo-surveyor/evals/)
+regression suite so skill changes can be tested against fixed cases.
+
 ## What you get, concretely
 
 Both context-forge skills were run against this repository, and the results are

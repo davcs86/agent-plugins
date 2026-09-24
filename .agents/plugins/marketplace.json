@@ -26,6 +26,17 @@
       },
       "category": "Productivity",
       "keywords": ["context-engineering", "constitution", "claude-md", "governance", "conventions", "behavioral-contract", "token-budget", "context-hygiene", "monorepo", "codebase-analysis"]
+    },
+    {
+      "name": "repo-surveyor",
+      "source": "./plugins/repo-surveyor",
+      "description": "Three staff-level survey lenses that scout a codebase and emit evidence-cited findings: debt-radar triages technical debt (smells, dead code, swallowed errors) with severity, LOE and do-vs-not trade-offs and verifies past findings; feature-gap maps the user-facing surface (UI, MCP tools, CLI, public API) for gaps, inconsistencies, discoverability and product metrics; signal-map recommends surgical log/metric/trace placement for debugging and feature performance. Read-only; invents nothing — every finding cites a path:line.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity",
+      "keywords": ["technical-debt", "code-smells", "dead-code", "observability", "instrumentation", "product-analytics", "feature-gaps", "code-review", "codebase-analysis", "severity", "loe", "metrics"]
     }
   ]
 }
