@@ -1,0 +1,12 @@
+{
+  "name": "repo-surveyor",
+  "displayName": "Repo Surveyor",
+  "version": "0.1.0",
+  "description": "A repo-agnostic survey plugin: three staff-level lenses that scout a codebase and emit evidence-cited findings reports, inventing nothing. debt-radar digs technical debt (code smells, dead code, swallowed/silenced errors) with a severity, a T-shirt LOE, benefit, and an explicit do-vs-not trade-off per finding, and can verify whether a past finding is now resolved. feature-gap maps the reachable user-facing surface (UI routes, MCP tool schemas, CLI, public/exported API) for gaps, inconsistencies, low discoverability, recommended features, and the product metrics worth tracking. signal-map recommends surgical log/metric/trace placement at hot paths and error branches for debugging and feature-performance. Read-only by default; every finding cites a path:line, symbol, or commit.",
+  "author": {
+    "name": "David Castillo",
+    "email": "davcs86@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["technical-debt", "code-smells", "dead-code", "observability", "instrumentation", "product-analytics", "feature-gaps", "code-review", "codebase-analysis", "severity", "loe", "metrics"]
+}
