@@ -27,6 +27,16 @@ clears a Floor item — the user may steer the work to *resolve* it, or stop.
   absolute ("never …", "always …", "must not …" in its CLAUDE.md, CONTRIBUTING, or docs) is
   treated exactly like a `DF-*` rule. Cite it by verbatim quote + `path:line` — never invent an
   ID for it.
+- **DF-7 — Assumptions are declared before every gate.** Immediately before every user gate,
+  the orchestrator lists every unilateral assumption made so far that the user has not yet
+  confirmed — its own and any a subagent reported: an inferred scope or interpretation, a
+  recommended or defaulted choice, a resolved input file, a filled gap, a severity demotion, a
+  judgment call between options. One line each, with its basis (`path:line` evidence, or "no
+  evidence — judgment"), under an **Assumptions (unconfirmed)** heading; when there are none, it
+  says "none" — never omits the block. Every assumption, with its gate outcome (`confirmed`, or
+  `corrected → <what the user said>`), is persisted in the artifact's `## Assumptions` section.
+  Listing an assumption never legalizes a `DF-1`/`DF-2` breach: an unfound path stays under
+  `## Not found`, and real ambiguity is still asked as a gate question, not assumed and listed.
 
 ## Norms (`DN-*`) — must be addressed or explicitly waived at a gate
 

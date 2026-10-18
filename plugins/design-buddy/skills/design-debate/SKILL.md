@@ -18,6 +18,11 @@ the state you synthesize and pass.
 **Interactive gates.** Every user gate below uses a single structured multiple-choice prompt —
 the `AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor),
 ask the same question, with the same options, in plain chat and wait for the answer.
+Immediately before every gate — the first-run interview, B3, and each debate round — print the
+**Assumptions (unconfirmed)** block (**DF-7**): every unilateral assumption made so far that the
+user has not confirmed (yours, plus the proposer's assumptions list), one line each with its
+basis, or "none". Record each one's gate outcome; they all land in the design doc's
+`## Assumptions`.
 
 **Implicit invocation.** This skill may be triggered by the model when a user asks how to
 approach a change, rather than by an explicit command. When that happens, restate the change you
@@ -94,7 +99,8 @@ panel included). A floor breach — a `DF-*` violation or a quoted host hard rul
 blocks Approve at every depth; "proceed anyway" never clears it (**DF-5**).
 
 On approval, write the design doc from `templates/design.md`: Chosen Approach (cited), Rejected
-Alternatives, Open Risks, Principles & Host Rules Touched, Waivers.
+Alternatives, Open Risks, Assumptions (with gate outcomes — **DF-7**), Principles & Host Rules
+Touched, Waivers.
 
 ## COMPLETION
 
@@ -114,6 +120,8 @@ Alternatives, Open Risks, Principles & Host Rules Touched, Waivers.
 - **Mediate every exchange (DF-4).** No participant sees another's raw output.
 - **Never invent (DF-1); never guess past ambiguity (DF-2).**
 - **A floor breach blocks approval at every depth (DF-5, DF-6).**
+- **Declare assumptions before every gate (DF-7).** No gate is asked without the
+  **Assumptions (unconfirmed)** block — "none" is stated, never omitted.
 - **Round bounds by depth.** Never approve below the mandate; never loop past the cap. The user
   may opt into more rounds, never fewer.
 - **Scratch mode writes no files anywhere** — inline artifacts only.

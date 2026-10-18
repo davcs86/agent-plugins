@@ -15,7 +15,14 @@ advisory only — it assesses; you decide, edit, and record.
 
 **Interactive gates.** Every user gate below uses a structured multiple-choice prompt — the
 `AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor), ask
-the same question, with the same options, in plain chat and wait for the answer.
+the same question, with the same options, in plain chat and wait for the answer. Immediately
+before every gate — the first-run interview, the implicit-invocation confirmation, the
+execution-has-begun warning, and each step 4 gate — print the **Assumptions (unconfirmed)** block
+(**DF-7**): every unilateral assumption made so far that the user has not confirmed (the resolved
+plan, a BLOCKER demoted to WARNING, a reviewer finding you interpreted, an amendment you chose),
+one line each with its basis, or "none". They are recorded, with gate outcomes, in the
+`## Review Log` entry (step 5) — never in the plan's own `## Assumptions`, which belongs to the
+**impl-plan** skill.
 
 **Implicit invocation.** This skill may be triggered by the model when a user asks whether a plan
 is ready, rather than by an explicit command. When that happens, name the plan file you resolved
@@ -66,14 +73,16 @@ keyed to criteria, blockers and warnings listed separately. Spot-check before ac
   There is **no waive option for blockers** (**DN-6**).
 - **PASS WITH WARNINGS.** Present each warning and ask: **address now** (amend + log, re-run
   step 3 once) or **waive** (record the waiver + rationale in `## Review Log` — **DN-3**).
-- **PASS.** Proceed to step 5.
+- **PASS.** If assumptions are still unconfirmed, run one confirmation gate for them (**DF-7**);
+  then proceed to step 5.
 
 ### 5. Record the verdict
 
 Edit the plan (scratch mode: re-emit inline):
 - Header: set `**Review**: passed | passed-with-warnings | failed @ <ISO date>`.
 - Append a `## Review Log` section (create if absent): date, verdict, blockers found/fixed,
-  warnings addressed/waived (with rationale), and any step amendments made in step 4.
+  warnings addressed/waived (with rationale), any step amendments made in step 4, and the
+  assumptions declared at this review's gates with their outcomes (**DF-7**).
 
 ### 6. Report
 
@@ -90,5 +99,6 @@ Blockers: <n found, n fixed | none>. Warnings: <n addressed, n waived | none>.
 - **A BLOCKER must be floor-tied.** `DF-*` or a quoted host hard rule — otherwise demote it.
 - **Every plan edit is logged** in `## Review Log`; after execution has begun, edit nothing but
   the header and the log (**DN-5**).
+- **Declare assumptions before every gate (DF-7).** "none" is stated, never omitted.
 - **You are the only writer (DF-3).** The reviewer never edits the plan.
 - **Bounded loop.** At most 2 fix-and-re-review cycles per invocation.

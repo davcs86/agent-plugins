@@ -61,6 +61,8 @@ fidelity checks could not run.
 | Dependencies declared | `## Step Dependencies` says "none" but steps clearly have ordering constraints | WARNING |
 | Tree stays consistent | Executing the steps in order would leave the tree broken between steps (consumer lands before its contract) | WARNING |
 | Header complete | The plan header lacks `**Status**`, `**Test harness**`, `**Total Steps**`, or `**Review**` | WARNING |
+| Assumptions declared | The plan has no `## Assumptions` section, or an entry in it lacks a gate outcome (`confirmed` / `corrected → …`) | BLOCKER (`DF-7`) |
+| Assumptions honored | A step contradicts an assumption the user marked `corrected → …` (in the plan or the design doc's `## Assumptions`) | BLOCKER (`DF-2`) |
 
 ## Verdict shape the agent returns
 

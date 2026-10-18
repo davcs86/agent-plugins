@@ -92,8 +92,9 @@ The config file is committable, so a team shares one setting; gitignore it if yo
 ## Governance
 
 `skills/*/reference/principles.md` ships the portable rule seed the adversary and reviewer cite:
-**Floor rules** `DF-1..6` (never invent paths/symbols; no silent deviation; single orchestrator
-writes; mediated debate; floor blocks approval; host hard rules are floor-equivalent) and
+**Floor rules** `DF-1..7` (never invent paths/symbols; no silent deviation; single orchestrator
+writes; mediated debate; floor blocks approval; host hard rules are floor-equivalent; every
+unilateral assumption is listed before each gate and persisted with its outcome) and
 **Norms** `DN-1..9` (evidence-cited claims; reuse over rebuild = DRY; recorded gates; depth scales
 with the change; plan steps immutable during execution; plans reviewed before execution — a
 failed review blocks it; right-sized design = YAGNI; sound structure = SOLID; and the
@@ -101,6 +102,14 @@ staff-engineer check that keeps SOLID/DRY/YAGNI subordinate to scalability, main
 performance — heuristics, never dogma). Your repo's own absolute rules — "never …", "must not …"
 in CLAUDE.md/CONTRIBUTING/docs — are discovered during recon, quoted verbatim, and enforced like
 floor rules.
+
+> **New in 3.0.0 — `DF-7`, assumptions before every gate.** Before any question it asks you, each
+> skill prints an **Assumptions (unconfirmed)** block: every call it made on its own (inferred
+> scope, recommended depth, resolved input file, demoted finding, …), with its basis, or "none".
+> Your answer confirms or corrects each one, and the outcomes are recorded in `design.md` /
+> `plan.md` under `## Assumptions` (plan-review records its own in `## Review Log`). Breaking:
+> plan-review now fails a plan with no `## Assumptions` section — re-run impl-plan on plans
+> written by 2.x.
 
 ## Development
 
