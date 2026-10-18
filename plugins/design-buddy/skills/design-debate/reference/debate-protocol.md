@@ -45,11 +45,16 @@ depth). The user may always opt into *more* rounds, never fewer than the mandate
    - **Floor status** — any unresolved `DF-*` breach or host hard-rule violation.
 
 4. **Gate (you, via `AskUserQuestion` — DN-3).** Present a tight synthesis (current approach, the
-   strongest surviving objection, floor status) and offer:
+   strongest surviving objection, floor status), preceded by the **Assumptions (unconfirmed)**
+   block (**DF-7**) — the proposer's assumptions list plus any you made while synthesizing, minus
+   those already confirmed at an earlier gate, or "none" — and offer:
    - **Approve design** — selectable only when `R ≥ mandated` for the depth AND there is **no
      unresolved floor breach**. Exit the loop.
    - **Run another round** — feed your synthesis into round R+1.
    - **Inject a constraint / steer** — record the user's note, then run round R+1 with it.
+
+   Choosing Approve or Run another round confirms the listed assumptions; a steer that contradicts
+   one marks it `corrected → <the note>` and turns it into a constraint for round R+1.
 
    Below the mandated count, do not offer Approve — at least one more round is mandatory. At the
    hard cap, present the state and ask the user to approve as-is, accept a documented open risk,
@@ -71,6 +76,8 @@ depth). The user may always opt into *more* rounds, never fewer than the mandate
 - **Rejected Alternatives** — one line each, pulled from the adversary's trade-off analysis (and,
   in deep mode, the losing panel proposals). This is the durable value of the debate.
 - **Open Risks** — anything accepted-but-unresolved, each with where it must be addressed.
+- **Assumptions** — every assumption declared at any gate of this run (boot included), each with
+  its basis and gate outcome (**DF-7**).
 - **Principles & Host Rules Touched** — the DF-*/DN-* IDs and quoted host rules the approach
   interacts with, and how each is honored.
 - **Waivers** — any DN-* objections the user explicitly waived, with rationale.

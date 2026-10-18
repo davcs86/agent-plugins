@@ -25,6 +25,13 @@ only `**Status**` flips, and divergence lands in `## Deviation Log`.
 - Step N requires Step M: <reason>
 - (list all ordering constraints, or "none — steps are independent")
 
+## Assumptions
+
+<Every unilateral assumption declared before a gate while planning (DF-7), with its basis and the
+outcome the user gave. Write "None." if there were none.>
+- <assumption> — basis: <path:line | "no evidence — judgment"> — `confirmed` |
+  `corrected → <what the user said>`.
+
 ---
 
 ### Step N — <title>

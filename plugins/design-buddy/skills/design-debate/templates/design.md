@@ -32,6 +32,14 @@ analysis; in deep mode, also the losing panel proposals.>
 - [ ] <risk> — to be addressed at <plan step / follow-up>.
 - ...
 
+## Assumptions
+
+<Every unilateral assumption declared before a gate in this run (DF-7) — boot, recon, and each
+debate round — with its basis and the outcome the user gave. Write "None." if there were none.>
+- <assumption> — basis: <path:line | "no evidence — judgment"> — gate: <B3 | round N> —
+  `confirmed` | `corrected → <what the user said>`.
+- ...
+
 ## Principles & Host Rules Touched
 
 <The DF-*/DN-* IDs this approach interacts with and how each is honored, plus any host-repo

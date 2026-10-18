@@ -15,7 +15,14 @@ cannot find something, say so explicitly.
 
 **Interactive gates.** Any user gate below uses a structured multiple-choice prompt — the
 `AskUserQuestion` tool in Claude Code. Where that tool isn't available (e.g. under Cursor), ask
-the same question, with the same options, in plain chat and wait for the answer.
+the same question, with the same options, in plain chat and wait for the answer. Immediately
+before every gate — the first-run interview, the no-design-doc warning, the implicit-invocation
+confirmation, and any conflict surfaced under **DF-2** — print the **Assumptions (unconfirmed)**
+block (**DF-7**): every unilateral assumption made so far that the user has not confirmed (the
+resolved input, an inferred area list, a chosen step order, a defaulted harness), one line each
+with its basis, or "none". If planning reaches step 6 with assumptions made after the last gate,
+run one final confirmation gate for them before writing. All of them, with gate outcomes, land in
+the plan's `## Assumptions`.
 
 **Implicit invocation.** This skill may be triggered by the model when a user asks for an
 implementation plan, rather than by an explicit command. When that happens, state which design
@@ -106,5 +113,7 @@ bodies stay immutable (deviations → Deviation Log).
 - **The Chosen Approach is binding.** Conflicts are surfaced (**DF-2**), never silently resolved.
 - **Detected, not assumed.** Test commands, lint commands, and coverage thresholds come from the
   repo's own files, cited — or are omitted.
+- **Declare assumptions before every gate (DF-7).** No gate is asked — and no plan is written —
+  with an unconfirmed assumption left unlisted; "none" is stated, never omitted.
 - **You are the only writer (DF-3).** Subagents never write.
 - **Scratch mode writes no files anywhere** — inline artifacts only.
