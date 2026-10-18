@@ -15,7 +15,7 @@ rework — into durable, complementary artifacts (two core; a third when defects
   Norms), each grounded in real evidence (multi-site citations, an authoritative site, or a commit);
   and
 - a **behavioral contract** prepended to the **root `CLAUDE.md`**: four repo-agnostic behaviors
-  (ask before assuming · minimum viable · surgical diffs · verify against a stated finish line) that
+  (ask before assuming, listing assumptions up front · minimum viable · surgical diffs · verify against a stated finish line) that
   shape *how* an agent works. It goes in the root only — it's generic and `CLAUDE.md` loads from the
   root down, so one copy is always in context; an identical copy per module is the duplication this
   tool fights (**CF-N11**); and
