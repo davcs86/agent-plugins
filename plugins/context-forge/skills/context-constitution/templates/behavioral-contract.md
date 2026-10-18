@@ -15,8 +15,10 @@ Read this first — it governs *how* you work here; everything below is the *wha
 These four behaviors are the operating defaults; the rest of this file (and the constitution) is
 context you load per task.
 
-1. **Don't assume — ask, and surface tradeoffs.** On ambiguity, a missing detail, or a design fork,
-   stop and raise it; never paper over it with a silent guess.
+1. **Don't assume — ask, and surface tradeoffs.** Before acting, always list every assumption you
+   are making on your own — scope, interpretation, defaults, a choice between options — each with
+   its basis, or say "none", so the user can correct one before work builds on it. On ambiguity, a
+   missing detail, or a design fork, stop and raise it; never paper over it with a silent guess.
 2. **Write the minimum that solves the stated problem.** Nothing speculative — no abstraction,
    option, or "while I'm here" scaffolding the task didn't ask for. Would a senior engineer call it
    overbuilt for what was requested? Then simplify.
